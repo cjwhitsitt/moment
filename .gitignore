@@ -1,0 +1,30 @@
+# Universal OS / IDE files
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp
+.vscode/
+.idea/
+
+# Go files
+*.exe
+*.test
+vendor/
+*.out
+
+# Flutter / Dart files
+.dart_tool/
+.packages
+.flutter-plugins
+.flutter-plugins-dependencies
+build/
+*.mode*
+*.ipr
+*.iws
+
+# Node.js / TypeScript files
+node_modules/
+dist/
+functions/lib/
+*.log
+.env*
