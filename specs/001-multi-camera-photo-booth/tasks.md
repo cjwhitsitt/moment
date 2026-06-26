@@ -138,7 +138,7 @@
 - [x] T039 [US2] Update Flutter client to parse expected_frames from WebSocket capture_trigger in clients/mobile/lib/bloc/sync_bloc.dart
 - [x] T040 [US3] Update Flutter client SessionService.updateFrameUpload to write expectedFrames to Firestore in clients/mobile/lib/services/session_service.dart
 - [x] T041 [US3] Update Cloud Functions onSessionWrite trigger to run when frameKeys matches expectedFrames in functions/src/index.ts
-- [x] T042 [US3] Update Cloud Functions stitchFrames to dynamically build ping-pong sequence in functions/src/stitch.ts
+- [x] T042 [US3] Update Cloud Functions stitchFrames to dynamically build ping-pong sequence, scale/pad inputs to 800x600, apply fifo buffering, and set -reinit_filter 0 in functions/src/stitch.ts
 
 ---
 
