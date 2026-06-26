@@ -57,8 +57,11 @@
 - [x] T010 [US1] Create pairing UI and connection status display in clients/mobile/lib/main.dart
 - [x] T011 [US1] Build Cubit/Bloc to manage connection states (pairing, connecting, connected, disconnected) in clients/mobile/lib/bloc/sync_bloc.dart
 - [x] T024 [US1] Add wakelock_plus dependency and configure screen sleep prevention in clients/mobile/lib/bloc/sync_bloc.dart
+- [x] T029 [US1] Implement dynamic camera lifecycle management in clients/mobile/lib/main.dart to prevent Android camera resource conflicts between QR Scanner and Camera Preview
+
 
 **Checkpoint**: User Story 1 is fully functional and testable independently.
+
 
 ---
 

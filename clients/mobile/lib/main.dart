@@ -73,15 +73,20 @@ class _HomeScreenState extends State<HomeScreen> {
   CameraController? _cameraController;
   List<CameraDescription>? _cameras;
   bool _isCameraReady = false;
+  bool _isInitializing = false;
   String _uploadStatus = 'Idle';
 
   @override
   void initState() {
     super.initState();
-    _initCamera();
   }
 
   Future<void> _initCamera() async {
+    if (_isInitializing) return;
+    if (_cameraController != null && _cameraController!.value.isInitialized) {
+      return;
+    }
+    _isInitializing = true;
     try {
       _cameras = await availableCameras();
       if (_cameras != null && _cameras!.isNotEmpty) {
@@ -100,6 +105,20 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     } catch (e) {
       debugPrint('Error initializing camera: $e');
+    } finally {
+      _isInitializing = false;
+    }
+  }
+
+  void _disposeCamera() {
+    if (_cameraController != null) {
+      _cameraController!.dispose();
+      _cameraController = null;
+      if (mounted) {
+        setState(() {
+          _isCameraReady = false;
+        });
+      }
     }
   }
 
@@ -108,6 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _cameraController?.dispose();
     super.dispose();
   }
+
 
   void _configureEmulators(String wsUrl) {
     final uri = Uri.parse(wsUrl.replaceFirst('ws://', 'http://'));
@@ -164,10 +184,16 @@ class _HomeScreenState extends State<HomeScreen> {
           if (state is SyncConnecting) {
             // Setup emulators dynamically based on coordinator IP
             _configureEmulators(state.url);
+            _disposeCamera();
+          } else if (state is SyncConnected) {
+            _initCamera();
           } else if (state is SyncCaptureTriggered) {
             _handleCaptureTrigger(state.sessionId, state.cameraIndex);
+          } else if (state is SyncInitial || state is SyncError || state is SyncPairing) {
+            _disposeCamera();
           }
         },
+
         child: BlocBuilder<SyncBloc, SyncState>(
           builder: (context, state) {
             if (state is SyncInitial) {
