@@ -27,6 +27,7 @@
 - [x] T026 Setup Flutter iOS minimum deployment target version to 15.0 in clients/mobile/ios/Runner.xcodeproj/project.pbxproj
 - [x] T027 Configure platform-specific FirebaseOptions (appId and iosBundleId) in clients/mobile/lib/main.dart
 - [x] T028 Configure iOS permission description usage keys in clients/mobile/ios/Runner/Info.plist
+- [x] T030 Setup Flutter Android cleartext HTTP permissions and internet permission in clients/mobile/android/app/src/main/AndroidManifest.xml
 
 ---
 
