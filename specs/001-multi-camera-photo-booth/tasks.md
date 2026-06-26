@@ -23,7 +23,10 @@
 - [x] T001 Initialize Go module at repository root in go.mod
 - [x] T002 Initialize Flutter client app project structure in clients/mobile/
 - [x] T003 Initialize Node.js Firebase Functions project with TypeScript in functions/
-- [x] T004 Setup Firebase local emulators configuration in firebase.json
+- [x] T004 Setup Firebase local emulators configuration (binding to host 0.0.0.0) in firebase.json
+- [x] T026 Setup Flutter iOS minimum deployment target version to 15.0 in clients/mobile/ios/Runner.xcodeproj/project.pbxproj
+- [x] T027 Configure platform-specific FirebaseOptions (appId and iosBundleId) in clients/mobile/lib/main.dart
+- [x] T028 Configure iOS permission description usage keys in clients/mobile/ios/Runner/Info.plist
 
 ---
 
@@ -53,6 +56,7 @@
 - [x] T009 [P] [US1] Implement QR code camera scanner and WebSocket client listener in clients/mobile/lib/services/websocket_client.dart
 - [x] T010 [US1] Create pairing UI and connection status display in clients/mobile/lib/main.dart
 - [x] T011 [US1] Build Cubit/Bloc to manage connection states (pairing, connecting, connected, disconnected) in clients/mobile/lib/bloc/sync_bloc.dart
+- [x] T024 [US1] Add wakelock_plus dependency and configure screen sleep prevention in clients/mobile/lib/bloc/sync_bloc.dart
 
 **Checkpoint**: User Story 1 is fully functional and testable independently.
 
@@ -84,7 +88,7 @@
 ### Implementation for User Story 3
 
 - [x] T016 [P] [US3] Implement image capture and direct Firebase Storage upload in clients/mobile/lib/services/upload_service.dart
-- [x] T017 [P] [US3] Implement Firestore session state updater in clients/mobile/lib/services/session_service.dart
+- [x] T017 [P] [US3] Implement Firestore session state updater (with offline persistence disabled) in clients/mobile/lib/services/session_service.dart
 - [x] T018 [US3] Create Firestore trigger Node.js Cloud Function watching `sessions/{sessionId}` updates in functions/src/index.ts
 - [x] T019 [US3] Implement FFmpeg processing slice to sequence frames as `1-2-3-4-5-4-3-2` and upload final GIF in functions/src/stitch.ts
 
@@ -111,6 +115,7 @@
 
 - [x] T022 [P] Configure cross-compilation scripts for macOS/linux/arm64 in scripts/build.sh
 - [x] T023 Run end-to-end local validation scenarios defined in specs/001-multi-camera-photo-booth/quickstart.md
+- [x] T025 Generate operator setup and troubleshooting README.md at repository root
 
 ---
 

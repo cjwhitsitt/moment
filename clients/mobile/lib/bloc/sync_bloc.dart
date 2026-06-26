@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 import '../services/websocket_client.dart';
 import '../services/ntp_service.dart';
 
@@ -124,6 +125,7 @@ class SyncBloc extends Bloc<SyncEvent, SyncState> {
         // Trigger background NTP clock synchronization
         _runNtpSync(event.wsUrl);
       } catch (e) {
+        WakelockPlus.disable();
         emit(SyncError('Connection failed: ${e.toString()}'));
       }
     });
@@ -139,6 +141,7 @@ class SyncBloc extends Bloc<SyncEvent, SyncState> {
         if (state is SyncConnecting) {
           final connState = state as SyncConnecting;
           if (status == 'ready' && index == connState.cameraIndex) {
+            WakelockPlus.enable(); // Keep device screen awake while registered
             emit(SyncConnected(
               url: connState.url,
               cameraIndex: connState.cameraIndex,
@@ -146,6 +149,7 @@ class SyncBloc extends Bloc<SyncEvent, SyncState> {
               clockOffsetMs: _clockOffsetMs,
             ));
           } else {
+            WakelockPlus.disable();
             emit(SyncError('Coordinator registration rejected.'));
           }
         }
@@ -163,8 +167,10 @@ class SyncBloc extends Bloc<SyncEvent, SyncState> {
         }
         add(FireShutterEvent(sessionId));
       } else if (eventName == 'disconnected') {
+        WakelockPlus.disable(); // Release wake lock
         emit(SyncInitial());
       } else if (eventName == 'error') {
+        WakelockPlus.disable();
         emit(SyncError(msg['error'] as String? ?? 'WebSocket error'));
       }
     });
@@ -212,6 +218,7 @@ class SyncBloc extends Bloc<SyncEvent, SyncState> {
       _wsSubscription?.cancel();
       _cancelAllSessionSubscriptions();
       await _wsClient.disconnect();
+      WakelockPlus.disable(); // Release wake lock
       emit(SyncInitial());
     });
   }
@@ -271,6 +278,7 @@ class SyncBloc extends Bloc<SyncEvent, SyncState> {
   Future<void> close() {
     _wsSubscription?.cancel();
     _cancelAllSessionSubscriptions();
+    WakelockPlus.disable(); // Always ensure wake lock is released on close
     return super.close();
   }
 }

@@ -4,6 +4,9 @@ class SessionService {
   /// Connects the Firestore SDK to the local emulator running on the coordinator host.
   static void configureEmulator(String host, int port) {
     try {
+      FirebaseFirestore.instance.settings = const Settings(
+        persistenceEnabled: false,
+      );
       FirebaseFirestore.instance.useFirestoreEmulator(host, port);
     } catch (e) {
       // Ignored if already connected

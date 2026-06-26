@@ -8,6 +8,13 @@
 
 **Input**: User description: "Build a distributed multi-camera photo booth system that triggers 5 smartphones simultaneously over a local network, uploads the images to cloud storage, and stitches them into a looping ping-pong animation (.gif) available instantly for an in-person guest display via a QR code scan. The setup must utilize a manual QR code scan between the devices to share the local server's IP address."
 
+## Clarifications
+
+### Session 2026-06-25
+
+- Q: Operator Setup Documentation → A: An operator README must exist detailing step-by-step setup, prerequisites, local networking requirements, and troubleshooting (such as mobile data interference and firewall settings) to ensure confident system deployment.
+- Q: Client Device Sleep Prevention → A: The Flutter client application must prevent smartphone devices from entering sleep mode or dimming the screen (keeping them awake/active) while they are registered and paired with the coordinator.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Camera Node Setup & Pairing (Priority: P1)
@@ -85,6 +92,8 @@ An in-person guest scans a QR code to view and share their ping-pong animation i
 - **FR-006**: The stitched ping-pong animation MUST be uploaded to cloud storage and associated with a unique shareable URL.
 - **FR-007**: The system MUST generate a guest QR code for each stitched animation displayed on the central coordinator screen immediately for guests to scan.
 - **FR-008**: If any camera node fails to capture or upload its frame during a session within a 10-second timeout, the system MUST fail the session immediately, show an error on the coordinator, and not generate/upload a GIF.
+- **FR-009**: The system MUST include a comprehensive operator README detailing physical setup, local network configuration, and troubleshooting steps.
+- **FR-010**: The Flutter client application MUST keep the device screen active and prevent sleep mode while registered and paired with the coordinator.
 
 ### Key Entities
 

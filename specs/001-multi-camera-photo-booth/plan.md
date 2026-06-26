@@ -19,6 +19,7 @@ This feature implements a distributed multi-camera photo booth system designed f
 - `firebase_core`, `firebase_storage` (Dart Firebase SDK)
 - `firebase-functions`, `firebase-admin` (Node.js SDK)
 - `fluent-ffmpeg` (Node.js FFmpeg wrapper)
+- `wakelock_plus` (Dart package for preventing screen sleep)
 
 **Storage**: Firebase Cloud Storage (raw captures and stitched GIF), Firebase Firestore (session metadata and real-time status orchestration)
 
@@ -30,7 +31,7 @@ This feature implements a distributed multi-camera photo booth system designed f
 
 **Performance Goals**: Synchronization trigger skew <5ms across all 5 clients; end-to-end capture-to-display time <10 seconds.
 
-**Constraints**: Devices must be connected to the same local Wi-Fi subnet; camera startup and shutter lag must be minimized on client hardware.
+**Constraints**: Devices must be connected to the same local Wi-Fi subnet; camera startup and shutter lag must be minimized on client hardware. The Flutter client application must prevent the device from sleeping by enabling a wake lock while registered/paired. A comprehensive operator setup README must be provided in the root directory. The iOS client application minimum deployment target must be set to 15.0 to support Firebase Swift Package Manager dependencies. Platform-specific FirebaseOptions must be configured programmatically to prevent iOS SDK configuration exceptions, including using a valid 39-character apiKey starting with "A". iOS Info.plist must contain NSCameraUsageDescription, NSMicrophoneUsageDescription, and NSLocalNetworkUsageDescription keys to prevent OS runtime termination.
 
 ## Constitution Check
 
@@ -47,6 +48,7 @@ This feature implements a distributed multi-camera photo booth system designed f
 ### Documentation
 
 ```text
+README.md                # Operator setup, dev/build details, and network troubleshooting
 specs/001-multi-camera-photo-booth/
 ├── plan.md              # This file
 ├── research.md          # Synchronization and upload strategy
