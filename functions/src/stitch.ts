@@ -3,6 +3,7 @@ import * as path from "path";
 import * as os from "os";
 import * as fs from "fs";
 import { exec } from "child_process";
+const ffmpegInstaller = require("@ffmpeg-installer/ffmpeg");
 
 /**
  * Downloads the 5 raw smartphone capture frames, sequences them as 1-2-3-4-5-4-3-2,
@@ -31,8 +32,20 @@ export async function stitchFrames(
     const cameraMap = new Map<number, string>();
     downloaded.forEach((item) => cameraMap.set(item.index, item.localPath));
 
-    // 2. Sequence frames as 1-2-3-4-5-4-3-2 (seamless loop)
-    const sequence = [1, 2, 3, 4, 5, 4, 3, 2];
+    // 2. Sequence frames dynamically in a ping-pong pattern (e.g., 1 -> 2 -> ... -> N -> N-1 -> ... -> 2)
+    const numFrames = Object.keys(uploadedFrames).length;
+    if (numFrames < 3) {
+      throw new Error(`Too few frames to stitch a ping-pong loop (expected at least 3, got ${numFrames})`);
+    }
+
+    const sequence: number[] = [];
+    for (let i = 1; i <= numFrames; i++) {
+      sequence.push(i);
+    }
+    for (let i = numFrames - 1; i > 1; i--) {
+      sequence.push(i);
+    }
+
     sequence.forEach((camIndex, seqIndex) => {
       const srcPath = cameraMap.get(camIndex);
       if (!srcPath) {
@@ -44,7 +57,8 @@ export async function stitchFrames(
 
     // 3. Compile high-quality GIF using palettegen and paletteuse
     const outputGifPath = path.join(sessionDir, "output.gif");
-    const ffmpegCmd = `ffmpeg -y -f image2 -framerate 10 -i "${sessionDir}/frame_%d.jpg" -filter_complex "[0:v] split [a][b];[a] palettegen [p];[b][p] paletteuse" "${outputGifPath}"`;
+    const ffmpegPath = ffmpegInstaller.path;
+    const ffmpegCmd = `"${ffmpegPath}" -y -f image2 -framerate 10 -i "${sessionDir}/frame_%d.jpg" -filter_complex "[0:v] split [a][b];[a] palettegen [p];[b][p] paletteuse" "${outputGifPath}"`;
 
     await new Promise<void>((resolve, reject) => {
       exec(ffmpegCmd, (error, stdout, stderr) => {
@@ -68,10 +82,16 @@ export async function stitchFrames(
     });
 
     // 5. Get far-future signed url to display to guests
-    const [url] = await file.getSignedUrl({
-      action: "read",
-      expires: "01-01-2099",
-    });
+    let url: string;
+    if (process.env.FIREBASE_STORAGE_EMULATOR_HOST) {
+      url = `http://${process.env.FIREBASE_STORAGE_EMULATOR_HOST}/v0/b/${bucket.name}/o/${encodeURIComponent(destStoragePath)}?alt=media`;
+    } else {
+      const [signedUrl] = await file.getSignedUrl({
+        action: "read",
+        expires: "01-01-2099",
+      });
+      url = signedUrl;
+    }
 
     return url;
   } finally {

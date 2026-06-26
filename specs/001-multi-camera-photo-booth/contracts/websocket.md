@@ -61,7 +61,7 @@ Sent periodically by the Go coordinator to monitor link health and offset drift.
 
 ## 3. Capture Trigger
 
-Broadcasted by the Go coordinator to all 5 connected clients simultaneously to schedule a capture session.
+Broadcasted by the Go coordinator to all connected clients simultaneously to schedule a capture session and inform the clients of the total camera count.
 
 ### Broadcast Payload (Coordinator -> Client)
 ```json
@@ -69,7 +69,8 @@ Broadcasted by the Go coordinator to all 5 connected clients simultaneously to s
   "event": "capture_trigger",
   "data": {
     "session_id": "session-9b1deb4d-3b7d-4bad",
-    "trigger_epoch_ms": 1782349010500
+    "trigger_epoch_ms": 1782349010500,
+    "expected_frames": 5
   }
 }
 ```

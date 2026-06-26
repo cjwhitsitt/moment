@@ -38,16 +38,16 @@ Verify that client devices can pair with the local coordinator and synchronize s
 Verify that a capture signal is received and executed simultaneously across client nodes.
 
 ### Steps
-1. Pair all 5 client smartphones. Ensure the coordinator reports a `Ready to Shoot` state.
+1. Pair all N client smartphones (where $3 \le N \le 10$). Ensure the coordinator reports a `Ready to Shoot` state.
 2. Click the "Capture" trigger button on the coordinator dashboard.
-3. Observe the camera shutters firing on all 5 smartphones.
+3. Observe the camera shutters firing on all N smartphones.
 
 ### Expected Outcomes
 - Coordinator logs show a broadcast trigger payload dispatched to all connected clients:
   ```text
   [INFO] Triggering Capture Session: session-9b1deb4d
   ```
-- All 5 smartphones fire their cameras at the identical future epoch timestamp designated in the payload.
+- All N smartphones fire their cameras at the identical future epoch timestamp designated in the payload.
 
 ---
 
@@ -69,4 +69,4 @@ Verify that uploaded frames are stitched into a looping ping-pong GIF and shared
     "gifUrl": "https://firebasestorage.googleapis.com/.../session-9b1deb4d.gif"
   }
   ```
-- The phone browser navigates to the URL and plays a smooth, looping 8-frame GIF animation sequenced as: `1 → 2 → 3 → 4 → 5 → 4 → 3 → 2`.
+- The phone browser navigates to the URL and plays a smooth, looping ping-pong GIF animation sequenced as: `1 → 2 → ... → N → N-1 → ... → 2` (skipping the duplicate end-frame to prevent lag).

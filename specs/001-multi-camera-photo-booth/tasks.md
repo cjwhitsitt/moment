@@ -28,6 +28,8 @@
 - [x] T027 Configure platform-specific FirebaseOptions (appId and iosBundleId) in clients/mobile/lib/main.dart
 - [x] T028 Configure iOS permission description usage keys in clients/mobile/ios/Runner/Info.plist
 - [x] T030 Setup Flutter Android cleartext HTTP permissions and internet permission in clients/mobile/android/app/src/main/AndroidManifest.xml
+- [x] T032 Setup consistent storage bucket domain ("moment-aad8b.firebasestorage.app") in clients/mobile/lib/main.dart for both iOS and Android to prevent domain mismatches with the backend
+- [x] T033 Add @ffmpeg-installer/ffmpeg dependency and update functions/src/stitch.ts to use the package's binary path to prevent system-wide FFmpeg binary requirements
 
 ---
 
@@ -95,6 +97,8 @@
 - [x] T017 [P] [US3] Implement Firestore session state updater (with offline persistence disabled) in clients/mobile/lib/services/session_service.dart
 - [x] T018 [US3] Create Firestore trigger Node.js Cloud Function watching `sessions/{sessionId}` updates in functions/src/index.ts
 - [x] T019 [US3] Implement FFmpeg processing slice to sequence frames as `1-2-3-4-5-4-3-2` and upload final GIF in functions/src/stitch.ts
+- [x] T031 [US3] Update Firebase Admin SDK imports in functions/src/index.ts to use modular subpath imports for FieldValue to resolve runtime serverTimestamp TypeErrors
+- [x] T034 [US3] Add conditional local emulator URL generation in functions/src/stitch.ts to bypass cryptographic signedUrl failures under mock emulator credentials
 
 **Checkpoint**: User Stories 1, 2, and 3 are functional.
 
@@ -123,6 +127,21 @@
 
 ---
 
+## Phase 7: Support Variable Cameras (3-10) & Dynamic Stitching
+
+**Goal**: Support 3 to 10 cameras and dynamic ping-pong stitching.
+
+- [x] T035 [US1] Update Go coordinator ClientNode registration to support index range 1 to 10 in pkg/ws/websocket.go
+- [x] T036 [US1] Update Flutter client index dropdown selection list up to 10 in clients/mobile/lib/main.dart
+- [x] T037 [US2] Update Go domain TriggerPayload to include expected_frames in pkg/domain/session.go
+- [x] T038 [US2] Update Go coordinator trigger handler to enforce 3 to 10 connected nodes and broadcast expected_frames in cmd/coordinator/main.go
+- [x] T039 [US2] Update Flutter client to parse expected_frames from WebSocket capture_trigger in clients/mobile/lib/bloc/sync_bloc.dart
+- [x] T040 [US3] Update Flutter client SessionService.updateFrameUpload to write expectedFrames to Firestore in clients/mobile/lib/services/session_service.dart
+- [x] T041 [US3] Update Cloud Functions onSessionWrite trigger to run when frameKeys matches expectedFrames in functions/src/index.ts
+- [x] T042 [US3] Update Cloud Functions stitchFrames to dynamically build ping-pong sequence in functions/src/stitch.ts
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
@@ -131,4 +150,5 @@
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion.
   - Can proceed sequentially in priority order: US1 (P1) → US2 (P1) → US3 (P2) → US4 (P2)
+- **Variable Cameras (Phase 7)**: Depends on all previous user stories being complete.
 - **Polish (Final Phase)**: Depends on all user stories being complete.

@@ -78,19 +78,29 @@ func main() {
 
 	// HTTP trigger endpoint to fire all cameras simultaneously
 	http.HandleFunc("/trigger", func(w http.ResponseWriter, r *http.Request) {
+		clients := hub.GetClients()
+		n := len(clients)
+		if n < 3 || n > 10 {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Header().Set("Content-Type", "application/json")
+			fmt.Fprintf(w, `{"error":"invalid camera count: %d. Must be between 3 and 10"}`, n)
+			return
+		}
+
 		sessionId := fmt.Sprintf("session-%d", time.Now().UnixNano())
 		// Set trigger execution 500ms in the future
 		triggerTime := time.Now().Add(500 * time.Millisecond).UnixMilli()
 
-		log.Printf("[TRIGGER] Broadcasting capture trigger for Session: %s at time: %d", sessionId, triggerTime)
+		log.Printf("[TRIGGER] Broadcasting capture trigger for Session: %s at time: %d with %d expected frames", sessionId, triggerTime, n)
 
 		hub.Broadcast("capture_trigger", domain.TriggerPayload{
 			SessionID:      sessionId,
 			TriggerEpochMs: triggerTime,
+			ExpectedFrames: n,
 		})
 
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintf(w, `{"status":"triggered","session_id":"%s","trigger_epoch_ms":%d}`, sessionId, triggerTime)
+		fmt.Fprintf(w, `{"status":"triggered","session_id":"%s","trigger_epoch_ms":%d,"expected_frames":%d}`, sessionId, triggerTime, n)
 	})
 
 	serverAddr := fmt.Sprintf(":%d", *port)

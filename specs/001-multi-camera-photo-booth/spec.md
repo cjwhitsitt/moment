@@ -15,11 +15,16 @@
 - Q: Operator Setup Documentation → A: An operator README must exist detailing step-by-step setup, prerequisites, local networking requirements, and troubleshooting (such as mobile data interference and firewall settings) to ensure confident system deployment.
 - Q: Client Device Sleep Prevention → A: The Flutter client application must prevent smartphone devices from entering sleep mode or dimming the screen (keeping them awake/active) while they are registered and paired with the coordinator.
 
+### Session 2026-06-26
+
+- Q: Camera Limit flexibility → A: The system will support a variable number of client camera nodes, from a minimum of 3 up to a maximum of 10. The stitching sequence will dynamically construct a ping-pong loop based on the number of active paired cameras (e.g. for N cameras: 1 → 2 → ... → N → N-1 → ... → 2).
+
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Camera Node Setup & Pairing (Priority: P1)
 
-An operator sets up the physical photo booth by pairing 5 client smartphones with the central coordinator.
+An operator sets up the physical photo booth by pairing between 3 and 10 client smartphones with the central coordinator.
 
 **Why this priority**: Without establishing a reliable connection between the coordinator and all client devices, no synchronized capture can occur.
 
@@ -27,22 +32,22 @@ An operator sets up the physical photo booth by pairing 5 client smartphones wit
 
 **Acceptance Scenarios**:
 
-1. **Given** the coordinator is running and displaying a connection QR code containing its local IP address, **When** a camera node application is launched on a smartphone and scans the QR code, **Then** the camera node successfully connects to the coordinator and registers its index (1 to 5).
-2. **Given** 4 camera nodes are connected, **When** the 5th camera node scans the pairing QR code, **Then** the coordinator shows all 5 nodes connected and transitions to the "Ready to Shoot" state.
+1. **Given** the coordinator is running and displaying a connection QR code containing its local IP address, **When** a camera node application is launched on a smartphone and scans the QR code, **Then** the camera node successfully connects to the coordinator and registers its index (1 to N, where 3 <= N <= 10).
+2. **Given** N-1 camera nodes are connected (where 3 <= N <= 10), **When** the Nth camera node scans the pairing QR code, **Then** the coordinator shows all N nodes connected and transitions to the "Ready to Shoot" state.
 
 ---
 
 ### User Story 2 - Synchronized Capture Trigger (Priority: P1)
 
-An operator triggers the photo booth to capture a synchronized photo session across all 5 cameras.
+An operator triggers the photo booth to capture a synchronized photo session across all N cameras (where 3 <= N <= 10).
 
 **Why this priority**: This is the core interaction that generates the source frames for the final animation.
 
-**Independent Test**: The operator triggers the system, and all 5 camera nodes capture an image within the latency target.
+**Independent Test**: The operator triggers the system, and all connected camera nodes capture an image within the latency target.
 
 **Acceptance Scenarios**:
 
-1. **Given** all 5 camera nodes are connected and ready, **When** the operator triggers the capture, **Then** all 5 camera nodes receive the trigger simultaneously, capture an image, and send confirmation back to the coordinator.
+1. **Given** all connected camera nodes are paired and ready, **When** the operator triggers the capture, **Then** all connected camera nodes receive the trigger simultaneously, capture an image, and send confirmation back to the coordinator.
 
 ---
 
@@ -52,11 +57,11 @@ The system automatically creates a looping ping-pong animation and uploads it to
 
 **Why this priority**: The animation is the primary deliverable for the photo booth experience.
 
-**Independent Test**: After a capture session, a looping GIF is generated with frames in the order 1-2-3-4-5-4-3-2 (skipping the duplicate end-frame to prevent lag) and successfully uploaded to cloud storage.
+**Independent Test**: After a capture session, a looping GIF is generated with frames in a ping-pong pattern (e.g. 1-2-3-4-5-4-3-2 for N=5, skipping the duplicate end-frame to prevent lag) and successfully uploaded to cloud storage.
 
 **Acceptance Scenarios**:
 
-1. **Given** 5 successfully captured frames from a session, **When** the stitching process runs, **Then** a looping .gif animation is generated in a ping-pong pattern (1-2-3-4-5-4-3-2) and uploaded to cloud storage, returning a unique, secure access URL.
+1. **Given** N successfully captured frames from a session (where 3 <= N <= 10), **When** the stitching process runs, **Then** a looping .gif animation is generated in a ping-pong pattern (1 → 2 → ... → N → N-1 → ... → 2) and uploaded to cloud storage, returning a unique, secure access URL.
 
 ---
 
@@ -84,11 +89,11 @@ An in-person guest scans a QR code to view and share their ping-pong animation i
 
 ### Functional Requirements
 
-- **FR-001**: The system MUST support pairing exactly 5 smartphone client nodes with a central coordinator.
+- **FR-001**: The system MUST support pairing a variable number of smartphone client nodes (between 3 and 10) with a central coordinator.
 - **FR-002**: The system MUST allow sharing the coordinator's local IP address with client nodes using a QR code displayed on the coordinator and scanned by the client devices.
-- **FR-003**: The system MUST broadcast a synchronized capture trigger to all 5 connected client nodes.
+- **FR-003**: The system MUST broadcast a synchronized capture trigger to all connected client nodes.
 - **FR-004**: Client nodes MUST capture an image immediately upon receiving the trigger, using NTP time synchronization with the coordinator to coordinate the shutter.
-- **FR-005**: The system MUST stitch the 5 captured images into a looping ping-pong animation (frames 1-2-3-4-5-4-3-2).
+- **FR-005**: The system MUST stitch the captured images into a looping ping-pong animation (frames: 1 → 2 → ... → N → N-1 → ... → 2 for N active nodes).
 - **FR-006**: The stitched ping-pong animation MUST be uploaded to cloud storage and associated with a unique shareable URL.
 - **FR-007**: The system MUST generate a guest QR code for each stitched animation displayed on the central coordinator screen immediately for guests to scan.
 - **FR-008**: If any camera node fails to capture or upload its frame during a session within a 10-second timeout, the system MUST fail the session immediately, show an error on the coordinator, and not generate/upload a GIF.
@@ -99,7 +104,7 @@ An in-person guest scans a QR code to view and share their ping-pong animation i
 
 - **Coordinator**: Central service managing the capture session, device registration, and triggering.
 - **Camera Node**: Client device (smartphone) that pairs with the coordinator, receives triggers, and captures/uploads images.
-- **Capture Session**: Represents a single synchronized trigger event, containing 5 captured frames, a status, and a reference to the final stitched animation.
+- **Capture Session**: Represents a single synchronized trigger event, containing the captured frames from all active nodes (3 to 10), a status, and a reference to the final stitched animation.
 - **Stitched Animation**: The final ping-pong GIF asset stored in cloud storage with a unique guest-accessible URL.
 
 ## Success Criteria *(mandatory)*
@@ -107,8 +112,8 @@ An in-person guest scans a QR code to view and share their ping-pong animation i
 ### Measurable Outcomes
 
 - **SC-001**: Guests can view their generated animation on their own devices within 10 seconds of capture.
-- **SC-002**: The trigger latency skew across all 5 camera nodes must be less than 5ms.
-- **SC-003**: Operators can pair all 5 smartphone nodes with the coordinator in under 2 minutes during setup.
+- **SC-002**: The trigger latency skew across all connected camera nodes (3 to 10) must be less than 5ms.
+- **SC-003**: Operators can pair all connected smartphone nodes (up to 10) with the coordinator in under 2 minutes during setup.
 - **SC-004**: The system must achieve a 99% success rate for end-to-end workflows (capture-to-display) under nominal local network conditions.
 
 ## Assumptions

@@ -49,6 +49,7 @@ type PongPayload struct {
 type TriggerPayload struct {
 	SessionID      string `json:"session_id"`
 	TriggerEpochMs int64  `json:"trigger_epoch_ms"`
+	ExpectedFrames int    `json:"expected_frames"`
 }
 
 // StatusUpdatePayload is sent by client to report upload/shutter progress

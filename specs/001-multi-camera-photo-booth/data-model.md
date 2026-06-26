@@ -10,6 +10,7 @@ Each capture session is represented by a document under the `sessions` collectio
 interface SessionDocument {
   id: string;                               // Unique session identifier
   status: 'pending' | 'uploading' | 'processing' | 'completed' | 'failed';
+  expectedFrames: number;                   // The expected number of camera frames for this session (between 3 and 10)
   uploadedFrames: {                         // Maps camera index to Storage file path
     [cameraIndex: string]: string;          // e.g., "1": "raw/session123/cam1.jpg"
   };
@@ -30,7 +31,7 @@ The Go coordinator maintains client node state in memory to manage connections, 
 
 ```go
 type ClientNode struct {
-	Index       int            `json:"index"`        // 1 to 5
+	Index       int            `json:"index"`        // 1 to 10
 	IPAddress   string         `json:"ip_address"`
 	ConnectedAt time.Time      `json:"connected_at"`
 	IsReady     bool           `json:"is_ready"`
@@ -57,7 +58,7 @@ type CaptureSession struct {
 stateDiagram-v2
     [*] --> Pending : Session Initialized
     Pending --> Uploading : Capture trigger broadcasted & acked
-    Uploading --> Processing : All 5 frames uploaded to Storage
+    Uploading --> Processing : All N expected frames uploaded to Storage
     Uploading --> Failed : 10s Timeout or Node capture error
     Processing --> Completed : FFmpeg stitching done & GIF uploaded
     Processing --> Failed : Stitching process failed

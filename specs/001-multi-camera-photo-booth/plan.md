@@ -6,7 +6,7 @@
 
 ## Summary
 
-This feature implements a distributed multi-camera photo booth system designed for ultra-low latency capture synchronization. The local system consists of a Go coordinator running an NTP server and a WebSockets server to pair and trigger 5 smartphone client nodes (Flutter/Dart). The cloud system leverages Firebase Storage and Firestore to orchestrate image uploads, and a Node.js Cloud Function running FFmpeg to stitch the images into a seamless ping-pong looping GIF. A QR code displayed on the coordinator allows guests to view the final GIF instantly.
+This feature implements a distributed multi-camera photo booth system designed for ultra-low latency capture synchronization. The local system consists of a Go coordinator running an NTP server and a WebSockets server to pair and trigger a variable number of smartphone client nodes (between 3 and 10) (Flutter/Dart). The cloud system leverages Firebase Storage and Firestore to orchestrate image uploads, and a Node.js Cloud Function running FFmpeg to dynamically stitch the images into a seamless ping-pong looping GIF based on the active node count. A QR code displayed on the coordinator allows guests to view the final GIF instantly.
 
 ## Technical Context
 
@@ -29,9 +29,13 @@ This feature implements a distributed multi-camera photo booth system designed f
 
 **Project Type**: Distributed edge & cloud application
 
-**Performance Goals**: Synchronization trigger skew <5ms across all 5 clients; end-to-end capture-to-display time <10 seconds.
+**Performance Goals**: Synchronization trigger skew <5ms across all connected clients; end-to-end capture-to-display time <10 seconds.
 
-**Constraints**: Devices must be connected to the same local Wi-Fi subnet; camera startup and shutter lag must be minimized on client hardware. The Flutter client application must prevent the device from sleeping by enabling a wake lock while registered/paired. A comprehensive operator setup README must be provided in the root directory. The iOS client application minimum deployment target must be set to 15.0 to support Firebase Swift Package Manager dependencies. Platform-specific FirebaseOptions must be configured programmatically to prevent iOS SDK configuration exceptions, including using a valid 39-character apiKey starting with "A". iOS Info.plist must contain NSCameraUsageDescription, NSMicrophoneUsageDescription, and NSLocalNetworkUsageDescription keys to prevent OS runtime termination; the Flutter client application must implement dynamic camera lifecycle management to prevent camera resource lock conflicts between the QR code scanner (MobileScanner) and camera preview (CameraController) on Android; the Android AndroidManifest.xml must permit cleartext traffic and request the internet permission to support local network connection to the Firebase storage and firestore emulators.
+**Constraints**: Devices must be connected to the same local Wi-Fi subnet; camera startup and shutter lag must be minimized on client hardware. The Flutter client application must prevent the device from sleeping by enabling a wake lock while registered/paired. A comprehensive operator setup README must be provided in the root directory. The iOS client application minimum deployment target must be set to 15.0 to support Firebase Swift Package Manager dependencies. Platform-specific FirebaseOptions must be configured programmatically to prevent iOS SDK configuration exceptions, including using a valid 39-character apiKey starting with "A". iOS Info.plist must contain NSCameraUsageDescription, NSMicrophoneUsageDescription, and NSLocalNetworkUsageDescription keys to prevent OS runtime termination; the Flutter client application must implement dynamic camera lifecycle management to prevent camera resource lock conflicts between the QR code scanner (MobileScanner) and camera preview (CameraController) on Android; the Android AndroidManifest.xml must permit cleartext traffic and request the internet permission to support local network connection to the Firebase storage and firestore emulators; Node.js Cloud Functions must utilize modular subpath imports (such as 'firebase-admin/firestore' for FieldValue) to prevent legacy global namespace resolution errors under firebase-admin v12+; the Flutter client application and Firebase Cloud Functions must use a consistent storage bucket domain (specifically 'moment-aad8b.firebasestorage.app') to prevent file resolution mismatches during stitching; the Node.js Cloud Functions must depend on '@ffmpeg-installer/ffmpeg' to provide a precompiled self-contained FFmpeg binary for cross-platform portability without requiring a system-level binary installation; the Node.js Cloud Functions must construct direct unauthenticated local download URLs when running in the emulator (detected via FIREBASE_STORAGE_EMULATOR_HOST) to avoid cryptographic signing errors due to mock credentials. The system supports pairing between 3 and 10 devices, and trigger commands must enforce this minimum/maximum check.
+
+
+
+
 
 
 
@@ -105,9 +109,9 @@ functions/               # Firebase Cloud Functions (TypeScript)
 
 ### Manual Verification
 1. Start the Go coordinator server locally.
-2. Launch 5 instances of the mobile application (or mock clients). Scan the pairing QR code to establish WebSocket connections.
+2. Launch N instances (where $3 \le N \le 10$) of the mobile application (or mock clients). Scan the pairing QR code to establish WebSocket connections.
 3. Confirm NTP synchronization succeeds and offset is calculated (<1ms target offset).
 4. Trigger a capture session from the coordinator dashboard.
 5. Verify raw images are uploaded directly to the Firebase Cloud Storage emulator bucket.
-6. Verify the Node.js function processes the 5 frames using FFmpeg, sequences them as `1-2-3-4-5-4-3-2` and saves the looping `.gif`.
+6. Verify the Node.js function processes the N frames using FFmpeg, sequences them in a dynamic ping-pong loop (`1 -> 2 -> ... -> N -> N-1 -> ... -> 2`) and saves the looping `.gif`.
 7. Verify the coordinator displays the final guest QR code, which resolves to the stitched GIF.

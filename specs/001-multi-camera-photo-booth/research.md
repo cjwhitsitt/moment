@@ -33,12 +33,14 @@ Flutter clients upload captured images directly to Firebase Cloud Storage asynch
 ## Cloud Stitching Backend
 
 ### Decision
-Node.js Cloud Functions triggered by Firestore document updates (watching for 5 uploaded frames), invoking FFmpeg to produce a looping ping-pong GIF (frames: 1, 2, 3, 4, 5, 4, 3, 2).
+Node.js Cloud Functions triggered by Firestore document updates, watching for all expected frames to be uploaded (where expected frames $N$ is between 3 and 10), and invoking FFmpeg to produce a looping ping-pong GIF. For $N$ active nodes, the sequence is dynamically generated as $1 \rightarrow 2 \rightarrow ... \rightarrow N \rightarrow N-1 \rightarrow ... \rightarrow 2$.
 
 ### Rationale
-- **Ping-Pong Sequencing**: Reversing the middle frames (4, 3, 2) creates a smooth, seamless loop back to frame 1 without duplicating the endpoints (1 and 5), which would cause a visual stutter.
+- **Dynamic Ping-Pong Sequencing**: Reversing the intermediate frames ($N-1 \rightarrow 2$) creates a smooth, seamless loop back to frame 1 without duplicating the endpoint frames (1 and $N$), preventing visual stutters.
 - **Firestore Trigger**: Watching for document updates allows the serverless functions to scale down to zero when the booth is idle.
 - **FFmpeg**: The industry standard for fast, high-performance image-to-video/GIF processing.
+- **Dynamic Expected Frame Count**: Passing `expectedFrames` in the Firestore session metadata (determined by the coordinator's registered client count) lets the Cloud Function dynamically evaluate completion and construct the sequence.
 
 ### Alternatives Considered
 - **Stitching on Go Coordinator**: Rejected because it consumes local CPU/GPU resources on the edge device (e.g., Raspberry Pi) which could introduce latency jitter for subsequent capture triggers.
+- **Static 5-Camera Stitching**: Rejected because it limits physical setup flexibility for operators who need to use 3+ (up to 10) devices.

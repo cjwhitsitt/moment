@@ -25,7 +25,7 @@ var upgrader = websocket.Upgrader{
 
 // Hub maintains the set of active client connections and broadcasts messages.
 type Hub struct {
-	clients    map[int]*Client // Registered camera nodes by camera_index (1-5)
+	clients    map[int]*Client // Registered camera nodes by camera_index (1-10)
 	clientsMu  sync.RWMutex
 	register   chan *Client
 	unregister chan *Client
@@ -72,12 +72,12 @@ func (h *Hub) Run() {
 	}
 }
 
-// RegisterClient associates a client with a camera index (1-5) after handshake validation.
+// RegisterClient associates a client with a camera index (1-10) after handshake validation.
 func (h *Hub) RegisterClient(client *Client, index int, deviceName string) bool {
 	h.clientsMu.Lock()
 	defer h.clientsMu.Unlock()
 
-	if index < 1 || index > 5 {
+	if index < 1 || index > 10 {
 		log.Printf("[HUB] Rejected registration for invalid camera index %d from %s", index, client.IPAddress)
 		return false
 	}

@@ -19,11 +19,13 @@ class SessionService {
     String sessionId,
     int cameraIndex,
     String storagePath,
+    int expectedFrames,
   ) async {
     final docRef = FirebaseFirestore.instance.collection('sessions').doc(sessionId);
     await docRef.set({
       'id': sessionId,
       'status': 'uploading',
+      'expectedFrames': expectedFrames,
       'uploadedFrames': {
         cameraIndex.toString(): storagePath,
       },

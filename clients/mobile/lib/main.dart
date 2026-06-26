@@ -19,7 +19,7 @@ void main() async {
       appId: "1:91870534065:ios:98a44b5a2bf89c8902094c00",
       messagingSenderId: "91870534065",
       projectId: "moment-aad8b",
-      storageBucket: "moment-aad8b.appspot.com",
+      storageBucket: "moment-aad8b.firebasestorage.app",
       iosBundleId: "com.moment.mobile",
       iosClientId: "91870534065-mockclientid.apps.googleusercontent.com",
     );
@@ -29,7 +29,7 @@ void main() async {
       appId: "1:91870534065:android:mockappidandroid",
       messagingSenderId: "91870534065",
       projectId: "moment-aad8b",
-      storageBucket: "moment-aad8b.appspot.com",
+      storageBucket: "moment-aad8b.firebasestorage.app",
     );
   }
 
@@ -137,7 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
     SessionService.configureEmulator(host, 8082);
   }
 
-  Future<void> _handleCaptureTrigger(String sessionId, int cameraIndex) async {
+  Future<void> _handleCaptureTrigger(String sessionId, int cameraIndex, int expectedFrames) async {
     if (_cameraController == null || !_cameraController!.value.isInitialized) {
       return;
     }
@@ -159,7 +159,7 @@ class _HomeScreenState extends State<HomeScreen> {
       });
 
       // 2. Log frame path to Firestore session document
-      await SessionService.updateFrameUpload(sessionId, cameraIndex, storagePath);
+      await SessionService.updateFrameUpload(sessionId, cameraIndex, storagePath, expectedFrames);
 
       setState(() {
         _uploadStatus = 'Upload Success';
@@ -188,7 +188,7 @@ class _HomeScreenState extends State<HomeScreen> {
           } else if (state is SyncConnected) {
             _initCamera();
           } else if (state is SyncCaptureTriggered) {
-            _handleCaptureTrigger(state.sessionId, state.cameraIndex);
+            _handleCaptureTrigger(state.sessionId, state.cameraIndex, state.expectedFrames);
           } else if (state is SyncInitial || state is SyncError || state is SyncPairing) {
             _disposeCamera();
           }
@@ -237,7 +237,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: 32),
           const Text(
-            'Camera Position Index (1 - 5)',
+            'Camera Position Index (1 - 10)',
             style: TextStyle(fontSize: 14, color: Colors.grey),
           ),
           const SizedBox(height: 8),
@@ -248,7 +248,7 @@ class _HomeScreenState extends State<HomeScreen> {
               fillColor: const Color(0xFF1E1E1E),
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
             ),
-            items: List.generate(5, (index) => index + 1).map((idx) {
+            items: List.generate(10, (index) => index + 1).map((idx) {
               return DropdownMenuItem<int>(
                 value: idx,
                 child: Text('Camera Node $idx'),

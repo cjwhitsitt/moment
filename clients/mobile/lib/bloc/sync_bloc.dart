@@ -48,7 +48,8 @@ class SyncConnected extends SyncState {
 class SyncCaptureTriggered extends SyncState {
   final String sessionId;
   final int cameraIndex;
-  SyncCaptureTriggered({required this.sessionId, required this.cameraIndex});
+  final int expectedFrames;
+  SyncCaptureTriggered({required this.sessionId, required this.cameraIndex, required this.expectedFrames});
 }
 
 class SyncError extends SyncState {
@@ -81,7 +82,8 @@ class UpdateClockOffsetEvent extends SyncEvent {
 
 class FireShutterEvent extends SyncEvent {
   final String sessionId;
-  FireShutterEvent(this.sessionId);
+  final int expectedFrames;
+  FireShutterEvent(this.sessionId, this.expectedFrames);
 }
 
 class SessionCompletedEvent extends SyncEvent {
@@ -156,16 +158,17 @@ class SyncBloc extends Bloc<SyncEvent, SyncState> {
       } else if (eventName == 'capture_trigger') {
         final sessionId = data['session_id'] as String? ?? '';
         final triggerEpochMs = data['trigger_epoch_ms'] as int? ?? 0;
-
+        final expectedFrames = data['expected_frames'] as int? ?? 5;
+ 
         // Perform synchronized latency wait
         final now = DateTime.now().millisecondsSinceEpoch;
         final clientTimeWithDrift = now + _clockOffsetMs;
         final delayMs = triggerEpochMs - clientTimeWithDrift;
-
+ 
         if (delayMs > 0) {
           await Future.delayed(Duration(milliseconds: delayMs));
         }
-        add(FireShutterEvent(sessionId));
+        add(FireShutterEvent(sessionId, expectedFrames));
       } else if (eventName == 'disconnected') {
         WakelockPlus.disable(); // Release wake lock
         emit(SyncInitial());
@@ -189,6 +192,7 @@ class SyncBloc extends Bloc<SyncEvent, SyncState> {
         emit(SyncCaptureTriggered(
           sessionId: event.sessionId,
           cameraIndex: s.cameraIndex,
+          expectedFrames: event.expectedFrames,
         ));
 
         // Start listening to the Firestore session state for completion
