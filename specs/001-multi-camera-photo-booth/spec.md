@@ -22,6 +22,7 @@
 ### Session 2026-06-27
 
 - Q: Operator Setup Documentation (README.md) camera count references → A: The operator README will be updated to reflect the variable camera count setup (between 3 and 10 smartphones, indices 1 to 10) instead of the previous hardcoded exactly 5.
+- Q: Deployment and publishing steps documentation → A: A new section detailing Cloud Functions deployment and Flutter client test publishing (TestFlight/Firebase App Distribution) will be added to the root README.md.
 
 
 ## User Scenarios & Testing *(mandatory)*

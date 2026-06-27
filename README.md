@@ -106,3 +106,48 @@ If a smartphone fails to connect or displays `ERR_ADDRESS_UNREACHABLE` / `No rou
   ```bash
   flutter run -d <device-id>
   ```
+
+---
+
+## 🚀 Deployment & Publishing Guide
+
+Follow these steps to deploy functions to production and publish test versions of the mobile client app.
+
+### 1. Deploy Cloud Functions
+To deploy the dynamic stitching Cloud Function to your live Firebase project:
+1. Authenticate with the Firebase CLI:
+   ```bash
+   firebase login
+   ```
+2. Select your active Firebase project:
+   ```bash
+   firebase use --add
+   ```
+3. Deploy the functions target:
+   ```bash
+   firebase deploy --only functions
+   ```
+
+### 2. Publish Flutter iOS Client (TestFlight)
+1. Open `clients/mobile/ios/Runner.xcworkspace` in Xcode.
+2. In **Signing & Capabilities**, select your developer team and bundle ID.
+3. Build the release archive from your terminal:
+   ```bash
+   cd clients/mobile
+   flutter build ipa --release
+   ```
+4. Open the generated archive in Xcode and upload it to App Store Connect.
+5. In App Store Connect, configure **TestFlight** and add internal or external testers.
+
+### 3. Publish Flutter Android Client (Internal Testing / APK)
+1. Build the Android App Bundle (AAB) for Google Play Store upload:
+   ```bash
+   cd clients/mobile
+   flutter build appbundle --release
+   ```
+2. Build a standalone APK for direct installation or Firebase App Distribution:
+   ```bash
+   cd clients/mobile
+   flutter build apk --release
+   ```
+3. Upload the APK to **Firebase App Distribution** in the Firebase Console to distribute it immediately to testers.
