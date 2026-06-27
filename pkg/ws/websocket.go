@@ -11,13 +11,11 @@ import (
 	"moment/pkg/domain"
 
 	"github.com/gorilla/websocket"
-	"github.com/skip2/go-qrcode"
 )
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
-	// For local development and booth setups, allow connections from any origin
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},
@@ -26,6 +24,7 @@ var upgrader = websocket.Upgrader{
 // Hub maintains the set of active client connections and broadcasts messages.
 type Hub struct {
 	clients    map[int]*Client // Registered camera nodes by camera_index (1-10)
+	operators  map[*Client]bool // Registered operator connections
 	clientsMu  sync.RWMutex
 	register   chan *Client
 	unregister chan *Client
@@ -33,20 +32,24 @@ type Hub struct {
 
 // Client represents a single paired smartphone connection.
 type Client struct {
-	Index       int
-	Hub         *Hub
-	Conn        *websocket.Conn
-	Send        chan []byte
-	IPAddress   string
-	DeviceName  string
-	ClockOffset time.Duration
-	mu          sync.Mutex
+	Index        int
+	Hub          *Hub
+	Conn         *websocket.Conn
+	Send         chan []byte
+	IPAddress    string
+	DeviceName   string
+	ClockOffset  time.Duration
+	BatteryLevel int
+	State        string // "idle" | "capturing" | "uploading" | "uploaded" | "failed"
+	IsOperator   bool
+	mu           sync.Mutex
 }
 
 // NewHub creates and initializes a new WebSocket Hub.
 func NewHub() *Hub {
 	return &Hub{
 		clients:    make(map[int]*Client),
+		operators:  make(map[*Client]bool),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
 	}
@@ -57,14 +60,17 @@ func (h *Hub) Run() {
 	for {
 		select {
 		case client := <-h.register:
-			// Client registration is handled on successful JSON registration handshake
 			log.Printf("[HUB] WebSocket connected from %s", client.IPAddress)
 
 		case client := <-h.unregister:
 			h.clientsMu.Lock()
-			if client.Index > 0 && h.clients[client.Index] == client {
+			if client.IsOperator {
+				delete(h.operators, client)
+				log.Printf("[HUB] Unregistered Operator Connection (%s)", client.IPAddress)
+			} else if client.Index > 0 && h.clients[client.Index] == client {
 				delete(h.clients, client.Index)
 				log.Printf("[HUB] Unregistered Camera Node %d (%s)", client.Index, client.IPAddress)
+				go h.SyncDashboard()
 			}
 			h.clientsMu.Unlock()
 			client.Conn.Close()
@@ -82,7 +88,6 @@ func (h *Hub) RegisterClient(client *Client, index int, deviceName string) bool 
 		return false
 	}
 
-	// Unregister any existing client at this index
 	if existing, exists := h.clients[index]; exists {
 		log.Printf("[HUB] Replacing existing Camera Node %d connection at %s", index, existing.IPAddress)
 		existing.Conn.Close()
@@ -107,12 +112,36 @@ func (h *Hub) GetClients() []domain.ClientNode {
 			Index:       c.Index,
 			IPAddress:   c.IPAddress,
 			DeviceName:  c.DeviceName,
-			ConnectedAt: time.Now(), // Placeholder or track connected at
+			ConnectedAt: time.Now(),
 			IsReady:     true,
 			ClockOffset: c.ClockOffset,
 		})
 	}
 	return list
+}
+
+// TriggerCapture triggers a synchronized capture session across all registered clients.
+func (h *Hub) TriggerCapture() (string, error) {
+	h.clientsMu.Lock()
+	n := len(h.clients)
+	h.clientsMu.Unlock()
+
+	if n < 3 || n > 10 {
+		return "", fmt.Errorf("invalid camera count: %d. Must be between 3 and 10", n)
+	}
+
+	sessionId := fmt.Sprintf("session-%d", time.Now().UnixNano())
+	triggerTime := time.Now().Add(500 * time.Millisecond).UnixMilli()
+
+	log.Printf("[TRIGGER] Broadcasting capture trigger for Session: %s at time: %d with %d expected frames", sessionId, triggerTime, n)
+
+	h.Broadcast("capture_trigger", domain.TriggerPayload{
+		SessionID:      sessionId,
+		TriggerEpochMs: triggerTime,
+		ExpectedFrames: n,
+	})
+
+	return sessionId, nil
 }
 
 // Broadcast sends a message to all connected and registered clients.
@@ -147,6 +176,65 @@ func (h *Hub) Broadcast(event string, data interface{}) {
 	}
 }
 
+// SyncDashboard gathers the current state and pushes it to all registered operators.
+func (h *Hub) SyncDashboard() {
+	h.clientsMu.RLock()
+	defer h.clientsMu.RUnlock()
+
+	if len(h.operators) == 0 {
+		return
+	}
+
+	cameras := make([]domain.CameraNodeStatus, 0, len(h.clients))
+	for _, c := range h.clients {
+		c.mu.Lock()
+		offsetMs := float64(c.ClockOffset.Milliseconds())
+		battery := c.BatteryLevel
+		state := c.State
+		if state == "" {
+			state = "idle"
+		}
+		cameras = append(cameras, domain.CameraNodeStatus{
+			CameraIndex:   c.Index,
+			DeviceName:    c.DeviceName,
+			State:         state,
+			BatteryLevel:  battery,
+			ClockOffsetMs: offsetMs,
+			IsReady:       true,
+		})
+		c.mu.Unlock()
+	}
+
+	syncPayload := domain.DashboardSyncPayload{
+		Cameras: cameras,
+	}
+
+	rawPayload, err := json.Marshal(syncPayload)
+	if err != nil {
+		log.Printf("[HUB] Error marshaling dashboard sync data: %v", err)
+		return
+	}
+
+	msg := domain.Message{
+		Event: "dashboard_sync",
+		Data:  rawPayload,
+	}
+
+	msgBytes, err := json.Marshal(msg)
+	if err != nil {
+		log.Printf("[HUB] Error marshaling Message container: %v", err)
+		return
+	}
+
+	for op := range h.operators {
+		select {
+		case op.Send <- msgBytes:
+		default:
+			log.Printf("[HUB] Operator buffer full. Unregistering operator.")
+		}
+	}
+}
+
 // WritePump pumps messages from the Hub to the WebSocket connection.
 func (c *Client) WritePump() {
 	ticker := time.NewTicker(54 * time.Second)
@@ -169,7 +257,6 @@ func (c *Client) WritePump() {
 			}
 			w.Write(message)
 
-			// Add queued chat messages to the current websocket message.
 			n := len(c.Send)
 			for i := 0; i < n; i++ {
 				w.Write([]byte{'\n'})
@@ -193,7 +280,7 @@ func (c *Client) ReadPump() {
 	defer func() {
 		c.Hub.unregister <- c
 	}()
-	c.Conn.SetReadLimit(512 * 1024) // limit payloads to 512KB
+	c.Conn.SetReadLimit(512 * 1024)
 	c.Conn.SetReadDeadline(time.Now().Add(60 * time.Second))
 	c.Conn.SetPongHandler(func(string) error { c.Conn.SetReadDeadline(time.Now().Add(60 * time.Second)); return nil })
 
@@ -233,6 +320,9 @@ func (c *Client) handleMessage(msg domain.Message) {
 		}
 		if success {
 			resp.Status = "ready"
+			c.mu.Lock()
+			c.State = "idle"
+			c.mu.Unlock()
 		}
 
 		rawResp, _ := json.Marshal(resp)
@@ -242,42 +332,66 @@ func (c *Client) handleMessage(msg domain.Message) {
 		}
 		replyBytes, _ := json.Marshal(replyMsg)
 		c.Send <- replyBytes
+		go c.Hub.SyncDashboard()
+
+	case "operator_register":
+		c.IsOperator = true
+		c.Hub.clientsMu.Lock()
+		c.Hub.operators[c] = true
+		c.Hub.clientsMu.Unlock()
+
+		resp := domain.OperatorRegisterResponse{
+			Status: "ready",
+		}
+		rawResp, _ := json.Marshal(resp)
+		replyMsg := domain.Message{
+			Event: "operator_registered",
+			Data:  rawResp,
+		}
+		replyBytes, _ := json.Marshal(replyMsg)
+		c.Send <- replyBytes
+
+		go c.Hub.SyncDashboard()
+		log.Printf("[HUB] Operator registered from %s", c.IPAddress)
 
 	case "pong":
 		var payload domain.PongPayload
 		if err := json.Unmarshal(msg.Data, &payload); err != nil {
 			return
 		}
-		// RTT calculation and clock drift tracking
 		clientTime := time.UnixMilli(payload.ClientTimestampMs)
 		coordTime := time.Now()
-		// Simple drift calculation: clientTime - coordTime
 		drift := clientTime.Sub(coordTime)
 
 		c.mu.Lock()
 		c.ClockOffset = drift
 		c.mu.Unlock()
 		log.Printf("[CLIENT] Camera Node %d clock offset calibrated: %v", c.Index, drift)
+		go c.Hub.SyncDashboard()
 
 	case "status_update":
 		var payload domain.StatusUpdatePayload
 		if err := json.Unmarshal(msg.Data, &payload); err != nil {
 			return
 		}
-		log.Printf("[CLIENT] Session %s Node %d status updated: %s", payload.SessionID, payload.CameraIndex, payload.Status)
+		c.mu.Lock()
+		c.State = payload.Status
+		c.BatteryLevel = payload.BatteryLevel
+		c.mu.Unlock()
 
-		if payload.Status == "completed" && payload.GifURL != "" {
-			// Print sharing QR code
-			log.Println("==================================================")
-			log.Printf("[COORDINATOR] Stitching Complete for Session: %s", payload.SessionID)
-			log.Printf("[COORDINATOR] Guest GIF URL: %s", payload.GifURL)
-			log.Println("==================================================")
+		log.Printf("[CLIENT] Session %s Node %d status updated: %s (Battery: %d%%)", payload.SessionID, payload.CameraIndex, payload.Status, payload.BatteryLevel)
+		go c.Hub.SyncDashboard()
 
-			qr, err := qrcode.New(payload.GifURL, qrcode.Medium)
-			if err == nil {
-				fmt.Println(qr.ToSmallString(false))
+	case "operator_capture_trigger":
+		if c.IsOperator {
+			sessionId, err := c.Hub.TriggerCapture()
+			if err != nil {
+				log.Printf("[OPERATOR] Failed to trigger capture: %v", err)
+				resp := map[string]interface{}{"event": "error", "error": err.Error()}
+				respBytes, _ := json.Marshal(resp)
+				c.Send <- respBytes
 			} else {
-				log.Printf("[ERROR] Failed to generate guest QR code: %v", err)
+				log.Printf("[OPERATOR] Capturing session %s triggered successfully", sessionId)
 			}
 		}
 	}
@@ -300,7 +414,6 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 
 	client.Hub.register <- client
 
-	// Start read/write pumps in separate goroutines
 	go client.WritePump()
 	go client.ReadPump()
 }

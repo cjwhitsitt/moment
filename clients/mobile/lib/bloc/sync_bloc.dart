@@ -99,6 +99,17 @@ class SessionCompletedEvent extends SyncEvent {
   });
 }
 
+class SendStatusUpdateEvent extends SyncEvent {
+  final String sessionId;
+  final String status;
+  final String? errorMessage;
+  SendStatusUpdateEvent({
+    required this.sessionId,
+    required this.status,
+    this.errorMessage,
+  });
+}
+
 // Bloc Implementation
 class SyncBloc extends Bloc<SyncEvent, SyncState> {
   final WebSocketClient _wsClient;
@@ -202,6 +213,18 @@ class SyncBloc extends Bloc<SyncEvent, SyncState> {
       }
     });
 
+    on<SendStatusUpdateEvent>((event, emit) {
+      if (state is SyncConnected) {
+        _wsClient.send('status_update', {
+          'session_id': event.sessionId,
+          'camera_index': (state as SyncConnected).cameraIndex,
+          'status': event.status,
+          'battery_level': 85,
+          'error_message': event.errorMessage,
+        });
+      }
+    });
+
     on<SessionCompletedEvent>((event, emit) {
       _sessionSubscriptions[event.sessionId]?.cancel();
       _sessionSubscriptions.remove(event.sessionId);
@@ -212,6 +235,7 @@ class SyncBloc extends Bloc<SyncEvent, SyncState> {
           'session_id': event.sessionId,
           'camera_index': (state as SyncConnected).cameraIndex,
           'status': event.status,
+          'battery_level': 85,
           'gif_url': event.gifUrl,
           'error_message': event.error,
         });

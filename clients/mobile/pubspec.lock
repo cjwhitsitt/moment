@@ -121,6 +121,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.6.0"
+  cloud_functions:
+    dependency: "direct main"
+    description:
+      name: cloud_functions
+      sha256: "94ed08514607ac591e92b9aab1da67e3c8d99c0a7d0b40d096c62843f026cd52"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.3.3"
+  cloud_functions_platform_interface:
+    dependency: transitive
+    description:
+      name: cloud_functions_platform_interface
+      sha256: e864765efa9fdfebef126a87941851ed36bc00f325c223eeb4e2140f60b64ed2
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.0.3"
+  cloud_functions_web:
+    dependency: transitive
+    description:
+      name: cloud_functions_web
+      sha256: "68871283155445b6c99a3b6bfd2762a2daca2fdf605d6c204a0ab4522644b438"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.1.9"
   collection:
     dependency: transitive
     description:
@@ -137,6 +161,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.3.5+2"
+  crypto:
+    dependency: transitive
+    description:
+      name: crypto
+      sha256: c8ea0233063ba03258fbcf2ca4d6dadfefe14f02fab57702265467a19f27fadf
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.7"
   cupertino_icons:
     dependency: "direct main"
     description:
@@ -225,6 +257,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.11.9"
+  fixnum:
+    dependency: transitive
+    description:
+      name: fixnum
+      sha256: b6dc7065e46c974bc7c5f143080a6764ec7a4be6da1285ececdc37be96de53be
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.1"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -360,6 +400,54 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
+  nsd:
+    dependency: "direct main"
+    description:
+      name: nsd
+      sha256: "2551fec29f6032459815a577f385f89e18099a3ca1c545b5dfb1e1a64b5705ec"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.0.1"
+  nsd_android:
+    dependency: transitive
+    description:
+      name: nsd_android
+      sha256: "96d2d451c5db0319c37b1b2a38f2d55eb56ae54c0b0d3144c03c19c97436de4a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.0"
+  nsd_ios:
+    dependency: transitive
+    description:
+      name: nsd_ios
+      sha256: "57a4b8b218860346eba7e2d629c6fce1fa89a97645350130a15c45babb4b1324"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.1"
+  nsd_macos:
+    dependency: transitive
+    description:
+      name: nsd_macos
+      sha256: cca373ee5f28ea22140d595b5cd06e83ebc2d6e4ee3e17d7fa1fd6564e4cb352
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.1"
+  nsd_platform_interface:
+    dependency: transitive
+    description:
+      name: nsd_platform_interface
+      sha256: b1a5ace6f01ea2ce37f373e52c3b7af4fd7c11de2582ddcc89f4fc00615d9dff
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.0"
+  nsd_windows:
+    dependency: transitive
+    description:
+      name: nsd_windows
+      sha256: "68b4a256b0be258dbbad0ae789f2e8838d0935a353dac86b17c14c1a05df4ecd"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.1"
   ntp:
     dependency: "direct main"
     description:
@@ -416,6 +504,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.1.5+1"
+  qr:
+    dependency: transitive
+    description:
+      name: qr
+      sha256: "5a1d2586170e172b8a8c8470bbbffd5eb0cd38a66c0d77155ea138d3af3a4445"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.2"
+  qr_flutter:
+    dependency: "direct main"
+    description:
+      name: qr_flutter
+      sha256: "5095f0fc6e3f71d08adef8feccc8cea4f12eec18a2e31c2e8d82cb6019f4b097"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.1.0"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -485,6 +589,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.0"
+  uuid:
+    dependency: transitive
+    description:
+      name: uuid
+      sha256: "1fef9e8e11e2991bb773070d4656b7bd5d850967a2456cfc83cf47925ba79489"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.5.3"
   vector_math:
     dependency: transitive
     description:

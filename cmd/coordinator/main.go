@@ -8,9 +8,7 @@ import (
 	"net/http"
 	"strings"
 
-	"time"
-
-	"moment/pkg/domain"
+	"moment/pkg/mdns"
 	"moment/pkg/ntp"
 	"moment/pkg/ws"
 
@@ -52,9 +50,18 @@ func main() {
 	log.Printf("[SERVER] UDP NTP Server Endpoint: %s:%d", localIP, *ntpPort)
 	log.Println("==================================================")
 
+	// Start mDNS advertiser
+	adv, err := mdns.StartAdvertiser(*port)
+	if err != nil {
+		log.Printf("[WARNING] Failed to start mDNS advertiser: %v", err)
+	} else {
+		defer adv.Stop()
+		log.Printf("[mDNS] Advertising service _moment-coordinator._tcp on port %d", *port)
+	}
+
 	// Start local NTP server
 	ntpAddr := fmt.Sprintf("%s:%d", localIP, *ntpPort)
-	_, err := ntp.StartNTPServer(ntpAddr)
+	_, err = ntp.StartNTPServer(ntpAddr)
 	if err != nil {
 		log.Fatalf("[ERROR] Failed to start local NTP server: %v", err)
 	}
@@ -77,30 +84,18 @@ func main() {
 	})
 
 	// HTTP trigger endpoint to fire all cameras simultaneously
+	// HTTP trigger endpoint to fire all cameras simultaneously
 	http.HandleFunc("/trigger", func(w http.ResponseWriter, r *http.Request) {
-		clients := hub.GetClients()
-		n := len(clients)
-		if n < 3 || n > 10 {
+		sessionId, err := hub.TriggerCapture()
+		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Header().Set("Content-Type", "application/json")
-			fmt.Fprintf(w, `{"error":"invalid camera count: %d. Must be between 3 and 10"}`, n)
+			fmt.Fprintf(w, `{"error":"%s"}`, err.Error())
 			return
 		}
 
-		sessionId := fmt.Sprintf("session-%d", time.Now().UnixNano())
-		// Set trigger execution 500ms in the future
-		triggerTime := time.Now().Add(500 * time.Millisecond).UnixMilli()
-
-		log.Printf("[TRIGGER] Broadcasting capture trigger for Session: %s at time: %d with %d expected frames", sessionId, triggerTime, n)
-
-		hub.Broadcast("capture_trigger", domain.TriggerPayload{
-			SessionID:      sessionId,
-			TriggerEpochMs: triggerTime,
-			ExpectedFrames: n,
-		})
-
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintf(w, `{"status":"triggered","session_id":"%s","trigger_epoch_ms":%d,"expected_frames":%d}`, sessionId, triggerTime, n)
+		fmt.Fprintf(w, `{"status":"triggered","session_id":"%s"}`, sessionId)
 	})
 
 	serverAddr := fmt.Sprintf(":%d", *port)

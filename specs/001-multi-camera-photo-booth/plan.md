@@ -14,10 +14,13 @@ This feature implements a distributed multi-camera photo booth system designed f
 
 **Primary Dependencies**:
 - `github.com/gorilla/websocket` (Go WebSocket server)
+- `github.com/hashicorp/mdns` (Go mDNS service registration)
 - `ntp` (Dart package for NTP sync)
+- `nsd` (Dart package for mDNS client-side discovery)
 - `flutter_bloc` (Dart state management)
 - `firebase_core`, `firebase_storage` (Dart Firebase SDK)
 - `firebase-functions`, `firebase-admin` (Node.js SDK)
+- `resend` (Node.js email delivery SDK)
 - `fluent-ffmpeg` (Node.js FFmpeg wrapper)
 - `wakelock_plus` (Dart package for preventing screen sleep)
 
@@ -31,7 +34,7 @@ This feature implements a distributed multi-camera photo booth system designed f
 
 **Performance Goals**: Synchronization trigger skew <5ms across all connected clients; end-to-end capture-to-display time <10 seconds.
 
-**Constraints**: Devices must be connected to the same local Wi-Fi subnet; camera startup and shutter lag must be minimized on client hardware. The Flutter client application must prevent the device from sleeping by enabling a wake lock while registered/paired. A comprehensive operator setup README must be provided in the root directory. The iOS client application minimum deployment target must be set to 15.0 to support Firebase Swift Package Manager dependencies. Platform-specific FirebaseOptions must be configured programmatically to prevent iOS SDK configuration exceptions, including using a valid 39-character apiKey starting with "A". iOS Info.plist must contain NSCameraUsageDescription, NSMicrophoneUsageDescription, and NSLocalNetworkUsageDescription keys to prevent OS runtime termination; the Flutter client application must implement dynamic camera lifecycle management to prevent camera resource lock conflicts between the QR code scanner (MobileScanner) and camera preview (CameraController) on Android; the Android AndroidManifest.xml must permit cleartext traffic and request the internet permission to support local network connection to the Firebase storage and firestore emulators; Node.js Cloud Functions must utilize modular subpath imports (such as 'firebase-admin/firestore' for FieldValue) to prevent legacy global namespace resolution errors under firebase-admin v12+; the Flutter client application and Firebase Cloud Functions must use a consistent storage bucket domain (specifically 'moment-aad8b.firebasestorage.app') to prevent file resolution mismatches during stitching; the Node.js Cloud Functions must depend on '@ffmpeg-installer/ffmpeg' to provide a precompiled self-contained FFmpeg binary for cross-platform portability without requiring a system-level binary installation; the Node.js Cloud Functions must construct direct unauthenticated local download URLs when running in the emulator (detected via FIREBASE_STORAGE_EMULATOR_HOST) to avoid cryptographic signing errors due to mock credentials; the Node.js Cloud Functions must specify an explicit -start_number 0 in the FFmpeg demuxer configuration to guarantee that the frame sequence starts at 0 and doesn't skip the first frame on platforms defaulting to 1; the Node.js Cloud Functions must disable filter reinitialization via -reinit_filter 0, normalize all input frames to a uniform 800x600 resolution (using scale and pad), and apply a fifo filter before paletteuse to prevent frames from being dropped when camera nodes upload captures at varying resolutions. The system supports pairing between 3 and 10 devices, and trigger commands must enforce this minimum/maximum check.
+**Constraints**: Devices must be connected to the same local Wi-Fi subnet; camera startup and shutter lag must be minimized on client hardware. The Flutter client application must prevent the device from sleeping by enabling a wake lock while registered/paired. A comprehensive operator setup README must be provided in the root directory. The iOS client application minimum deployment target must be set to 15.0 to support Firebase Swift Package Manager dependencies. Platform-specific FirebaseOptions must be configured programmatically to prevent iOS SDK configuration exceptions, including using a valid 39-character apiKey starting with "A". iOS Info.plist must contain NSCameraUsageDescription, NSMicrophoneUsageDescription, and NSLocalNetworkUsageDescription keys to prevent OS runtime termination; the Flutter client application must implement dynamic camera lifecycle management to prevent camera resource lock conflicts between the QR code scanner (MobileScanner) and camera preview (CameraController) on Android; the Android AndroidManifest.xml must permit cleartext traffic and request the internet permission to support local network connection to the Firebase storage and firestore emulators; Node.js Cloud Functions must utilize modular subpath imports (such as 'firebase-admin/firestore' for FieldValue) to prevent legacy global namespace resolution errors under firebase-admin v12+; the Flutter client application and Firebase Cloud Functions must use a consistent storage bucket domain (specifically 'moment-aad8b.firebasestorage.app') to prevent file resolution mismatches during stitching; the Node.js Cloud Functions must depend on '@ffmpeg-installer/ffmpeg' to provide a precompiled self-contained FFmpeg binary for cross-platform portability without requiring a system-level binary installation; the Node.js Cloud Functions must construct direct unauthenticated local download URLs when running in the emulator (detected via FIREBASE_STORAGE_EMULATOR_HOST) to avoid cryptographic signing errors due to mock credentials; the Node.js Cloud Functions must specify an explicit -start_number 0 in the FFmpeg demuxer configuration to guarantee that the frame sequence starts at 0 and doesn't skip the first frame on platforms defaulting to 1; the Node.js Cloud Functions must disable filter reinitialization via -reinit_filter 0, normalize all input frames to a uniform 800x600 resolution (using scale and pad), and apply a fifo filter before paletteuse to prevent frames from being dropped when camera nodes upload captures at varying resolutions. The system supports pairing between 3 and 10 devices, and trigger commands must enforce this minimum/maximum check. The Go coordinator must advertise its WebSocket service on port 8080 over mDNS using service type `_moment-coordinator._tcp` and service name `moment-coordinator`. The Flutter app must ask the user on launch whether to start in Camera Mode or Operator Mode. The Operator Control Panel must auto-discover the `moment-coordinator` service via mDNS and offer a manual IP address fallback. All outgoing email shares must be triggered via an HTTPS Callable Cloud Function calling the Resend API, using an API key stored in Firebase Functions environment config (`resend.key`).
 
 
 
@@ -73,18 +76,21 @@ cmd/
 pkg/
 ├── ntp/                 # Local NTP server implementation
 ├── ws/                  # WebSocket server and connection manager
+├── mdns/                # mDNS advertising service
 └── domain/              # Shared Go domain types
 clients/
 └── mobile/              # Flutter client app
     ├── lib/
-    │   ├── bloc/        # Bloc/Cubit state files
-    │   ├── services/    # NTP sync, WebSocket client, and Firebase upload services
+    │   ├── bloc/        # Bloc/Cubit state files (Camera and Operator)
+    │   ├── services/    # NTP sync, WebSocket, mDNS Discovery, and Firebase upload services
+    │   ├── ui/          # UI pages (Selection, Camera Node, Operator Panel)
     │   └── main.dart    # Main Flutter entrypoint
-    └── test/            # Flutter widget and unit tests
+    └── test/            # Flutter widget, bloc, and unit tests
 functions/               # Firebase Cloud Functions (TypeScript)
     ├── src/
-    │   ├── index.ts     # Main Cloud Function hooks
-    │   └── stitch.ts    # FFmpeg processing and sequence builder
+    │   ├── index.ts     # Main Cloud Function hooks and Callable email endpoint
+    │   ├── stitch.ts    # FFmpeg processing and sequence builder
+    │   └── email.ts     # Resend client integration
     ├── package.json
     └── tsconfig.json
 ```
@@ -109,9 +115,11 @@ functions/               # Firebase Cloud Functions (TypeScript)
 
 ### Manual Verification
 1. Start the Go coordinator server locally.
-2. Launch N instances (where $3 \le N \le 10$) of the mobile application (or mock clients). Scan the pairing QR code to establish WebSocket connections.
-3. Confirm NTP synchronization succeeds and offset is calculated (<1ms target offset).
-4. Trigger a capture session from the coordinator dashboard.
-5. Verify raw images are uploaded directly to the Firebase Cloud Storage emulator bucket.
-6. Verify the Node.js function processes the N frames using FFmpeg, sequences them in a dynamic ping-pong loop (`1 -> 2 -> ... -> N -> N-1 -> ... -> 2`) and saves the looping `.gif`.
-7. Verify the coordinator displays the final guest QR code, which resolves to the stitched GIF.
+2. Launch the mobile application on a device, select **Operator Mode**, and confirm it auto-discovers the Go coordinator via mDNS and establishes connection.
+3. Launch $N$ instances (where $3 \le N \le 10$) of the mobile app in **Camera Mode**. Scan the pairing QR code displayed on the Operator device to establish connections.
+4. Verify that the Operator App dashboard displays all paired camera nodes with their battery levels, calculated NTP offsets (<1ms target offset), and states.
+5. Tap **Capture** on the Operator App dashboard to trigger the synchronized capture session.
+6. Verify that raw images are captured and uploaded directly to the Firebase Cloud Storage emulator bucket.
+7. Verify that the Node.js function processes the $N$ frames using FFmpeg, sequences them in a looping ping-pong GIF (`1 -> 2 -> ... -> N -> N-1 -> ... -> 2`), and updates the Firestore document status to `completed`.
+8. Verify that the Operator App displays the guest sharing QR code and the stitched GIF animation preview once stitching finishes.
+9. Enter a test email address on the Operator App, tap submit, and verify that the Resend Cloud Function sends the email containing the stitched GIF. Check the Resend dashboard or mail logs to verify.

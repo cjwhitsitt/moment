@@ -8,6 +8,9 @@ import 'services/websocket_client.dart';
 import 'services/upload_service.dart';
 import 'services/session_service.dart';
 import 'bloc/sync_bloc.dart';
+import 'bloc/operator/operator_bloc.dart';
+import 'ui/selection_page.dart';
+import 'ui/operator_dashboard_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,19 +46,35 @@ class PhotoBoothApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Moment Camera Node',
-      theme: ThemeData.dark().copyWith(
-        primaryColor: Colors.deepPurple,
-        scaffoldBackgroundColor: const Color(0xFF121212),
-        colorScheme: const ColorScheme.dark(
-          primary: Colors.deepPurple,
-          secondary: Colors.amber,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<SyncBloc>(create: (context) => SyncBloc(WebSocketClient())),
+        BlocProvider<OperatorBloc>(create: (context) => OperatorBloc(WebSocketClient())),
+      ],
+      child: MaterialApp(
+        title: 'Moment',
+        theme: ThemeData.dark().copyWith(
+          primaryColor: Colors.deepPurple,
+          scaffoldBackgroundColor: const Color(0xFF121212),
+          colorScheme: const ColorScheme.dark(
+            primary: Colors.deepPurple,
+            secondary: Colors.amber,
+          ),
         ),
-      ),
-      home: BlocProvider(
-        create: (context) => SyncBloc(WebSocketClient()),
-        child: const HomeScreen(),
+        home: Builder(
+          builder: (context) => SelectionPage(
+            onSelectCamera: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => const HomeScreen()),
+              );
+            },
+            onSelectOperator: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => const OperatorDashboardPage()),
+              );
+            },
+          ),
+        ),
       ),
     );
   }
@@ -145,6 +164,7 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _uploadStatus = 'Capturing...';
     });
+    context.read<SyncBloc>().add(SendStatusUpdateEvent(sessionId: sessionId, status: 'capturing'));
 
     try {
       // 1. Shutter capture & upload raw image
@@ -157,6 +177,7 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _uploadStatus = 'Uploading Frame...';
       });
+      context.read<SyncBloc>().add(SendStatusUpdateEvent(sessionId: sessionId, status: 'uploading'));
 
       // 2. Log frame path to Firestore session document
       await SessionService.updateFrameUpload(sessionId, cameraIndex, storagePath, expectedFrames);
@@ -164,10 +185,12 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _uploadStatus = 'Upload Success';
       });
+      context.read<SyncBloc>().add(SendStatusUpdateEvent(sessionId: sessionId, status: 'uploaded'));
     } catch (e) {
       setState(() {
         _uploadStatus = 'Error: ${e.toString()}';
       });
+      context.read<SyncBloc>().add(SendStatusUpdateEvent(sessionId: sessionId, status: 'failed', errorMessage: e.toString()));
     }
   }
 

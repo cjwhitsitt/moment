@@ -1,72 +1,68 @@
 # Quickstart Validation Guide: Distributed Multi-Camera Photo Booth
 
-This guide outlines the steps required to verify that the photo booth system functions correctly from local device pairing to cloud stitching.
+This guide outlines the steps required to verify that the photo booth system functions correctly from local device pairing to cloud stitching and email delivery.
 
 ## Prerequisites
 
 - **Go**: Version 1.21+ installed on the coordinator host (macOS/Raspberry Pi)
-- **Flutter**: Flutter SDK installed for client testing
+- **Flutter**: Flutter SDK installed for client and operator testing
 - **Firebase CLI**: Installed and authenticated to the target Firebase project
-- **Local Network**: All devices (coordinator and smartphones) must be on the same local Wi-Fi subnet with UDP port 123 (NTP) and TCP port 8080 (WebSockets) open.
+- **Resend**: API Key configured in Firebase Functions environment variables
+- **Local Network**: All devices (coordinator, operator, and smartphones) must be on the same local Wi-Fi subnet with UDP port 1230 (NTP) and TCP port 8080 (WebSockets) open.
 
 ---
 
-## Scenario 1: Setup & Connection Verification
+## Scenario 1: Setup, Discovery & Connection Verification
 
-Verify that client devices can pair with the local coordinator and synchronize system clocks.
+Verify that the Operator App can discover the headless coordinator via mDNS and cameras can pair with the system.
 
 ### Steps
-1. Start the local coordinator server:
+1. Start the headless coordinator server:
    ```bash
-   go run cmd/coordinator/main.go --port=8080 --ntp-port=123
+   go run cmd/coordinator/main.go --port=8080 --ntp-port=1230
    ```
-2. Retrieve the pairing QR code from the coordinator interface or console output.
-3. Open the Flutter client app on a test device, select "Scan Coordinator QR", and scan the QR code.
-4. Verify the client console displays a successful registration handshake.
+2. Open the Flutter app on the Operator device and select **Operator Mode**.
+3. Verify that the Operator App auto-discovers the coordinator (via mDNS) and displays the pairing QR code.
+4. Open the Flutter app on a camera node smartphone, select **Camera Mode**, and scan the QR code off the Operator App screen.
+5. Repeat for N cameras (where $3 \le N \le 10$).
 
 ### Expected Outcomes
 - Coordinator terminal log shows:
-  ```text
-  [INFO] Registered Client Node 1 from IP 192.168.1.50
-  ```
-- Client app shows the active connection indicator and displays the calculated NTP clock offset (e.g., `Clock Offset: -4ms`).
+   ```text
+   [INFO] Operator registered: iPad Pro
+   [INFO] Camera node 1 registered: iPhone 15 Pro (IP: 192.168.1.50)
+   ```
+- The Operator App dashboard displays all N connected camera nodes, showing their unique indices, battery levels, NTP clock offsets (<1ms target), and status (Idle).
 
 ---
 
 ## Scenario 2: Synchronized Capture Trigger
 
-Verify that a capture signal is received and executed simultaneously across client nodes.
+Verify that a capture signal is triggered remotely from the Operator App and executed simultaneously across client nodes.
 
 ### Steps
-1. Pair all N client smartphones (where $3 \le N \le 10$). Ensure the coordinator reports a `Ready to Shoot` state.
-2. Click the "Capture" trigger button on the coordinator dashboard.
+1. Confirm the Operator App dashboard displays a `Ready to Shoot` state (meaning between 3 and 10 camera nodes are connected).
+2. Tap the **Capture** trigger button on the Operator App dashboard.
 3. Observe the camera shutters firing on all N smartphones.
 
 ### Expected Outcomes
-- Coordinator logs show a broadcast trigger payload dispatched to all connected clients:
-  ```text
-  [INFO] Triggering Capture Session: session-9b1deb4d
-  ```
-- All N smartphones fire their cameras at the identical future epoch timestamp designated in the payload.
+- All N smartphones fire their cameras at the identical future epoch timestamp designated by the coordinator.
+- The Operator App dashboard updates the camera status indicators in real-time from `Idle` -> `Capturing` -> `Uploading` -> `Uploaded`.
 
 ---
 
-## Scenario 3: Cloud Stitching & Display Verification
+## Scenario 3: Cloud Stitching & Email Delivery
 
-Verify that uploaded frames are stitched into a looping ping-pong GIF and shared.
+Verify that uploaded frames are stitched into a looping ping-pong GIF and shared/delivered via email.
 
 ### Steps
-1. Let the smartphones complete uploading their frames directly to Firebase Storage.
-2. Verify the Firestore document `sessions/session-9b1deb4d` updates to `processing` and then `completed`.
-3. Check the coordinator screen for the generated sharing QR code.
-4. Scan the sharing QR code with a smartphone.
+1. Allow the smartphones to finish uploading their frames directly to Firebase Storage.
+2. Verify the Operator App sharing screen displays the guest QR code and the stitched GIF animation preview once stitching is complete.
+3. Scan the sharing QR code with a guest smartphone.
+4. On the Operator App, enter a test email address and submit.
 
 ### Expected Outcomes
-- Firestore session document is updated with:
-  ```json
-  {
-    "status": "completed",
-    "gifUrl": "https://firebasestorage.googleapis.com/.../session-9b1deb4d.gif"
-  }
-  ```
-- The phone browser navigates to the URL and plays a smooth, looping ping-pong GIF animation sequenced as: `1 → 2 → ... → N → N-1 → ... → 2` (skipping the duplicate end-frame to prevent lag).
+- Firestore session document is updated to `completed` with the `gifUrl`.
+- The Operator App displays the guest QR code, renders the looping stitched GIF preview, and opens the email delivery form.
+- The Resend cloud function dispatches the email. Check the inbox (or Resend dashboard logs) for the email containing the stitched GIF.
+- A new share document is created under `sessions/{sessionId}/shares` with status `sent`.

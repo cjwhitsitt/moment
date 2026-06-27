@@ -142,6 +142,45 @@
 
 ---
 
+## Phase 8: User Story 5 - Operator Control Panel (Priority: P1)
+
+**Goal**: Establish remote Operator dashboard connection via mDNS discovery, monitor node status, and trigger captures.
+
+**Independent Test**: The Operator App discovers and connects to the coordinator, displays status metrics for all active camera nodes, and triggers a synchronized capture session.
+
+### Implementation for User Story 5
+
+- [x] T043 [US5] Add nsd dependency to clients/mobile/pubspec.yaml
+- [x] T044 [US5] Implement mDNS discovery service in clients/mobile/lib/services/discovery_service.dart to auto-resolve the Go coordinator service on the local Wi-Fi subnet
+- [x] T045 [US5] Implement Go mDNS advertiser in pkg/mdns/advertiser.go using github.com/hashicorp/mdns and initialize it on startup in cmd/coordinator/main.go
+- [x] T046 [US5] Create connection mode selection screen (Camera Mode vs Operator Mode) in clients/mobile/lib/ui/selection_page.dart
+- [x] T047 [US5] Update Go coordinator WebSocket registration handler to support operator connection types in pkg/ws/websocket.go
+- [x] T048 [US5] Update Go coordinator to broadcast real-time node state sync payloads to operator connections on registry changes in pkg/ws/websocket.go
+- [x] T049 [US5] Update Flutter client to track and send battery level and state updates to coordinator in clients/mobile/lib/bloc/sync_bloc.dart
+- [x] T050 [US5] Implement Operator Dashboard UI (pairing QR, camera status grid, battery level, NTP offset, state, and trigger button) in clients/mobile/lib/ui/operator_dashboard_page.dart
+- [x] T051 [US5] Implement remote capture trigger command routing (operator_capture_trigger -> capture_trigger) in cmd/coordinator/main.go
+
+**Checkpoint**: Operator Control Panel is functional and can trigger capture sessions.
+
+---
+
+## Phase 9: Support Guest Email Delivery (Priority: P1)
+
+**Goal**: Deliver stitched GIFs to guest email addresses via Resend from the Operator App.
+
+**Independent Test**: Enter an email address on the Operator App, tap submit, and verify that the Resend Cloud Function sends the email containing the stitched GIF.
+
+### Implementation for Phase 9
+
+- [x] T052 [US5] Add resend dependency to functions/package.json
+- [x] T053 [P] [US5] Implement Resend client integration and HTML/markdown email template sender in functions/src/email.ts
+- [x] T054 [US5] Implement Callable Cloud Function sendGifEmail to validate request inputs and invoke Resend in functions/src/index.ts
+- [x] T055 [US5] Implement guest email entry input field, delivery status state, and stitched GIF preview display on Operator App sharing view in clients/mobile/lib/ui/operator_dashboard_page.dart
+
+**Checkpoint**: Guest email sharing delivers stitched animations via Resend.
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
@@ -151,4 +190,6 @@
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion.
   - Can proceed sequentially in priority order: US1 (P1) → US2 (P1) → US3 (P2) → US4 (P2)
 - **Variable Cameras (Phase 7)**: Depends on all previous user stories being complete.
+- **Operator Control Panel (Phase 8)**: Depends on Variable Cameras (Phase 7) being complete.
+- **Guest Email Delivery (Phase 9)**: Depends on Operator Control Panel (Phase 8) being complete.
 - **Polish (Final Phase)**: Depends on all user stories being complete.

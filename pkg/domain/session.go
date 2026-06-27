@@ -57,6 +57,7 @@ type StatusUpdatePayload struct {
 	SessionID    string `json:"session_id"`
 	CameraIndex  int    `json:"camera_index"`
 	Status       string `json:"status"` // "capturing" | "uploading" | "uploaded" | "completed" | "failed"
+	BatteryLevel int    `json:"battery_level"`
 	GifURL       string `json:"gif_url,omitempty"`
 	ErrorMessage string `json:"error_message,omitempty"`
 }
@@ -78,4 +79,36 @@ type CaptureSession struct {
 	CreatedAt time.Time               `json:"created_at"`
 	Frames    map[int]string          `json:"frames"` // Camera index -> Storage URL
 	Error     string                  `json:"error,omitempty"`
+}
+
+// OperatorRegisterPayload is sent by the Operator App to register
+type OperatorRegisterPayload struct {
+	DeviceName string `json:"device_name"`
+}
+
+// OperatorRegisterResponse is sent back to confirm operator registration
+type OperatorRegisterResponse struct {
+	Status string `json:"status"`
+}
+
+// CameraNodeStatus is the status of a camera node sent to the operator
+type CameraNodeStatus struct {
+	CameraIndex   int     `json:"camera_index"`
+	DeviceName    string  `json:"device_name"`
+	State         string  `json:"state"` // "idle" | "capturing" | "uploading" | "uploaded" | "failed"
+	BatteryLevel  int     `json:"battery_level"`
+	ClockOffsetMs float64 `json:"clock_offset_ms"`
+	IsReady       bool    `json:"is_ready"`
+}
+
+// ActiveSessionStatus is the status of the active capture session sent to the operator
+type ActiveSessionStatus struct {
+	SessionID string `json:"session_id"`
+	Status    string `json:"status"` // "idle" | "triggered" | "done" | "failed"
+}
+
+// DashboardSyncPayload is pushed to the operator in real-time
+type DashboardSyncPayload struct {
+	Cameras       []CameraNodeStatus   `json:"cameras"`
+	ActiveSession *ActiveSessionStatus `json:"active_session,omitempty"`
 }

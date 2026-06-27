@@ -89,7 +89,77 @@ Sent by Flutter clients to notify the coordinator of their progress through the 
     "session_id": "session-9b1deb4d-3b7d-4bad",
     "camera_index": 1,
     "status": "capturing" | "uploading" | "uploaded" | "failed",
+    "battery_level": 88,
     "error_message": null
+  }
+}
+```
+
+---
+
+## 5. Operator Registration (Handshake)
+
+Sent by the Flutter Operator App upon establishing a WebSocket connection.
+
+### Request Payload (Operator -> Coordinator)
+```json
+{
+  "event": "operator_register",
+  "data": {
+    "device_name": "iPad Pro"
+  }
+}
+```
+
+### Response Payload (Coordinator -> Operator)
+```json
+{
+  "event": "operator_registered",
+  "data": {
+    "status": "ready"
+  }
+}
+```
+
+---
+
+## 6. Remote Capture Trigger
+
+Sent by the Operator App to request the coordinator to start a capture session.
+
+### Request Payload (Operator -> Coordinator)
+```json
+{
+  "event": "operator_capture_trigger",
+  "data": {}
+}
+```
+
+---
+
+## 7. Operator Dashboard Sync
+
+Pushed in real-time by the Go coordinator to all registered Operator connections whenever any node registry state changes (pairing, disconnects, battery updates, NTP offsets, or capture state transitions).
+
+### Push Payload (Coordinator -> Operator)
+```json
+{
+  "event": "dashboard_sync",
+  "data": {
+    "cameras": [
+      {
+        "camera_index": 1,
+        "device_name": "iPhone 15 Pro",
+        "state": "idle" | "capturing" | "uploading" | "uploaded" | "failed",
+        "battery_level": 85,
+        "clock_offset_ms": -0.45,
+        "is_ready": true
+      }
+    ],
+    "active_session": {
+      "session_id": "session-9b1deb4d-3b7d-4bad",
+      "status": "idle" | "triggered" | "done" | "failed"
+    }
   }
 }
 ```

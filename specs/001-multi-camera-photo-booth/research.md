@@ -44,3 +44,33 @@ Node.js Cloud Functions triggered by Firestore document updates, watching for al
 ### Alternatives Considered
 - **Stitching on Go Coordinator**: Rejected because it consumes local CPU/GPU resources on the edge device (e.g., Raspberry Pi) which could introduce latency jitter for subsequent capture triggers.
 - **Static 5-Camera Stitching**: Rejected because it limits physical setup flexibility for operators who need to use 3+ (up to 10) devices.
+
+---
+
+## Coordinator Discovery (mDNS)
+
+### Decision
+Use mDNS (Multicast DNS) broadcasting from the Go coordinator and client-side discovery (via `nsd` or `bonsoir`) in the Flutter Operator App, with manual IP address backup.
+
+### Rationale
+- **Zero-Configuration**: Event operators should not need to log into routers or run command-line tools to find the Raspberry Pi's local IP address. mDNS allows the Operator App to discover the coordinator's WebSocket port automatically on the local Wi-Fi subnet.
+- **Manual Backup**: In networks where multicast traffic is disabled by AP isolation or enterprise policies, a manual IP input field ensures the system remains functional.
+
+### Alternatives Considered
+- **Direct Scan**: Having the operator scan a QR code printed by the Pi's terminal. This was rejected because in a headless setup, the Pi has no screen or terminal display.
+- **Cloud Registry**: Registering the local IP to a central cloud Firestore database. This was rejected because the local system should be able to establish edge connections first without relying on immediate cloud database updates.
+
+---
+
+## Transactional Email Delivery
+
+### Decision
+Use Resend via a dedicated Node.js Cloud Function.
+
+### Rationale
+- **Resend**: Offers a highly reliable, developer-friendly REST API for email delivery with excellent deliverability.
+- **Node.js Cloud Function**: Decoupling email sending from the Flutter application ensures that email processing doesn't consume mobile device bandwidth or CPU, and allows for securing API credentials on the server side.
+
+### Alternatives Considered
+- **Direct Mailgun/Twilio SDKs on Mobile**: Rejected due to exposure of API credentials inside the client mobile application bundle.
+- **Firebase Trigger Email Extension**: Rejected because it is less customizable than writing a lightweight, dedicated Node.js function calling Resend directly.

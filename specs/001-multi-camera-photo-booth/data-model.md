@@ -31,12 +31,25 @@ The Go coordinator maintains client node state in memory to manage connections, 
 
 ```go
 type ClientNode struct {
-	Index       int            `json:"index"`        // 1 to 10
-	IPAddress   string         `json:"ip_address"`
-	ConnectedAt time.Time      `json:"connected_at"`
-	IsReady     bool           `json:"is_ready"`
-	ClockOffset time.Duration  `json:"clock_offset"` // Offset from coordinator time (NTP)
+	Index        int           `json:"index"`        // 1 to 10
+	IPAddress    string        `json:"ip_address"`
+	ConnectedAt  time.Time     `json:"connected_at"`
+	IsReady      bool          `json:"is_ready"`
+	ClockOffset  time.Duration `json:"clock_offset"`  // Offset from coordinator time (NTP)
+	BatteryLevel int           `json:"battery_level"`  // 0 to 100
+	State        string        `json:"state"`         // "idle" | "capturing" | "uploading" | "uploaded" | "error"
 }
+```
+
+### Connection Types
+
+```go
+type ConnectionType string
+
+const (
+	ConnCamera   ConnectionType = "camera"
+	ConnOperator ConnectionType = "operator"
+)
 ```
 
 ### Coordinator Session State
@@ -47,6 +60,24 @@ type CaptureSession struct {
 	Status    string            `json:"status"` // "ready" | "triggered" | "done"
 	StartedAt time.Time         `json:"started_at"`
 	Nodes     map[int]*ClientNode
+}
+```
+
+---
+
+## Email Sharing Model
+
+### Collection: `sessions/{sessionId}/shares`
+
+For tracking guest sharing delivery attempts:
+
+```typescript
+interface ShareDocument {
+  id: string;                               // Unique share identifier
+  email: string;                            // Guest email address
+  status: 'pending' | 'sent' | 'failed';
+  sentAt?: admin.firestore.Timestamp;       // Populated on successful delivery
+  errorMessage?: string;                    // Populated on failure
 }
 ```
 
