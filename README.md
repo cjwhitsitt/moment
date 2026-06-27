@@ -1,13 +1,13 @@
 # Moment: Distributed Multi-Camera Photo Booth
 
-A distributed edge-and-cloud photo booth system that triggers exactly 5 physical smartphone camera nodes simultaneously over a local network, uploads raw captures directly to Firebase Storage, and compiles them via FFmpeg in Node.js Cloud Functions into a smooth looping ping-pong GIF (`1-2-3-4-5-4-3-2`) displayed locally via a guest sharing QR code.
+A distributed edge-and-cloud photo booth system that triggers a variable number of physical smartphone camera nodes (between 3 and 10) simultaneously over a local network, uploads raw captures directly to Firebase Storage, and compiles them via FFmpeg in Node.js Cloud Functions into a smooth looping ping-pong GIF (`1 -> 2 -> ... -> N -> N-1 -> ... -> 2`) displayed locally via a guest sharing QR code.
 
 ---
 
 ## 🎯 System Architecture
 
 - **Go Coordinator**: Exposes a local WebSockets server (default port `8080`) for pairing registration/heartbeats and a local UDP NTP server (default port `1230`) to synchronize client clocks.
-- **Flutter Clients**: 5 smartphones running the mobile app. They calculate clock offset relative to the coordinator NTP, establish persistent WebSocket pairing, listen for future-scheduled shutter trigger epochs, keep screens awake during session registration, and upload raw photos directly to Firebase Storage.
+- **Flutter Clients**: Active camera nodes (between 3 and 10 smartphones) running the mobile app. They calculate clock offset relative to the coordinator NTP, establish persistent WebSocket pairing, listen for future-scheduled shutter trigger epochs, keep screens awake during session registration, and upload raw photos directly to Firebase Storage.
 - **Cloud Backend**: Firebase Storage (stores frames and finished GIFs), Firestore (orchestrates session states in real-time), and Node.js Cloud Functions (invokes FFmpeg to stitch GIFs).
 
 ---
@@ -17,7 +17,7 @@ A distributed edge-and-cloud photo booth system that triggers exactly 5 physical
 Follow this sequence to set up the system at an event.
 
 ### 1. Prerequisites & Networking
-- **Single Subnet**: The MacBook hosting the coordinator/emulators and all 5 physical smartphones must be connected to the exact same Wi-Fi router.
+- **Single Subnet**: The MacBook hosting the coordinator/emulators and all connected physical smartphones (between 3 and 10 devices) must be connected to the exact same Wi-Fi router.
 - **Network Ports**: Ensure the following ports are open on the host MacBook:
   - `8080` (TCP - WebSockets coordinator)
   - `1230` (UDP - NTP coordinator)
@@ -52,10 +52,10 @@ Follow this sequence to set up the system at an event.
 5. **Pair the Smartphones**:
    - Open the Flutter client app on each phone.
    - Scan the coordinator pairing QR code.
-   - Assign each device a unique camera index (`1` to `5`).
+   - Assign each device a unique camera index (`1` to `10`).
    - Confirm connection state transitions to "Ready" (screen wake locks will engage automatically, preventing the devices from sleeping or dimming).
 6. **Trigger Shutter**:
-   Once all 5 camera nodes show registered on the coordinator dashboard, click **Capture** or trigger the session endpoint.
+   - Once all paired camera nodes (between 3 and 10) show registered on the coordinator dashboard, click **Capture** or trigger the session endpoint.
 7. **View Looping GIF**:
    - The coordinator terminal will print a guest sharing QR code once stitching is complete.
    - Scan with a guest device to view the looping ping-pong GIF.

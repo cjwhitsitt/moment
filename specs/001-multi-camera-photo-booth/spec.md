@@ -19,6 +19,10 @@
 
 - Q: Camera Limit flexibility → A: The system will support a variable number of client camera nodes, from a minimum of 3 up to a maximum of 10. The stitching sequence will dynamically construct a ping-pong loop based on the number of active paired cameras (e.g. for N cameras: 1 → 2 → ... → N → N-1 → ... → 2).
 
+### Session 2026-06-27
+
+- Q: Operator Setup Documentation (README.md) camera count references → A: The operator README will be updated to reflect the variable camera count setup (between 3 and 10 smartphones, indices 1 to 10) instead of the previous hardcoded exactly 5.
+
 
 ## User Scenarios & Testing *(mandatory)*
 
