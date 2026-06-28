@@ -477,13 +477,17 @@ class _OperatorDashboardPageState extends State<OperatorDashboardPage> {
                 Row(
                   children: [
                     Icon(
-                      node.batteryLevel > 20 ? Icons.battery_charging_full_rounded : Icons.battery_alert_rounded,
+                      node.batteryLevel < 0
+                          ? Icons.battery_unknown_rounded
+                          : (node.batteryLevel > 20 ? Icons.battery_charging_full_rounded : Icons.battery_alert_rounded),
                       size: 14,
-                      color: node.batteryLevel > 20 ? Colors.green : Colors.red,
+                      color: node.batteryLevel < 0
+                          ? Colors.grey
+                          : (node.batteryLevel > 20 ? Colors.green : Colors.red),
                     ),
                     const SizedBox(width: 2),
                     Text(
-                      '${node.batteryLevel}%',
+                      node.batteryLevel < 0 ? '-' : '${node.batteryLevel}%',
                       style: const TextStyle(fontSize: 10, color: Colors.grey),
                     ),
                   ],

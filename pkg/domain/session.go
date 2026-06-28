@@ -54,12 +54,13 @@ type TriggerPayload struct {
 
 // StatusUpdatePayload is sent by client to report upload/shutter progress
 type StatusUpdatePayload struct {
-	SessionID    string `json:"session_id"`
-	CameraIndex  int    `json:"camera_index"`
-	Status       string `json:"status"` // "capturing" | "uploading" | "uploaded" | "completed" | "failed"
-	BatteryLevel int    `json:"battery_level"`
-	GifURL       string `json:"gif_url,omitempty"`
-	ErrorMessage string `json:"error_message,omitempty"`
+	SessionID     string  `json:"session_id"`
+	CameraIndex   int     `json:"camera_index"`
+	Status        string  `json:"status"` // "capturing" | "uploading" | "uploaded" | "completed" | "failed"
+	BatteryLevel  int     `json:"battery_level"`
+	ClockOffsetMs float64 `json:"clock_offset_ms"`
+	GifURL        string  `json:"gif_url,omitempty"`
+	ErrorMessage  string  `json:"error_message,omitempty"`
 }
 
 // ClientNode tracks metadata of a connected camera client

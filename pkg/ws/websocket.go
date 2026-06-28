@@ -377,9 +377,10 @@ func (c *Client) handleMessage(msg domain.Message) {
 		c.mu.Lock()
 		c.State = payload.Status
 		c.BatteryLevel = payload.BatteryLevel
+		c.ClockOffset = time.Duration(payload.ClockOffsetMs * float64(time.Millisecond))
 		c.mu.Unlock()
 
-		log.Printf("[CLIENT] Session %s Node %d status updated: %s (Battery: %d%%)", payload.SessionID, payload.CameraIndex, payload.Status, payload.BatteryLevel)
+		log.Printf("[CLIENT] Session %s Node %d status updated: %s (Battery: %d%%, Offset: %.2fms)", payload.SessionID, payload.CameraIndex, payload.Status, payload.BatteryLevel, payload.ClockOffsetMs)
 		go c.Hub.SyncDashboard()
 
 	case "operator_capture_trigger":

@@ -43,6 +43,7 @@ dependencies:
   cloud_firestore: ^6.6.0
   cloud_functions: ^6.3.3
   wakelock_plus: ^1.2.8
+  battery_plus: ^6.1.1
   nsd: ^5.0.1
   qr_flutter: ^4.1.0
 

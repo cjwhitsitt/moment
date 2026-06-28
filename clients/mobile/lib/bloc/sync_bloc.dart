@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
+import 'package:battery_plus/battery_plus.dart';
 import '../services/websocket_client.dart';
 import '../services/ntp_service.dart';
 
@@ -161,6 +162,14 @@ class SyncBloc extends Bloc<SyncEvent, SyncState> {
               status: 'ready',
               clockOffsetMs: _clockOffsetMs,
             ));
+            final batteryLevel = await Battery().batteryLevel.catchError((_) => -1);
+            _wsClient.send('status_update', {
+              'session_id': '',
+              'camera_index': connState.cameraIndex,
+              'status': 'idle',
+              'battery_level': batteryLevel,
+              'clock_offset_ms': _clockOffsetMs.toDouble(),
+            });
           } else {
             WakelockPlus.disable();
             emit(SyncError('Coordinator registration rejected.'));
@@ -189,11 +198,19 @@ class SyncBloc extends Bloc<SyncEvent, SyncState> {
       }
     });
 
-    on<UpdateClockOffsetEvent>((event, emit) {
+    on<UpdateClockOffsetEvent>((event, emit) async {
       _clockOffsetMs = event.offsetMs;
       if (state is SyncConnected) {
         final s = state as SyncConnected;
         emit(s.copyWith(clockOffsetMs: _clockOffsetMs));
+        final batteryLevel = await Battery().batteryLevel.catchError((_) => -1);
+        _wsClient.send('status_update', {
+          'session_id': '',
+          'camera_index': s.cameraIndex,
+          'status': 'idle',
+          'battery_level': batteryLevel,
+          'clock_offset_ms': _clockOffsetMs.toDouble(),
+        });
       }
     });
 
@@ -213,29 +230,33 @@ class SyncBloc extends Bloc<SyncEvent, SyncState> {
       }
     });
 
-    on<SendStatusUpdateEvent>((event, emit) {
+    on<SendStatusUpdateEvent>((event, emit) async {
       if (state is SyncConnected) {
+        final batteryLevel = await Battery().batteryLevel.catchError((_) => -1);
         _wsClient.send('status_update', {
           'session_id': event.sessionId,
           'camera_index': (state as SyncConnected).cameraIndex,
           'status': event.status,
-          'battery_level': 85,
+          'battery_level': batteryLevel,
+          'clock_offset_ms': _clockOffsetMs.toDouble(),
           'error_message': event.errorMessage,
         });
       }
     });
 
-    on<SessionCompletedEvent>((event, emit) {
+    on<SessionCompletedEvent>((event, emit) async {
       _sessionSubscriptions[event.sessionId]?.cancel();
       _sessionSubscriptions.remove(event.sessionId);
 
       // Report completion/failure back to Go coordinator over WebSockets
       if (state is SyncConnected) {
+        final batteryLevel = await Battery().batteryLevel.catchError((_) => -1);
         _wsClient.send('status_update', {
           'session_id': event.sessionId,
           'camera_index': (state as SyncConnected).cameraIndex,
           'status': event.status,
-          'battery_level': 85,
+          'battery_level': batteryLevel,
+          'clock_offset_ms': _clockOffsetMs.toDouble(),
           'gif_url': event.gifUrl,
           'error_message': event.error,
         });
