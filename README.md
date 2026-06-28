@@ -75,6 +75,25 @@ If a smartphone fails to connect or displays `ERR_ADDRESS_UNREACHABLE` / `No rou
 
 ---
 
+### 4. Configuring Resend Email Delivery
+
+To deliver looping GIFs to guest email addresses, the cloud backend utilizes the **Resend** API. 
+
+* **Local Emulator Testing**:
+  Create a `.env` file inside the `functions/` directory containing your API key:
+  ```env
+  RESEND_KEY=re_your_api_key_goes_here
+  ```
+  The Firebase Functions emulator loads this local variable automatically on startup.
+
+* **Production Cloud Deployment**:
+  Set the key as a secure secret in your Firebase project environment:
+  ```bash
+  firebase functions:secrets:set RESEND_KEY="re_your_api_key_goes_here"
+  ```
+
+---
+
 ## 🛠️ Developer & Build Guide
 
 ### Go Coordinator
