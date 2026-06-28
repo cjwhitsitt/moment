@@ -328,7 +328,7 @@ class _OperatorDashboardPageState extends State<OperatorDashboardPage> {
 
             // Share section if session active/complete
             if (state.activeSession != null && state.activeSession!.status == 'done') ...[
-              _buildShareSection(state.activeSession!.sessionId),
+              _buildShareSection(state.activeSession!.sessionId, state.url),
               const SizedBox(height: 24),
             ],
 
@@ -519,8 +519,22 @@ class _OperatorDashboardPageState extends State<OperatorDashboardPage> {
     );
   }
 
-  Widget _buildShareSection(String sessionId) {
-    final gifUrl = 'https://firebasestorage.googleapis.com/v0/b/moment-aad8b.firebasestorage.app/o/stitched%2F$sessionId.gif?alt=media';
+  Widget _buildShareSection(String sessionId, String wsUrl) {
+    String host = 'localhost';
+    try {
+      final uri = Uri.parse(wsUrl);
+      host = uri.host;
+    } catch (_) {}
+
+    final bool isLocal = host == 'localhost' ||
+        host == '127.0.0.1' ||
+        host.startsWith('192.168.') ||
+        host.startsWith('10.') ||
+        host.startsWith('172.');
+
+    final gifUrl = isLocal
+        ? 'http://$host:9199/v0/b/moment-aad8b.firebasestorage.app/o/stitched%2F$sessionId.gif?alt=media'
+        : 'https://firebasestorage.googleapis.com/v0/b/moment-aad8b.firebasestorage.app/o/stitched%2F$sessionId.gif?alt=media';
 
     return Container(
       padding: const EdgeInsets.all(20),

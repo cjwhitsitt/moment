@@ -23,11 +23,12 @@ var upgrader = websocket.Upgrader{
 
 // Hub maintains the set of active client connections and broadcasts messages.
 type Hub struct {
-	clients    map[int]*Client // Registered camera nodes by camera_index (1-10)
-	operators  map[*Client]bool // Registered operator connections
-	clientsMu  sync.RWMutex
-	register   chan *Client
-	unregister chan *Client
+	clients       map[int]*Client // Registered camera nodes by camera_index (1-10)
+	operators     map[*Client]bool // Registered operator connections
+	clientsMu     sync.RWMutex
+	register      chan *Client
+	unregister    chan *Client
+	activeSession *domain.ActiveSessionStatus // Track active session status
 }
 
 // Client represents a single paired smartphone connection.
@@ -133,6 +134,13 @@ func (h *Hub) TriggerCapture() (string, error) {
 	sessionId := fmt.Sprintf("session-%d", time.Now().UnixNano())
 	triggerTime := time.Now().Add(500 * time.Millisecond).UnixMilli()
 
+	h.clientsMu.Lock()
+	h.activeSession = &domain.ActiveSessionStatus{
+		SessionID: sessionId,
+		Status:    "triggered",
+	}
+	h.clientsMu.Unlock()
+
 	log.Printf("[TRIGGER] Broadcasting capture trigger for Session: %s at time: %d with %d expected frames", sessionId, triggerTime, n)
 
 	h.Broadcast("capture_trigger", domain.TriggerPayload{
@@ -140,6 +148,8 @@ func (h *Hub) TriggerCapture() (string, error) {
 		TriggerEpochMs: triggerTime,
 		ExpectedFrames: n,
 	})
+
+	go h.SyncDashboard()
 
 	return sessionId, nil
 }
@@ -206,7 +216,8 @@ func (h *Hub) SyncDashboard() {
 	}
 
 	syncPayload := domain.DashboardSyncPayload{
-		Cameras: cameras,
+		Cameras:       cameras,
+		ActiveSession: h.activeSession,
 	}
 
 	rawPayload, err := json.Marshal(syncPayload)
@@ -381,6 +392,17 @@ func (c *Client) handleMessage(msg domain.Message) {
 		c.mu.Unlock()
 
 		log.Printf("[CLIENT] Session %s Node %d status updated: %s (Battery: %d%%, Offset: %.2fms)", payload.SessionID, payload.CameraIndex, payload.Status, payload.BatteryLevel, payload.ClockOffsetMs)
+
+		c.Hub.clientsMu.Lock()
+		if c.Hub.activeSession != nil && c.Hub.activeSession.SessionID == payload.SessionID {
+			if payload.Status == "completed" {
+				c.Hub.activeSession.Status = "done"
+			} else if payload.Status == "failed" {
+				c.Hub.activeSession.Status = "failed"
+			}
+		}
+		c.Hub.clientsMu.Unlock()
+
 		go c.Hub.SyncDashboard()
 
 	case "operator_capture_trigger":
