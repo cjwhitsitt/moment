@@ -25,6 +25,10 @@
 - Q: Deployment and publishing steps documentation → A: A new section detailing Cloud Functions deployment and Flutter client test publishing (TestFlight/Firebase App Distribution) will be added to the root README.md.
 - Q: Resend API Key Setup Documentation → A: The root README.md will include instructions on setting the `RESEND_KEY` environment variable in `functions/.env` for local testing and as a Firebase Secret for production deployment.
 
+### Session 2026-07-04
+
+- Q: Local FFmpeg Executable Resolution on macOS → A: To support local testing using the Firebase emulator on Apple Silicon and Intel macOS architectures, the Cloud Functions stitching code will dynamically probe standard Homebrew paths (`/opt/homebrew/bin/ffmpeg` and `/usr/local/bin/ffmpeg`) and fall back to the system-wide executable if `@ffmpeg-installer/ffmpeg` module loading fails or resolves to an incompatible architecture binary.
+
 
 ## User Scenarios & Testing *(mandatory)*
 

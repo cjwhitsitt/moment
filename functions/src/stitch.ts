@@ -9,7 +9,15 @@ try {
   const ffmpegInstaller = require("@ffmpeg-installer/ffmpeg");
   ffmpegPath = ffmpegInstaller.path;
 } catch (e) {
-  console.warn("Could not load @ffmpeg-installer/ffmpeg, falling back to global 'ffmpeg' path:", e);
+  // Graceful fallback for local development (e.g. Apple Silicon Mac)
+  if (process.platform === "darwin") {
+    if (fs.existsSync("/opt/homebrew/bin/ffmpeg")) {
+      ffmpegPath = "/opt/homebrew/bin/ffmpeg";
+    } else if (fs.existsSync("/usr/local/bin/ffmpeg")) {
+      ffmpegPath = "/usr/local/bin/ffmpeg";
+    }
+  }
+  console.log(`[FFMPEG] Fallback configured to use executable at: "${ffmpegPath}"`);
 }
 
 /**
