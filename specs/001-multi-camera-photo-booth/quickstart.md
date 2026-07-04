@@ -66,3 +66,19 @@ Verify that uploaded frames are stitched into a looping ping-pong GIF and shared
 - The Operator App displays the guest QR code, renders the looping stitched GIF preview, and opens the email delivery form.
 - The Resend cloud function dispatches the email. Check the inbox (or Resend dashboard logs) for the email containing the stitched GIF.
 - A new share document is created under `sessions/{sessionId}/shares` with status `sent`.
+
+---
+
+## Scenario 4: Operator Connection Input Filtering & Persistence
+
+Verify that the Operator Panel restricts manual IP text input and caches the last connected IP.
+
+### Steps
+1. On the Operator Page initial view, attempt to type letters (e.g. `abc`) into the manual IP input field. Verify they are rejected.
+2. Enter a valid coordinator IP address, tap **Connect Manually**, and complete pairing successfully.
+3. Force close the Flutter application.
+4. Relaunch the application, open the Operator Panel, and inspect the manual IP text input field.
+
+### Expected Outcomes
+- The manual IP input field only accepts digit characters and dots (`0-9` and `.`).
+- Upon relaunching, the manual IP input field is pre-populated with the exact IP address used in step 2.

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/websocket_client.dart';
 import '../../services/discovery_service.dart';
 import '../../services/emulator_config_service.dart';
@@ -172,6 +173,19 @@ class OperatorBloc extends Bloc<OperatorEvent, OperatorState> {
       if (eventName == 'operator_registered') {
         if (state is OperatorConnecting) {
           final connState = state as OperatorConnecting;
+          
+          try {
+            final uri = Uri.parse(connState.url);
+            final host = uri.host;
+            if (host.isNotEmpty) {
+              SharedPreferences.getInstance().then((prefs) {
+                prefs.setString('last_connected_ip', host);
+              }).catchError((_) {});
+            }
+          } catch (_) {
+            // Ignore parse errors if URL is not a valid URI format
+          }
+
           emit(OperatorConnected(
             url: connState.url,
             cameras: [],

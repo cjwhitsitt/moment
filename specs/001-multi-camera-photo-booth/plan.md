@@ -23,6 +23,7 @@ This feature implements a distributed multi-camera photo booth system designed f
 - `resend` (Node.js email delivery SDK)
 - `fluent-ffmpeg` (Node.js FFmpeg wrapper)
 - `wakelock_plus` (Dart package for preventing screen sleep)
+- `shared_preferences` (Dart package for local caching persistence)
 
 **Storage**: Firebase Cloud Storage (raw captures and stitched GIF), Firebase Firestore (session metadata and real-time status orchestration)
 
@@ -131,3 +132,5 @@ functions/               # Firebase Cloud Functions (TypeScript)
 7. Verify that the Node.js function processes the $N$ frames using FFmpeg, sequences them in a looping ping-pong GIF (`1 -> 2 -> ... -> N -> N-1 -> ... -> 2`), and updates the Firestore document status to `completed`.
 8. Verify that the Operator App displays the guest sharing QR code and the stitched GIF animation preview once stitching finishes.
 9. Enter a test email address on the Operator App, tap submit, and verify that the Resend Cloud Function sends the email containing the stitched GIF. Check the Resend dashboard or mail logs to verify.
+10. Attempt to type alphabetic characters into the manual IP input field on the Operator Panel. Verify they are rejected.
+11. Complete a manual connection to the coordinator successfully, force close the app, relaunch it, and verify the manual IP field auto-fills with that last connected IP address.

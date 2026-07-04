@@ -194,4 +194,18 @@
 - **Variable Cameras (Phase 7)**: Depends on all previous user stories being complete.
 - **Operator Control Panel (Phase 8)**: Depends on Variable Cameras (Phase 7) being complete.
 - **Guest Email Delivery (Phase 9)**: Depends on Operator Control Panel (Phase 8) being complete.
-- **Polish (Final Phase)**: Depends on all user stories being complete.
+- **Operator Connection Cache (Phase 10)**: Depends on Operator Control Panel (Phase 8) being complete.
+- **Polish (Final Phase)**: Depends on all user stories and Phase 10 being complete.
+
+---
+
+## Phase 10: Operator Connection Caching & Input Filter (Priority: P1)
+
+**Goal**: Implement numeric-only/period input filtering and persistence caching for the Coordinator IP text field on the Operator Panel.
+
+- [x] T058 [US5] Add shared_preferences: ^2.2.3 to clients/mobile/pubspec.yaml
+- [x] T059 [US5] Implement text input formatter constraint (FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))) on the Coordinator IP text field in clients/mobile/lib/ui/operator_dashboard_page.dart
+- [x] T060 [US5] Implement caching logic in OperatorBloc (or helper service) to save successfully connected IP address to SharedPreferences on successful operator_registered message
+- [x] T061 [US5] Implement SharedPreferences loading and autofill logic in OperatorDashboardPage during initState to pre-populate the manual IP entry controller
+- [x] T062 Run Scenario 4 validation in specs/001-multi-camera-photo-booth/quickstart.md to verify input filtering and persistence caching.
+

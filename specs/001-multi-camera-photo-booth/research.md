@@ -74,3 +74,17 @@ Use Resend via a dedicated Node.js Cloud Function.
 ### Alternatives Considered
 - **Direct Mailgun/Twilio SDKs on Mobile**: Rejected due to exposure of API credentials inside the client mobile application bundle.
 - **Firebase Trigger Email Extension**: Rejected because it is less customizable than writing a lightweight, dedicated Node.js function calling Resend directly.
+
+---
+
+## Operator Manual IP Input Constraints & Persistence
+
+### Decision
+Limit manual IP keyboard inputs to digits and period characters (`[0-9.]`) and cache the last connected IP address locally using `shared_preferences`.
+
+### Rationale
+- **Input Sanitation**: Limiting characters at the keyboard controller layer using `FilteringTextInputFormatter` prevents guests or operators from typing invalid characters (such as letters or special symbols) that would lead to immediate connection parser crashes.
+- **Local Cache Persistence**: In production environments, the coordinator's local IP address might remain static or lease-pinned across sessions, but the Operator Panel device might be restarted. Auto-filling the last successfully paired coordinator IP prevents operators from having to manually type the 15-character string on every launch.
+
+### Alternatives Considered
+- **No Persistence**: Rejected. Typing IP addresses manually on virtual touch keyboards during multiple setup sessions increases operator configuration friction.

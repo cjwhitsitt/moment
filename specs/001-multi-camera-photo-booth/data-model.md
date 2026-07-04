@@ -95,4 +95,15 @@ stateDiagram-v2
     Processing --> Failed : Stitching process failed
     Completed --> [*]
     Failed --> [*]
+
+---
+
+## Local Persistence (Operator Client App Cache)
+
+### SharedPreferences Key-Value Registry
+
+| Key | Type | Description |
+|-----|------|-------------|
+| `last_connected_ip` | String | The last manually entered IP address that successfully completed the `operator_registered` WebSocket handshake. |
+
 ```

@@ -31,6 +31,8 @@
 - Q: Multi-Device Deployment Automation → A: Automated build-and-deploy helper scripts `install-android.sh` and `install-ios.sh` will be added to the mobile project root to compile release builds and install them in parallel on all connected test devices (using ADB for Android and ios-deploy for iOS).
 - Q: Executable output directory mapping → A: The local Go coordinator build process will compile and output to the `build/` directory (ignored by `.gitignore`) to prevent untracked binaries from cluttering the root workspace.
 - Q: Batched WebSocket Frame Parsing on Client → A: Due to Gorilla WebSocket's write coalescing optimizations on the coordinator (which packages multiple queued text messages into a single TCP packet frame separated by newlines), the Flutter client's WebSocket parser will split incoming message frames on newlines to parse and process each payload individually, avoiding JSON parsing errors on consolidated registrations.
+- Q: Operator Connection IP Input Constraints and Persistence → A: The Coordinator IP text field on the Operator Panel will only accept numeric characters and periods (`[0-9.]`). Additionally, the last successfully entered IP address will be cached locally using `shared_preferences` and auto-filled on application launch.
+
 
 
 ## User Scenarios & Testing *(mandatory)*
@@ -131,7 +133,7 @@ An operator uses a mobile device (tablet or phone) running the app in Operator M
 - **FR-009**: The system MUST include a comprehensive operator README detailing physical setup, local network configuration, and troubleshooting steps.
 - **FR-010**: The Flutter client application MUST keep the device screen active and prevent sleep mode while registered and paired with the coordinator.
 - **FR-011**: The system MUST support an Operator Mode in the Flutter application acting as a wireless control dashboard.
-- **FR-012**: The Operator App MUST discover the Go coordinator on the local subnet using mDNS and support manual IP address input as backup.
+- **FR-012**: The Operator App MUST discover the Go coordinator on the local subnet using mDNS and support manual IP address input as backup. The manual IP entry field MUST restrict input to numbers and periods (`[0-9.]`), and MUST persist and auto-fill the last successfully connected IP address on launch.
 - **FR-013**: The Operator App MUST display the pairing QR code and monitor each connected camera node's connection state, current capture/upload status, battery level, and NTP clock offset in real time.
 - **FR-014**: The Operator App MUST trigger the capture session remotely via the Go coordinator.
 - **FR-015**: The Operator App MUST display the guest QR code and the stitched GIF animation preview once stitching completes.

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../bloc/operator/operator_bloc.dart';
 
 class OperatorDashboardPage extends StatefulWidget {
@@ -16,6 +18,24 @@ class _OperatorDashboardPageState extends State<OperatorDashboardPage> {
   final TextEditingController _emailController = TextEditingController();
   bool _isSendingEmail = false;
   String _emailStatus = ''; // '', 'success', 'error'
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCachedIp();
+  }
+
+  Future<void> _loadCachedIp() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final cachedIp = prefs.getString('last_connected_ip');
+      if (cachedIp != null && mounted) {
+        _ipController.text = cachedIp;
+      }
+    } catch (_) {
+      // Gracefully ignore local persistence load errors
+    }
+  }
 
   @override
   void dispose() {
@@ -153,6 +173,10 @@ class _OperatorDashboardPageState extends State<OperatorDashboardPage> {
               const SizedBox(height: 32),
               TextField(
                 controller: _ipController,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+                ],
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 decoration: InputDecoration(
                   labelText: 'Coordinator IP (e.g. 192.168.1.100)',
                   labelStyle: TextStyle(color: Colors.grey.shade500),
