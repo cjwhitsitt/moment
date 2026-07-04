@@ -267,3 +267,14 @@
 - [x] T077 Run Scenario 8 validation in specs/001-multi-camera-photo-booth/quickstart.md to verify default launching and mode switching.
 - [x] T078 Remove the obsolete selection_page.dart view file since launch routes go directly to Camera Node mode.
 
+---
+
+## Phase 17: Full-Screen Sharing Overlay (Priority: P1)
+
+**Goal**: Toggle full-screen guest sharing view on Operator App when stitching completes, and implement coordinator clear session reset event.
+
+- [x] T079 [Backend] Implement operator_clear_session event handler in pkg/ws/websocket.go to clear activeSession and broadcast sync
+- [x] T080 [US5] Add ClearActiveSessionEvent to OperatorBloc in clients/mobile/lib/bloc/operator/operator_bloc.dart to send operator_clear_session message
+- [x] T081 [US5] Implement full-screen conditional sharing screen toggle in _buildConnectedView inside clients/mobile/lib/ui/operator_dashboard_page.dart
+- [x] T082 Run Scenario 9 validation in specs/001-multi-camera-photo-booth/quickstart.md to verify full-screen toggle and return.
+

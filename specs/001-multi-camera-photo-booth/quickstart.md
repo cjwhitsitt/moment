@@ -148,3 +148,20 @@ Verify that the application launches into Camera Node setup by default and permi
 - The app bypasses the Selection Page and opens the Camera Node view on launch.
 - Pushing the Operator action button correctly transitions to the Operator connection page.
 - Tapping back returns the user to the Camera Node view.
+
+---
+
+## Scenario 9: Full-Screen Sharing View and Reset Verification
+
+Verify that the Operator App switches to full-screen sharing when stitching completes and permits dashboard return.
+
+### Steps
+1. Connect 3 Camera Nodes and 1 Operator Panel.
+2. Trigger a capture session and wait for stitching to complete.
+3. Verify that once the GIF is stitched, the Operator App immediately hides the status grid and pairing QR code, displaying only the GIF preview, guest QR code, and email input.
+4. Tap the **Back to Dashboard** action button.
+5. Verify that the Operator App returns to the active camera node status grid and trigger capture cockpit view.
+
+### Expected Outcomes
+- The status dashboard is completely replaced by the customer-friendly share cockpit when the session completes.
+- Pushing the close button resets the session state and returns to the active cockpit.

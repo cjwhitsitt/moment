@@ -300,6 +300,39 @@ class _OperatorDashboardPageState extends State<OperatorDashboardPage> {
     final readyCount = activeCams.where((c) => c.isReady).length;
     final isTriggerable = readyCount >= 3 && readyCount <= 10;
 
+    final isSessionDone = state.activeSession != null && state.activeSession!.status == 'done';
+
+    if (isSessionDone) {
+      return SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Align(
+                  alignment: Alignment.topRight,
+                  child: TextButton.icon(
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.grey.shade400,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    ),
+                    icon: const Icon(Icons.close_rounded, size: 20),
+                    label: const Text('Back to Dashboard', style: TextStyle(fontSize: 14)),
+                    onPressed: () {
+                      context.read<OperatorBloc>().add(ClearActiveSessionEvent());
+                    },
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _buildShareSection(state.activeSession!.sessionId, state.url),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -349,12 +382,6 @@ class _OperatorDashboardPageState extends State<OperatorDashboardPage> {
               ),
             ),
             const SizedBox(height: 24),
-
-            // Share section if session active/complete
-            if (state.activeSession != null && state.activeSession!.status == 'done') ...[
-              _buildShareSection(state.activeSession!.sessionId, state.url),
-              const SizedBox(height: 24),
-            ],
 
             // System Status / Pairing Info
             Row(

@@ -40,6 +40,7 @@
 - Q: Camera Position Index Persistence → A: To streamline camera setup, the Camera Node configuration screen must save the selected camera position index (1 to 10) locally in settings using SharedPreferences, and auto-select this cached value on subsequent app launches.
 - Q: Application Launch Default Route → A: To optimize speed-of-setup, the Flutter application MUST launch directly into Camera Node mode by default. The Camera Node configuration screen MUST display a distinct action button allowing the user to switch to Operator Mode.
 - Q: SelectionPage Deletion → A: Following the direct-to-camera routing upgrade, the obsolete `SelectionPage` selection screen view class and its corresponding file have been completely removed from the client mobile application codebase.
+- Q: Full-screen Operator Share Screen Toggle → A: When a stitched GIF is ready (`done` state), the Operator App MUST switch from the capture dashboard to a full-screen, customer-facing sharing screen (displaying the GIF, download QR code, and email input field) and hide all utilitarian controls. The view MUST include a "Back to Dashboard" close action that resets the active session status and returns to the capture trigger view.
 
 
 
@@ -151,6 +152,7 @@ An operator uses a mobile device (tablet or phone) running the app in Operator M
 - **FR-019**: The Cloud Firestore and Firebase Storage security rules MUST block all public/unauthenticated read/write access to session metadata and raw captured frames. However, the final stitched GIF assets stored under the public sharing path MUST permit public/unauthenticated read access so that guests can scan the QR code to view and download their looping animations.
 - **FR-020**: The Camera Node configuration screen MUST persist the last chosen camera position index (1-10) locally using SharedPreferences, and default to this index on launch.
 - **FR-021**: The Flutter client application MUST default to launching in Camera Node mode. The Camera Node setup view MUST overlay a navigation element allowing transition to Operator Mode.
+- **FR-022**: The Operator App MUST automatically transition to a full-screen, customer-friendly sharing view when the looping GIF stitching is complete. It MUST hide the camera node grid, pairing QR code, and trigger button, and MUST provide a clear "Back to Dashboard" reset control to return to the active capture cockpit.
 
 ### Key Entities
 

@@ -417,6 +417,15 @@ func (c *Client) handleMessage(msg domain.Message) {
 				log.Printf("[OPERATOR] Capturing session %s triggered successfully", sessionId)
 			}
 		}
+
+	case "operator_clear_session":
+		if c.IsOperator {
+			c.Hub.clientsMu.Lock()
+			c.Hub.activeSession = nil
+			c.Hub.clientsMu.Unlock()
+			go c.Hub.SyncDashboard()
+			log.Printf("[OPERATOR] Active session cleared by operator")
+		}
 	}
 }
 

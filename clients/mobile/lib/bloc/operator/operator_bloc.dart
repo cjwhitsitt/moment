@@ -118,6 +118,8 @@ class MessageReceivedOperatorEvent extends OperatorEvent {
 
 class TriggerCaptureEvent extends OperatorEvent {}
 
+class ClearActiveSessionEvent extends OperatorEvent {}
+
 // Bloc Implementation
 class OperatorBloc extends Bloc<OperatorEvent, OperatorState> {
   final WebSocketClient _wsClient;
@@ -217,6 +219,12 @@ class OperatorBloc extends Bloc<OperatorEvent, OperatorState> {
     on<TriggerCaptureEvent>((event, emit) {
       if (state is OperatorConnected) {
         _wsClient.send('operator_capture_trigger', {});
+      }
+    });
+
+    on<ClearActiveSessionEvent>((event, emit) {
+      if (state is OperatorConnected) {
+        _wsClient.send('operator_clear_session', {});
       }
     });
 

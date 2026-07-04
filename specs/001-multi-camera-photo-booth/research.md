@@ -144,3 +144,17 @@ Set the default `home` route of the `MaterialApp` in `main.dart` directly to `Ho
 
 ### Alternatives Considered
 - **Persistence of Mode Selection**: Rejected. Caching the operator mode selection state is more complex and less predictable than providing a static navigation transition button from the camera setup view.
+
+---
+
+## Operator Full-Screen Customer Sharing Cockpit
+
+### Decision
+Display the sharing section full-screen when the current session status resolves to `'done'`. Implement an `operator_clear_session` WebSocket event handler on the Go coordinator to reset its memory state and trigger sync broadcasts, and map this to a "Back to Dashboard" text button in the top right.
+
+### Rationale
+- **Clean Customer UX**: During physical booth events, guests should not be distracted by device battery percentages, camera indices, or developer-facing debug logs. Automatically rendering the GIF preview, download QR code, and email form full-screen hides the operational layout from guests.
+- **Session Lifecycle Isolation**: Sending an explicit `operator_clear_session` command to reset the coordinator's state ensures that the entire system (including client devices) is re-initialized and ready for the next trigger capture, preventing UI sync lockups.
+
+### Alternatives Considered
+- **Local Cache Reset**: Rejected. Simply clearing the active session locally inside the Operator App widget state doesn't reset the coordinator's state, meaning the coordinator will continue advertising the finished session, leading to synchronization mismatches.
