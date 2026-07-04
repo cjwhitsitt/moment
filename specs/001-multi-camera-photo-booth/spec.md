@@ -38,6 +38,8 @@
 - Q: Firestore and Storage Security Rules → A: To prevent unauthorized access, Firestore and Storage rules must block all public/unauthenticated read and write requests to session metadata and raw captures. Only cloud functions and privileged operations are permitted to read/write. However, the final stitched GIF files under the public sharing directory must permit public read-only access so guests can access their animations.
 - Q: Cloud Functions Node.js Runtime Upgrade → A: Since the Node.js 18 runtime was decommissioned on 2025-10-30, the Cloud Functions engine version in package.json is upgraded to Node.js 20, along with corresponding Node type definitions to ensure full compiler type safety and deprecation warnings resolution.
 - Q: Camera Position Index Persistence → A: To streamline camera setup, the Camera Node configuration screen must save the selected camera position index (1 to 10) locally in settings using SharedPreferences, and auto-select this cached value on subsequent app launches.
+- Q: Application Launch Default Route → A: To optimize speed-of-setup, the Flutter application MUST launch directly into Camera Node mode by default. The Camera Node configuration screen MUST display a distinct action button allowing the user to switch to Operator Mode.
+- Q: SelectionPage Deletion → A: Following the direct-to-camera routing upgrade, the obsolete `SelectionPage` selection screen view class and its corresponding file have been completely removed from the client mobile application codebase.
 
 
 
@@ -148,6 +150,7 @@ An operator uses a mobile device (tablet or phone) running the app in Operator M
 - **FR-018**: The Camera Node application MUST display the live camera view in its correct aspect ratio without stretching or distortion, and MUST overlay a central crosshair to assist with device alignment.
 - **FR-019**: The Cloud Firestore and Firebase Storage security rules MUST block all public/unauthenticated read/write access to session metadata and raw captured frames. However, the final stitched GIF assets stored under the public sharing path MUST permit public/unauthenticated read access so that guests can scan the QR code to view and download their looping animations.
 - **FR-020**: The Camera Node configuration screen MUST persist the last chosen camera position index (1-10) locally using SharedPreferences, and default to this index on launch.
+- **FR-021**: The Flutter client application MUST default to launching in Camera Node mode. The Camera Node setup view MUST overlay a navigation element allowing transition to Operator Mode.
 
 ### Key Entities
 

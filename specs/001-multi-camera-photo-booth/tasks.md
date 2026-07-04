@@ -256,3 +256,14 @@
 - [x] T073 [US1] Save the selected camera index to SharedPreferences when changed in the DropdownButtonFormField in clients/mobile/lib/main.dart
 - [x] T074 Run Scenario 7 validation in specs/001-multi-camera-photo-booth/quickstart.md to verify dropdown persistence.
 
+---
+
+## Phase 16: Default Launch Route & Mode Switch (Priority: P1)
+
+**Goal**: Default MaterialApp home directly to HomeScreen (Camera Node) and add a button to navigate to Operator Mode.
+
+- [x] T075 [US1] Change MaterialApp.home directly to HomeScreen in clients/mobile/lib/main.dart
+- [x] T076 [US1] Add a text or icon button in the camera node _buildSetupView to push OperatorDashboardPage in clients/mobile/lib/main.dart
+- [x] T077 Run Scenario 8 validation in specs/001-multi-camera-photo-booth/quickstart.md to verify default launching and mode switching.
+- [x] T078 Remove the obsolete selection_page.dart view file since launch routes go directly to Camera Node mode.
+

@@ -9,7 +9,6 @@ import 'services/upload_service.dart';
 import 'services/session_service.dart';
 import 'bloc/sync_bloc.dart';
 import 'bloc/operator/operator_bloc.dart';
-import 'ui/selection_page.dart';
 import 'ui/operator_dashboard_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -62,20 +61,7 @@ class PhotoBoothApp extends StatelessWidget {
             secondary: Colors.amber,
           ),
         ),
-        home: Builder(
-          builder: (context) => SelectionPage(
-            onSelectCamera: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => const HomeScreen()),
-              );
-            },
-            onSelectOperator: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => const OperatorDashboardPage()),
-              );
-            },
-          ),
-        ),
+        home: const HomeScreen(),
       ),
     );
   }
@@ -315,6 +301,25 @@ class _HomeScreenState extends State<HomeScreen> {
             label: const Text('Scan Coordinator QR', style: TextStyle(fontSize: 16, color: Colors.white)),
             onPressed: () {
               context.read<SyncBloc>().add(StartPairingEvent());
+            },
+          ),
+          const SizedBox(height: 16),
+          TextButton(
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+            ),
+            child: Text(
+              'Switch to Operator Mode',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey.shade400,
+                decoration: TextDecoration.underline,
+              ),
+            ),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => const OperatorDashboardPage()),
+              );
             },
           ),
         ],

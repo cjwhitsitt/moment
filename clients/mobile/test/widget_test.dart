@@ -6,7 +6,7 @@ void main() {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const PhotoBoothApp());
 
-    // Verify that the setup selection screen is displayed.
-    expect(find.text('M O M E N T'), findsOneWidget);
+    // Verify that the setup screen is displayed.
+    expect(find.text('Configure Camera Node'), findsOneWidget);
   });
 }

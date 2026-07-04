@@ -130,3 +130,17 @@ Cache the selected camera index locally using `shared_preferences` under the key
 
 ### Alternatives Considered
 - **Central Coordination Discovery**: Rejected. Letting the coordinator dynamically assign indices based on registration order is less predictable than physical placement mapping, which is highly sensitive to index order (since frame sequencing depends strictly on sequential indices 1 to N).
+
+---
+
+## Default Launch Route and Mode Navigation
+
+### Decision
+Set the default `home` route of the `MaterialApp` in `main.dart` directly to `HomeScreen` (Camera Node view), and add an action button in the Camera Node configuration screen that navigates to the `OperatorDashboardPage` using standard Flutter `Navigator.push`.
+
+### Rationale
+- **Streamlined Edge Setup**: Since the vast majority of devices running the app in a physical photo booth array are camera nodes (e.g. 10 phones vs 1 operator dashboard), forcing selection on every launch creates redundant UI interaction overhead. Starting directly on the Camera Node configuration saves operator setup clicks.
+- **Navigation Hierarchy**: Pushing the Operator Dashboard as a secondary screen on top of the home screen allows simple back-navigation to return to the default camera mode state.
+
+### Alternatives Considered
+- **Persistence of Mode Selection**: Rejected. Caching the operator mode selection state is more complex and less predictable than providing a static navigation transition button from the camera setup view.

@@ -129,3 +129,22 @@ Verify that the Camera Node setup screen retains the last chosen index.
 
 ### Expected Outcomes
 - The dropdown defaults to `Camera Node 4` on relaunch.
+
+---
+
+## Scenario 8: Default Camera Node Launch and Operator Navigation Verification
+
+Verify that the application launches into Camera Node setup by default and permits transition to Operator Mode.
+
+### Steps
+1. Launch the application from a clean state.
+2. Verify that the screen presented is the **Configure Camera Node** screen.
+3. Locate and tap the **Switch to Operator Mode** action button.
+4. Verify that the **Operator Control Panel** (IP connection screen) is displayed.
+5. Tap the back navigation arrow.
+6. Verify that you return to the **Configure Camera Node** screen.
+
+### Expected Outcomes
+- The app bypasses the Selection Page and opens the Camera Node view on launch.
+- Pushing the Operator action button correctly transitions to the Operator connection page.
+- Tapping back returns the user to the Camera Node view.
