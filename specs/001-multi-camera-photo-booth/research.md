@@ -88,3 +88,18 @@ Limit manual IP keyboard inputs to digits and period characters (`[0-9.]`) and c
 
 ### Alternatives Considered
 - **No Persistence**: Rejected. Typing IP addresses manually on virtual touch keyboards during multiple setup sessions increases operator configuration friction.
+
+---
+
+## Camera Node Preview Scaling & Alignment Crosshairs
+
+### Decision
+Display the camera preview inside a `ClipRect` -> `FittedBox(fit: BoxFit.cover)` wrapper referencing native camera resolution aspect ratios, and overlay a target focus alignment icon (`Icons.center_focus_weak`) using a centered `Stack`.
+
+### Rationale
+- **No-Distortion Fit**: Wrapping the `CameraPreview` inside a `FittedBox` with `BoxFit.cover` ensures that the preview dynamically fills the allotted container bounds uniformly without squishing or stretching its aspect ratio.
+- **Orientation Compensation**: Since camera sensors report preview sizes in landscape format by default, swapping width and height dynamically based on the device's portrait orientation ensures the box matches the layout dimensions correctly.
+- **Alignment Target**: Overlaying a semi-transparent `Icons.center_focus_weak` target in the absolute visual center coordinates gives the operator a quick references point to align all camera array nodes horizontally and vertically.
+
+### Alternatives Considered
+- **Custom Painter Grid**: Rejected. While extremely flexible, drawing a full grid overlay is more complex than displaying a high-contrast target icon, which provides sufficient visual cues for node center alignment.

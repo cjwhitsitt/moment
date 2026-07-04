@@ -33,6 +33,7 @@
 - Q: Batched WebSocket Frame Parsing on Client → A: Due to Gorilla WebSocket's write coalescing optimizations on the coordinator (which packages multiple queued text messages into a single TCP packet frame separated by newlines), the Flutter client's WebSocket parser will split incoming message frames on newlines to parse and process each payload individually, avoiding JSON parsing errors on consolidated registrations.
 - Q: Operator Connection IP Input Constraints and Persistence → A: The Coordinator IP text field on the Operator Panel will only accept numeric characters and periods (`[0-9.]`). Additionally, the last successfully entered IP address will be cached locally using `shared_preferences` and auto-filled on application launch.
 - Q: FFmpeg fifo Filter Deprecation → A: Starting with FFmpeg v7.0+, the `fifo` video filter has been officially removed from the FFmpeg codebase. The stitching Cloud Function will bypass the `fifo` filter and feed the split video stream branch directly to `paletteuse`, ensuring compatibility with both legacy (v5/v6) and modern (v7/v8) FFmpeg runtimes.
+- Q: Camera Preview Alignment and Aspect Ratio → A: To ensure accurate setup alignment, the Camera Node preview MUST preserve its native aspect ratio without stretching or distortion (using uniform scale-to-fill/cover fit). It MUST also overlay a subtle central crosshair indicator at the visual center of the preview.
 
 
 
@@ -140,6 +141,7 @@ An operator uses a mobile device (tablet or phone) running the app in Operator M
 - **FR-015**: The Operator App MUST display the guest QR code and the stitched GIF animation preview once stitching completes.
 - **FR-016**: The Operator App MUST provide a text input field for guest emails.
 - **FR-017**: The Cloud Backend MUST send the stitched GIF via email to the input address using a reliable email delivery service.
+- **FR-018**: The Camera Node application MUST display the live camera view in its correct aspect ratio without stretching or distortion, and MUST overlay a central crosshair to assist with device alignment.
 
 ### Key Entities
 

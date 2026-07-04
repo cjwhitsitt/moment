@@ -363,9 +363,37 @@ class _HomeScreenState extends State<HomeScreen> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(10),
                 child: _isCameraReady && _cameraController != null
-                    ? AspectRatio(
-                        aspectRatio: _cameraController!.value.aspectRatio,
-                        child: CameraPreview(_cameraController!),
+                    ? LayoutBuilder(
+                        builder: (context, constraints) {
+                          final size = _cameraController!.value.previewSize;
+                          if (size == null) {
+                            return CameraPreview(_cameraController!);
+                          }
+                          final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
+                          final double previewWidth = isPortrait ? size.height : size.width;
+                          final double previewHeight = isPortrait ? size.width : size.height;
+
+                          return Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              FittedBox(
+                                fit: BoxFit.cover,
+                                child: SizedBox(
+                                  width: previewWidth,
+                                  height: previewHeight,
+                                  child: CameraPreview(_cameraController!),
+                                ),
+                              ),
+                              Center(
+                                child: Icon(
+                                  Icons.center_focus_weak_rounded,
+                                  size: 64,
+                                  color: Colors.white.withOpacity(0.4),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
                       )
                     : const Center(
                         child: Column(

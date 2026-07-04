@@ -209,3 +209,13 @@
 - [x] T061 [US5] Implement SharedPreferences loading and autofill logic in OperatorDashboardPage during initState to pre-populate the manual IP entry controller
 - [x] T062 Run Scenario 4 validation in specs/001-multi-camera-photo-booth/quickstart.md to verify input filtering and persistence caching.
 
+---
+
+## Phase 11: Camera Preview Alignment & Aspect Ratio (Priority: P1)
+
+**Goal**: Ensure the Camera Node live view displays in real proportions without stretching, and includes center crosshairs for alignment.
+
+- [x] T063 [US1] Implement aspect-ratio-aware FittedBox camera preview container in clients/mobile/lib/main.dart
+- [x] T064 [US1] Overlay center focus target alignment icon (Icons.center_focus_weak) over the camera preview using a Stack in clients/mobile/lib/main.dart
+- [x] T065 Run Scenario 5 validation in specs/001-multi-camera-photo-booth/quickstart.md to verify scaling and target alignment.
+

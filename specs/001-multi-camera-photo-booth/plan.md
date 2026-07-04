@@ -134,3 +134,4 @@ functions/               # Firebase Cloud Functions (TypeScript)
 9. Enter a test email address on the Operator App, tap submit, and verify that the Resend Cloud Function sends the email containing the stitched GIF. Check the Resend dashboard or mail logs to verify.
 10. Attempt to type alphabetic characters into the manual IP input field on the Operator Panel. Verify they are rejected.
 11. Complete a manual connection to the coordinator successfully, force close the app, relaunch it, and verify the manual IP field auto-fills with that last connected IP address.
+12. Initialize Camera Mode on a node, verify the live preview matches actual target shapes without distortion, and confirm a central target alignment focus icon overlays the center of the camera box.

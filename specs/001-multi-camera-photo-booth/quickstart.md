@@ -82,3 +82,19 @@ Verify that the Operator Panel restricts manual IP text input and caches the las
 ### Expected Outcomes
 - The manual IP input field only accepts digit characters and dots (`0-9` and `.`).
 - Upon relaunching, the manual IP input field is pre-populated with the exact IP address used in step 2.
+
+---
+
+## Scenario 5: Camera Node Preview Aspect Ratio & Alignment Target Verification
+
+Verify that the Camera Node preview displays without stretching and includes a target crosshair overlay.
+
+### Steps
+1. Connect a camera node device to the coordinator and enter **Camera Mode**.
+2. Once the camera hardware initializes, inspect the live video preview area.
+3. Hold the phone in both portrait and landscape orientation.
+4. Inspect the center of the video preview.
+
+### Expected Outcomes
+- The live feed is displayed cleanly without horizontal or vertical stretching.
+- A target alignment crosshair (target focus icon) is displayed in the absolute center of the camera preview frame.
