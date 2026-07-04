@@ -124,6 +124,8 @@
 - [x] T022 [P] Configure cross-compilation scripts for macOS/linux/arm64 in scripts/build.sh
 - [x] T023 Run end-to-end local validation scenarios defined in specs/001-multi-camera-photo-booth/quickstart.md
 - [x] T025 Generate operator setup and troubleshooting README.md at repository root
+- [x] T056 Add install-android.sh automated concurrent install script for Android devices in clients/mobile/install-android.sh
+- [x] T057 Add install-ios.sh automated concurrent install script for iOS devices in clients/mobile/install-ios.sh
 
 ---
 

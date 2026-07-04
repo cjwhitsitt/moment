@@ -80,6 +80,8 @@ pkg/
 └── domain/              # Shared Go domain types
 clients/
 └── mobile/              # Flutter client app
+    ├── install-android.sh # Script to build and deploy to all connected Android devices in parallel
+    ├── install-ios.sh     # Script to build and deploy to all connected iOS devices in parallel
     ├── lib/
     │   ├── bloc/        # Bloc/Cubit state files (Camera and Operator)
     │   ├── services/    # NTP sync, WebSocket, mDNS Discovery, and Firebase upload services
@@ -107,6 +109,12 @@ functions/               # Firebase Cloud Functions (TypeScript)
 - **Flutter State Tests**:
   ```bash
   cd clients/mobile && flutter test
+  ```
+- **Parallel Multi-Device Deployment**:
+  ```bash
+  cd clients/mobile
+  chmod +x install-android.sh && ./install-android.sh
+  chmod +x install-ios.sh && ./install-ios.sh
   ```
 - **Firebase Functions Tests**:
   ```bash
