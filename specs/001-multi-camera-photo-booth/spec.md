@@ -32,6 +32,7 @@
 - Q: Executable output directory mapping → A: The local Go coordinator build process will compile and output to the `build/` directory (ignored by `.gitignore`) to prevent untracked binaries from cluttering the root workspace.
 - Q: Batched WebSocket Frame Parsing on Client → A: Due to Gorilla WebSocket's write coalescing optimizations on the coordinator (which packages multiple queued text messages into a single TCP packet frame separated by newlines), the Flutter client's WebSocket parser will split incoming message frames on newlines to parse and process each payload individually, avoiding JSON parsing errors on consolidated registrations.
 - Q: Operator Connection IP Input Constraints and Persistence → A: The Coordinator IP text field on the Operator Panel will only accept numeric characters and periods (`[0-9.]`). Additionally, the last successfully entered IP address will be cached locally using `shared_preferences` and auto-filled on application launch.
+- Q: FFmpeg fifo Filter Deprecation → A: Starting with FFmpeg v7.0+, the `fifo` video filter has been officially removed from the FFmpeg codebase. The stitching Cloud Function will bypass the `fifo` filter and feed the split video stream branch directly to `paletteuse`, ensuring compatibility with both legacy (v5/v6) and modern (v7/v8) FFmpeg runtimes.
 
 
 

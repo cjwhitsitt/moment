@@ -72,7 +72,7 @@ export async function stitchFrames(
 
     // 3. Compile high-quality GIF using palettegen and paletteuse
     const outputGifPath = path.join(sessionDir, "output.gif");
-    const ffmpegCmd = `"${ffmpegPath}" -y -reinit_filter 0 -f image2 -start_number 0 -framerate 10 -i "${sessionDir}/frame_%d.jpg" -filter_complex "[0:v] scale=800:600:force_original_aspect_ratio=decrease,pad=800:600:(ow-iw)/2:(oh-ih)/2,split [a][b];[a] palettegen [p];[b] fifo [v];[v][p] paletteuse" "${outputGifPath}"`;
+    const ffmpegCmd = `"${ffmpegPath}" -y -reinit_filter 0 -f image2 -start_number 0 -framerate 10 -i "${sessionDir}/frame_%d.jpg" -filter_complex "[0:v] scale=800:600:force_original_aspect_ratio=decrease,pad=800:600:(ow-iw)/2:(oh-ih)/2,split [a][b];[a] palettegen [p];[b][p] paletteuse" "${outputGifPath}"`;
 
     await new Promise<void>((resolve, reject) => {
       exec(ffmpegCmd, (error, stdout, stderr) => {
