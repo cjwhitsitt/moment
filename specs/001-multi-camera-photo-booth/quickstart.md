@@ -114,3 +114,18 @@ Verify that Firestore and Firebase Storage security rules block public access to
 - Firestore list operations and direct deletes are rejected (returns permission denied).
 - Storage reads from the `captures/` path are rejected (returns permission denied).
 - Storage reads from the `stitched/` path succeed, allowing image download.
+
+---
+
+## Scenario 7: Camera Node Position Index Persistence Verification
+
+Verify that the Camera Node setup screen retains the last chosen index.
+
+### Steps
+1. Launch the application and select **Camera Array Node**.
+2. Open the camera position dropdown and select `Camera Node 4`.
+3. Force close the application.
+4. Relaunch the application and open the Camera Node configuration screen.
+
+### Expected Outcomes
+- The dropdown defaults to `Camera Node 4` on relaunch.

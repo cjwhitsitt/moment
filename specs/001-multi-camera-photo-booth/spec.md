@@ -37,6 +37,7 @@
 - Q: Input Resolution Mismatch Artifacts → A: To prevent green lines and blocky decoding artifacts when different camera models upload frames at varying resolutions, the Cloud Functions stitching code will pre-scale all individual frames to a uniform 800x600 resolution prior to invoking the final FFmpeg image2 sequence demuxer.
 - Q: Firestore and Storage Security Rules → A: To prevent unauthorized access, Firestore and Storage rules must block all public/unauthenticated read and write requests to session metadata and raw captures. Only cloud functions and privileged operations are permitted to read/write. However, the final stitched GIF files under the public sharing directory must permit public read-only access so guests can access their animations.
 - Q: Cloud Functions Node.js Runtime Upgrade → A: Since the Node.js 18 runtime was decommissioned on 2025-10-30, the Cloud Functions engine version in package.json is upgraded to Node.js 20, along with corresponding Node type definitions to ensure full compiler type safety and deprecation warnings resolution.
+- Q: Camera Position Index Persistence → A: To streamline camera setup, the Camera Node configuration screen must save the selected camera position index (1 to 10) locally in settings using SharedPreferences, and auto-select this cached value on subsequent app launches.
 
 
 
@@ -146,6 +147,7 @@ An operator uses a mobile device (tablet or phone) running the app in Operator M
 - **FR-017**: The Cloud Backend MUST send the stitched GIF via email to the input address using a reliable email delivery service.
 - **FR-018**: The Camera Node application MUST display the live camera view in its correct aspect ratio without stretching or distortion, and MUST overlay a central crosshair to assist with device alignment.
 - **FR-019**: The Cloud Firestore and Firebase Storage security rules MUST block all public/unauthenticated read/write access to session metadata and raw captured frames. However, the final stitched GIF assets stored under the public sharing path MUST permit public/unauthenticated read access so that guests can scan the QR code to view and download their looping animations.
+- **FR-020**: The Camera Node configuration screen MUST persist the last chosen camera position index (1-10) locally using SharedPreferences, and default to this index on launch.
 
 ### Key Entities
 

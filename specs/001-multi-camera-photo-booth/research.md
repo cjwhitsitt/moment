@@ -117,3 +117,16 @@ Configure `firestore.rules` to permit individual document `get` and `create`/`up
 
 ### Alternatives Considered
 - **Anonymous Auth**: Rejected. Requiring client registration flow over the internet complicates setup and creates unnecessary dependency on external Firebase Auth servers for an offline-first local network setup.
+
+---
+
+## Camera Node Position Index Persistence
+
+### Decision
+Cache the selected camera index locally using `shared_preferences` under the key `'camera_position_index'`, load it during `initState` in the camera home widget, and update the cache whenever the user changes the dropdown option.
+
+### Rationale
+- **Reduced Setup Overhead**: When setting up the physical booth, camera smartphone nodes are usually mounted to a fixed position. If the app crashes or restarts, having the dropdown automatically load its last assigned index avoids human error (e.g. accidentally setting two nodes to the same index).
+
+### Alternatives Considered
+- **Central Coordination Discovery**: Rejected. Letting the coordinator dynamically assign indices based on registration order is less predictable than physical placement mapping, which is highly sensitive to index order (since frame sequencing depends strictly on sequential indices 1 to N).

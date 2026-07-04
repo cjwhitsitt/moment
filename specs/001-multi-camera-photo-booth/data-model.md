@@ -105,5 +105,6 @@ stateDiagram-v2
 | Key | Type | Description |
 |-----|------|-------------|
 | `last_connected_ip` | String | The last manually entered IP address that successfully completed the `operator_registered` WebSocket handshake. |
+| `camera_position_index` | Integer | The last selected Camera Node array position index (1-10) configuration. |
 
 ```

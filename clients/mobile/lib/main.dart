@@ -11,6 +11,7 @@ import 'bloc/sync_bloc.dart';
 import 'bloc/operator/operator_bloc.dart';
 import 'ui/selection_page.dart';
 import 'ui/operator_dashboard_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -98,6 +99,21 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    _loadCachedCameraIndex();
+  }
+
+  Future<void> _loadCachedCameraIndex() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final index = prefs.getInt('camera_position_index');
+      if (index != null && index >= 1 && index <= 10 && mounted) {
+        setState(() {
+          _cameraIndex = index;
+        });
+      }
+    } catch (_) {
+      // Ignore cache errors
+    }
   }
 
   Future<void> _initCamera() async {
@@ -282,6 +298,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 setState(() {
                   _cameraIndex = val;
                 });
+                SharedPreferences.getInstance().then((prefs) {
+                  prefs.setInt('camera_position_index', val);
+                }).catchError((_) {});
               }
             },
           ),

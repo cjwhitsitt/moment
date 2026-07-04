@@ -246,3 +246,13 @@
 - [x] T070 [Backend] Update engines.node version to 20 and update devDependencies.@types/node to ^20.0.0 in functions/package.json
 - [x] T071 Run npm install and verify successful TypeScript compilation under the new runtime environment via npm run build in functions/
 
+---
+
+## Phase 15: Camera Node Dropdown Persistence (Priority: P1)
+
+**Goal**: Ensure the Camera Node position dropdown defaults to the last used position.
+
+- [x] T072 [US1] Load last used camera index from SharedPreferences in HomeScreen initState inside clients/mobile/lib/main.dart
+- [x] T073 [US1] Save the selected camera index to SharedPreferences when changed in the DropdownButtonFormField in clients/mobile/lib/main.dart
+- [x] T074 Run Scenario 7 validation in specs/001-multi-camera-photo-booth/quickstart.md to verify dropdown persistence.
+
