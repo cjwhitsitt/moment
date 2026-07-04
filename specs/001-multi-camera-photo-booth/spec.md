@@ -30,6 +30,7 @@
 - Q: Local FFmpeg Executable Resolution on macOS → A: To support local testing using the Firebase emulator on Apple Silicon and Intel macOS architectures, the Cloud Functions stitching code will dynamically probe standard Homebrew paths (`/opt/homebrew/bin/ffmpeg` and `/usr/local/bin/ffmpeg`) and fall back to the system-wide executable if `@ffmpeg-installer/ffmpeg` module loading fails or resolves to an incompatible architecture binary.
 - Q: Multi-Device Deployment Automation → A: Automated build-and-deploy helper scripts `install-android.sh` and `install-ios.sh` will be added to the mobile project root to compile release builds and install them in parallel on all connected test devices (using ADB for Android and ios-deploy for iOS).
 - Q: Executable output directory mapping → A: The local Go coordinator build process will compile and output to the `build/` directory (ignored by `.gitignore`) to prevent untracked binaries from cluttering the root workspace.
+- Q: Batched WebSocket Frame Parsing on Client → A: Due to Gorilla WebSocket's write coalescing optimizations on the coordinator (which packages multiple queued text messages into a single TCP packet frame separated by newlines), the Flutter client's WebSocket parser will split incoming message frames on newlines to parse and process each payload individually, avoiding JSON parsing errors on consolidated registrations.
 
 
 ## User Scenarios & Testing *(mandatory)*

@@ -17,8 +17,14 @@ class WebSocketClient {
       _socket!.listen(
         (data) {
           try {
-            final parsed = jsonDecode(data as String) as Map<String, dynamic>;
-            _messageController.add(parsed);
+            final text = data as String;
+            final lines = text.split('\n');
+            for (final line in lines) {
+              final trimmed = line.trim();
+              if (trimmed.isEmpty) continue;
+              final parsed = jsonDecode(trimmed) as Map<String, dynamic>;
+              _messageController.add(parsed);
+            }
           } catch (e) {
             // Ignored parsing issue on malformed message
           }
