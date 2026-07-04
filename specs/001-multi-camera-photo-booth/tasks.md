@@ -237,3 +237,12 @@
 - [x] T068 Configure and implement private raw captures and public stitched GIF download access in storage.rules
 - [x] T069 Run Scenario 6 validation in specs/001-multi-camera-photo-booth/quickstart.md to verify rules logic.
 
+---
+
+## Phase 14: Cloud Functions Runtime Upgrade (Priority: P1)
+
+**Goal**: Upgrade Cloud Functions target engine to Node.js 20 to resolve deployment blockages due to decommissioned Node.js 18.
+
+- [x] T070 [Backend] Update engines.node version to 20 and update devDependencies.@types/node to ^20.0.0 in functions/package.json
+- [x] T071 Run npm install and verify successful TypeScript compilation under the new runtime environment via npm run build in functions/
+

@@ -36,6 +36,7 @@
 - Q: Camera Preview Alignment and Aspect Ratio → A: To ensure accurate setup alignment, the Camera Node preview MUST preserve its native aspect ratio without stretching or distortion (using uniform scale-to-fill/cover fit). It MUST also overlay a subtle central crosshair indicator at the visual center of the preview.
 - Q: Input Resolution Mismatch Artifacts → A: To prevent green lines and blocky decoding artifacts when different camera models upload frames at varying resolutions, the Cloud Functions stitching code will pre-scale all individual frames to a uniform 800x600 resolution prior to invoking the final FFmpeg image2 sequence demuxer.
 - Q: Firestore and Storage Security Rules → A: To prevent unauthorized access, Firestore and Storage rules must block all public/unauthenticated read and write requests to session metadata and raw captures. Only cloud functions and privileged operations are permitted to read/write. However, the final stitched GIF files under the public sharing directory must permit public read-only access so guests can access their animations.
+- Q: Cloud Functions Node.js Runtime Upgrade → A: Since the Node.js 18 runtime was decommissioned on 2025-10-30, the Cloud Functions engine version in package.json is upgraded to Node.js 20, along with corresponding Node type definitions to ensure full compiler type safety and deprecation warnings resolution.
 
 
 
