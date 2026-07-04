@@ -61,18 +61,27 @@ export async function stitchFrames(
       sequence.push(i);
     }
 
-    sequence.forEach((camIndex, seqIndex) => {
+    for (let seqIndex = 0; seqIndex < sequence.length; seqIndex++) {
+      const camIndex = sequence[seqIndex];
       const srcPath = cameraMap.get(camIndex);
       if (!srcPath) {
         throw new Error(`Missing download for camera index ${camIndex}`);
       }
       const destPath = path.join(sessionDir, `frame_${seqIndex}.jpg`);
-      fs.copyFileSync(srcPath, destPath);
-    });
+      
+      // Pre-scale frame to exactly 800x600 using FFmpeg to avoid demuxer resolution mismatch artifacts
+      const preScaleCmd = `"${ffmpegPath}" -y -i "${srcPath}" -vf "scale=800:600:force_original_aspect_ratio=decrease,pad=800:600:(ow-iw)/2:(oh-ih)/2" "${destPath}"`;
+      await new Promise<void>((resolve, reject) => {
+        exec(preScaleCmd, (error) => {
+          if (error) reject(error);
+          else resolve();
+        });
+      });
+    }
 
     // 3. Compile high-quality GIF using palettegen and paletteuse
     const outputGifPath = path.join(sessionDir, "output.gif");
-    const ffmpegCmd = `"${ffmpegPath}" -y -reinit_filter 0 -f image2 -start_number 0 -framerate 10 -i "${sessionDir}/frame_%d.jpg" -filter_complex "[0:v] scale=800:600:force_original_aspect_ratio=decrease,pad=800:600:(ow-iw)/2:(oh-ih)/2,split [a][b];[a] palettegen [p];[b][p] paletteuse" "${outputGifPath}"`;
+    const ffmpegCmd = `"${ffmpegPath}" -y -reinit_filter 0 -f image2 -start_number 0 -framerate 10 -i "${sessionDir}/frame_%d.jpg" -filter_complex "split [a][b];[a] palettegen [p];[b][p] paletteuse" "${outputGifPath}"`;
 
     await new Promise<void>((resolve, reject) => {
       exec(ffmpegCmd, (error, stdout, stderr) => {

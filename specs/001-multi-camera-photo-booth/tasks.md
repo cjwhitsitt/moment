@@ -219,3 +219,11 @@
 - [x] T064 [US1] Overlay center focus target alignment icon (Icons.center_focus_weak) over the camera preview using a Stack in clients/mobile/lib/main.dart
 - [x] T065 Run Scenario 5 validation in specs/001-multi-camera-photo-booth/quickstart.md to verify scaling and target alignment.
 
+---
+
+## Phase 12: Resolution-Aware Frame Pre-scaling (Priority: P1)
+
+**Goal**: Solve FFmpeg image2 demuxer green line decoding artifacts when input images have varying resolution sizes.
+
+- [x] T066 [Backend] Implement sequential pre-scaling of individual sequence JPEGs to a uniform 800x600 resolution prior to final stitching in functions/src/stitch.ts
+
