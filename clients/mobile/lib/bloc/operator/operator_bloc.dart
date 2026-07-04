@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../services/websocket_client.dart';
 import '../../services/discovery_service.dart';
+import '../../services/emulator_config_service.dart';
 
 // States
 abstract class OperatorState {}
@@ -145,6 +146,7 @@ class OperatorBloc extends Bloc<OperatorEvent, OperatorState> {
       emit(OperatorConnecting(event.wsUrl));
       await _discoveryService.stop();
       _discoverySubscription?.cancel();
+      EmulatorConfigService.configure(event.wsUrl);
 
       try {
         await _wsClient.connect(event.wsUrl);

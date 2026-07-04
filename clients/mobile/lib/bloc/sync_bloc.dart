@@ -5,6 +5,7 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:battery_plus/battery_plus.dart';
 import '../services/websocket_client.dart';
 import '../services/ntp_service.dart';
+import '../services/emulator_config_service.dart';
 
 // States
 abstract class SyncState {}
@@ -123,6 +124,7 @@ class SyncBloc extends Bloc<SyncEvent, SyncState> {
 
     on<ConnectEvent>((event, emit) async {
       emit(SyncConnecting(event.wsUrl, event.cameraIndex));
+      EmulatorConfigService.configure(event.wsUrl);
       try {
         await _wsClient.connect(event.wsUrl);
         _wsSubscription?.cancel();
