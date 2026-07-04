@@ -35,6 +35,7 @@
 - Q: FFmpeg fifo Filter Deprecation → A: Starting with FFmpeg v7.0+, the `fifo` video filter has been officially removed from the FFmpeg codebase. The stitching Cloud Function will bypass the `fifo` filter and feed the split video stream branch directly to `paletteuse`, ensuring compatibility with both legacy (v5/v6) and modern (v7/v8) FFmpeg runtimes.
 - Q: Camera Preview Alignment and Aspect Ratio → A: To ensure accurate setup alignment, the Camera Node preview MUST preserve its native aspect ratio without stretching or distortion (using uniform scale-to-fill/cover fit). It MUST also overlay a subtle central crosshair indicator at the visual center of the preview.
 - Q: Input Resolution Mismatch Artifacts → A: To prevent green lines and blocky decoding artifacts when different camera models upload frames at varying resolutions, the Cloud Functions stitching code will pre-scale all individual frames to a uniform 800x600 resolution prior to invoking the final FFmpeg image2 sequence demuxer.
+- Q: Firestore and Storage Security Rules → A: To prevent unauthorized access, Firestore and Storage rules must block all public/unauthenticated read and write requests to session metadata and raw captures. Only cloud functions and privileged operations are permitted to read/write. However, the final stitched GIF files under the public sharing directory must permit public read-only access so guests can access their animations.
 
 
 
@@ -143,6 +144,7 @@ An operator uses a mobile device (tablet or phone) running the app in Operator M
 - **FR-016**: The Operator App MUST provide a text input field for guest emails.
 - **FR-017**: The Cloud Backend MUST send the stitched GIF via email to the input address using a reliable email delivery service.
 - **FR-018**: The Camera Node application MUST display the live camera view in its correct aspect ratio without stretching or distortion, and MUST overlay a central crosshair to assist with device alignment.
+- **FR-019**: The Cloud Firestore and Firebase Storage security rules MUST block all public/unauthenticated read/write access to session metadata and raw captured frames. However, the final stitched GIF assets stored under the public sharing path MUST permit public/unauthenticated read access so that guests can scan the QR code to view and download their looping animations.
 
 ### Key Entities
 

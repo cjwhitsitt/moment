@@ -98,3 +98,19 @@ Verify that the Camera Node preview displays without stretching and includes a t
 ### Expected Outcomes
 - The live feed is displayed cleanly without horizontal or vertical stretching.
 - A target alignment crosshair (target focus icon) is displayed in the absolute center of the camera preview frame.
+
+---
+
+## Scenario 6: Security Rules Integrity Verification
+
+Verify that Firestore and Firebase Storage security rules block public access to raw data but allow public access to stitched animations.
+
+### Steps
+1. Attempt to fetch all session documents from Firestore without credentials (e.g. list operation). Verify it is rejected.
+2. Attempt to download a raw capture file from the Storage `captures/` path without credentials. Verify it is rejected.
+3. Attempt to download a stitched GIF file from the Storage `stitched/` path without credentials. Verify it succeeds.
+
+### Expected Outcomes
+- Firestore list operations and direct deletes are rejected (returns permission denied).
+- Storage reads from the `captures/` path are rejected (returns permission denied).
+- Storage reads from the `stitched/` path succeed, allowing image download.

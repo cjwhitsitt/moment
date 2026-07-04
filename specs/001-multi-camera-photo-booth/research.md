@@ -103,3 +103,17 @@ Display the camera preview inside a `ClipRect` -> `FittedBox(fit: BoxFit.cover)`
 
 ### Alternatives Considered
 - **Custom Painter Grid**: Rejected. While extremely flexible, drawing a full grid overlay is more complex than displaying a high-contrast target icon, which provides sufficient visual cues for node center alignment.
+
+---
+
+## Firestore and Storage Security Rules Design
+
+### Decision
+Configure `firestore.rules` to permit individual document `get` and `create`/`update` write operations but block collection `list` queries and deletions. Configure `storage.rules` to deny read access on raw `captures/` but allow public read access on `stitched/` shareable GIFs.
+
+### Rationale
+- **Obscurity & Restricted Operations for Kiosk**: Because kiosk mobile clients pair dynamically on the local network without user authentication, rules cannot rely on `request.auth` checks. Disabling `list` prevent malicious parties from harvesting session lists, and disabling `delete` prevents session tampering, while still allowing the client app to write updates and fetch its current session document.
+- **Data Protection**: Banning public read access on `captures/` prevents unauthorized downloads of individual raw frames. Allowing public read access on `stitched/` ensures that any guest scanning the sharing QR code can resolve the signed storage URL to view and download their GIF immediately.
+
+### Alternatives Considered
+- **Anonymous Auth**: Rejected. Requiring client registration flow over the internet complicates setup and creates unnecessary dependency on external Firebase Auth servers for an offline-first local network setup.

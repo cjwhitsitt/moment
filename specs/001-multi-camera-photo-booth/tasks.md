@@ -227,3 +227,13 @@
 
 - [x] T066 [Backend] Implement sequential pre-scaling of individual sequence JPEGs to a uniform 800x600 resolution prior to final stitching in functions/src/stitch.ts
 
+---
+
+## Phase 13: Firestore & Storage Security Rules (Priority: P1)
+
+**Goal**: Configure and secure Firestore and Firebase Storage rules to block unauthorized public access but allow public read access for stitched GIF assets.
+
+- [x] T067 Configure and implement secure document-level operations and block list/delete access in firestore.rules
+- [x] T068 Configure and implement private raw captures and public stitched GIF download access in storage.rules
+- [x] T069 Run Scenario 6 validation in specs/001-multi-camera-photo-booth/quickstart.md to verify rules logic.
+

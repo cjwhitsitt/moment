@@ -135,3 +135,4 @@ functions/               # Firebase Cloud Functions (TypeScript)
 10. Attempt to type alphabetic characters into the manual IP input field on the Operator Panel. Verify they are rejected.
 11. Complete a manual connection to the coordinator successfully, force close the app, relaunch it, and verify the manual IP field auto-fills with that last connected IP address.
 12. Initialize Camera Mode on a node, verify the live preview matches actual target shapes without distortion, and confirm a central target alignment focus icon overlays the center of the camera box.
+13. Run direct curl or console checks on Firebase Firestore and Storage rules to verify that unauthorized queries on sessions list, session deletes, and raw captures are denied, but reads of stitched GIFs succeed.

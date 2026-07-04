@@ -1,8 +1,14 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    match /{allPaths=**} {
-      allow read, write: if true;
+    match /captures/{allPaths=**} {
+      allow read: if false;
+      allow write: if true;
+    }
+    
+    match /stitched/{allPaths=**} {
+      allow read: if true;
+      allow write: if false;
     }
   }
 }
