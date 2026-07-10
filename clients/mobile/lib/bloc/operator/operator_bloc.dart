@@ -32,11 +32,12 @@ class OperatorConnected extends OperatorState {
     String? url,
     List<CameraNodeStatus>? cameras,
     ActiveSessionStatus? activeSession,
+    bool clearActiveSession = false,
   }) {
     return OperatorConnected(
       url: url ?? this.url,
       cameras: cameras ?? this.cameras,
-      activeSession: activeSession ?? this.activeSession,
+      activeSession: clearActiveSession ? null : (activeSession ?? this.activeSession),
     );
   }
 }
@@ -207,6 +208,7 @@ class OperatorBloc extends Bloc<OperatorEvent, OperatorState> {
           emit(s.copyWith(
             cameras: cameras,
             activeSession: activeSession,
+            clearActiveSession: activeSession == null,
           ));
         }
       } else if (eventName == 'disconnected') {
