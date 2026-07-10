@@ -288,3 +288,11 @@
 - [x] T084 [US5] Rearrange sharing options (download QR code and email fields) to stack cleanly below the preview image inside clients/mobile/lib/ui/operator_dashboard_page.dart
 - [x] T085 Run Scenario 10 validation in specs/001-multi-camera-photo-booth/quickstart.md to verify full-width layout integrity.
 
+---
+
+## Phase 19: mDNS iOS Discovery Permissions (Priority: P1)
+
+**Goal**: Permit iOS devices to discover Bonjour coordinator advertisements.
+
+- [x] T086 Declare _moment-coord._tcp under NSBonjourServices key in clients/mobile/ios/Runner/Info.plist to satisfy iOS 14+ Bonjour discovery rules and RFC length limits.
+

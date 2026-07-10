@@ -42,7 +42,7 @@ func StartAdvertiser(port int) (*Advertiser, error) {
 
 	service, err := mdns.NewMDNSService(
 		"moment-coordinator",
-		"_moment-coordinator._tcp",
+		"_moment-coord._tcp",
 		"",
 		"",
 		port,

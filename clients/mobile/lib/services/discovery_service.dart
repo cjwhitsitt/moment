@@ -10,7 +10,7 @@ class DiscoveryService {
   Future<void> start() async {
     if (_discovery != null) return;
     try {
-      _discovery = await startDiscovery('_moment-coordinator._tcp');
+      _discovery = await startDiscovery('_moment-coord._tcp');
       _discovery!.addListener(() {
         for (final service in _discovery!.services) {
           if (service.host != null && service.port != null) {

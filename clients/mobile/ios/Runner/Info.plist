@@ -72,5 +72,9 @@
 	<string>This app requires microphone access for camera initialization.</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>This app requires local network access to communicate with the central photo booth coordinator.</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_moment-coord._tcp</string>
+	</array>
 </dict>
 </plist>
