@@ -171,3 +171,17 @@ Re-architect the share section in the Operator App. The preview image spans the 
 
 ### Alternatives Considered
 - **Horizontal Side-by-Side Slicing**: Rejected. Rendering the GIF and QR code in a single row restricts the preview's area, rendering it too small on compact phone screens.
+
+---
+
+## Operator mDNS Discovery Auto-Start & Confirmation Workflow
+
+### Decision
+Introduce a new state `OperatorDiscovered(String url)` in `OperatorBloc`. Auto-trigger `StartDiscoveryEvent` on operator page load (bypassing the initial welcome button). Merge the manual IP connection form onto the scanning screen itself (`OperatorDiscovering` state) so it remains accessible during background scans. Render a clear yes/no confirmation prompt when the state transitions to `OperatorDiscovered`.
+
+### Rationale
+- **Frictionless Auto-pairing**: Having mDNS start automatically saves a user action. However, connecting silently to the first discovered coordinator on a busy network could connect the operator to the wrong coordinator instance. Requiring confirmation preserves user agency.
+- **Accessible Manual Fallback**: Displaying the manual IP fields on the scanning screen prevents the operator from having to tap "Cancel" to expose the manual inputs if auto-discovery hangs.
+
+### Alternatives Considered
+- **Silently Connect on Scan Success**: Rejected. Risk of connecting to neighboring booths at multi-setup events.

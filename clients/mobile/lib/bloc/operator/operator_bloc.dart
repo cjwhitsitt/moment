@@ -17,6 +17,13 @@ class OperatorConnecting extends OperatorState {
   OperatorConnecting(this.url);
 }
 
+class OperatorDiscovered extends OperatorState {
+  final String url;
+  final String host;
+  final int port;
+  OperatorDiscovered({required this.url, required this.host, required this.port});
+}
+
 class OperatorConnected extends OperatorState {
   final String url;
   final List<CameraNodeStatus> cameras;
@@ -110,6 +117,8 @@ class ConnectManualEvent extends OperatorEvent {
   ConnectManualEvent(this.wsUrl);
 }
 
+class IgnoreDiscoveredEvent extends OperatorEvent {}
+
 class DisconnectOperatorEvent extends OperatorEvent {}
 
 class MessageReceivedOperatorEvent extends OperatorEvent {
@@ -143,7 +152,13 @@ class OperatorBloc extends Bloc<OperatorEvent, OperatorState> {
     on<DiscoverServiceEvent>((event, emit) async {
       if (state is! OperatorDiscovering) return;
       final wsUrl = 'ws://${event.host}:${event.port}/ws';
-      add(ConnectManualEvent(wsUrl));
+      emit(OperatorDiscovered(url: wsUrl, host: event.host, port: event.port));
+    });
+
+    on<IgnoreDiscoveredEvent>((event, emit) {
+      if (state is OperatorDiscovered) {
+        emit(OperatorDiscovering());
+      }
     });
 
     on<ConnectManualEvent>((event, emit) async {

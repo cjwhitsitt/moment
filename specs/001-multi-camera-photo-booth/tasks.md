@@ -296,3 +296,15 @@
 
 - [x] T086 Declare _moment-coord._tcp under NSBonjourServices key in clients/mobile/ios/Runner/Info.plist to satisfy iOS 14+ Bonjour discovery rules and RFC length limits.
 
+---
+
+## Phase 20: Operator mDNS Auto-Start & Confirmation (Priority: P1)
+
+**Goal**: Auto-trigger mDNS discovery, expose manual IP forms on the scanning view, and add a connection confirmation prompt.
+
+- [x] T087 [US5] Add OperatorDiscovered state to clients/mobile/lib/bloc/operator/operator_bloc.dart and update BLoC events to emit it on service resolution
+- [x] T088 [US5] Auto-dispatch StartDiscoveryEvent in initState of _OperatorDashboardPageState in clients/mobile/lib/ui/operator_dashboard_page.dart
+- [x] T089 [US5] Merge the manual IP connection form into _buildDiscoveringView inside clients/mobile/lib/ui/operator_dashboard_page.dart
+- [x] T090 [US5] Build _buildDiscoveredConfirmationView to display confirmation yes/no prompt in clients/mobile/lib/ui/operator_dashboard_page.dart
+- [x] T091 Run Scenario 11 validation in specs/001-multi-camera-photo-booth/quickstart.md to verify discovery auto-start, manual fallbacks, and connection confirmations.
+

@@ -23,6 +23,7 @@ class _OperatorDashboardPageState extends State<OperatorDashboardPage> {
   void initState() {
     super.initState();
     _loadCachedIp();
+    context.read<OperatorBloc>().add(StartDiscoveryEvent());
   }
 
   Future<void> _loadCachedIp() async {
@@ -108,9 +109,11 @@ class _OperatorDashboardPageState extends State<OperatorDashboardPage> {
         },
         builder: (context, state) {
           if (state is OperatorInitial) {
-            return _buildInitialView(context);
+            return _buildDiscoveringView(context);
           } else if (state is OperatorDiscovering) {
             return _buildDiscoveringView(context);
+          } else if (state is OperatorDiscovered) {
+            return _buildDiscoveredConfirmationView(context, state);
           } else if (state is OperatorConnecting) {
             return _buildConnectingView(state.url);
           } else if (state is OperatorConnected) {
@@ -124,7 +127,9 @@ class _OperatorDashboardPageState extends State<OperatorDashboardPage> {
     );
   }
 
-  Widget _buildInitialView(BuildContext context) {
+
+
+  Widget _buildDiscoveringView(BuildContext context) {
     return Center(
       child: SingleChildScrollView(
         child: Padding(
@@ -133,33 +138,29 @@ class _OperatorDashboardPageState extends State<OperatorDashboardPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Icon(Icons.settings_input_antenna_rounded, size: 80, color: Colors.deepPurpleAccent),
+              const Center(
+                child: SizedBox(
+                  width: 64,
+                  height: 64,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 5,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.deepPurpleAccent),
+                  ),
+                ),
+              ),
               const SizedBox(height: 24),
               const Text(
-                'Connect to Go Coordinator',
+                'Searching for Coordinator...',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
               Text(
-                'Auto-discover the coordinator on the local subnet or enter its IP address manually.',
+                'Scanning subnet using mDNS...',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14, color: Colors.grey.shade400, height: 1.4),
+                style: TextStyle(fontSize: 13, color: Colors.grey.shade400),
               ),
               const SizedBox(height: 40),
-              ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  backgroundColor: Colors.deepPurple,
-                ),
-                icon: const Icon(Icons.youtube_searched_for_rounded, color: Colors.white),
-                label: const Text('Start Auto-Discovery', style: TextStyle(fontSize: 16, color: Colors.white)),
-                onPressed: () {
-                  context.read<OperatorBloc>().add(StartDiscoveryEvent());
-                },
-              ),
-              const SizedBox(height: 32),
               Row(
                 children: [
                   Expanded(child: Divider(color: Colors.grey.shade800)),
@@ -170,7 +171,7 @@ class _OperatorDashboardPageState extends State<OperatorDashboardPage> {
                   Expanded(child: Divider(color: Colors.grey.shade800)),
                 ],
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
               TextField(
                 controller: _ipController,
                 inputFormatters: [
@@ -195,10 +196,9 @@ class _OperatorDashboardPageState extends State<OperatorDashboardPage> {
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  backgroundColor: Colors.white.withOpacity(0.08),
-                  side: BorderSide(color: Colors.white.withOpacity(0.12)),
+                  backgroundColor: Colors.deepPurpleAccent,
                 ),
-                child: const Text('Connect Manually', style: TextStyle(fontSize: 16, color: Colors.white)),
+                child: const Text('Connect Manually', style: TextStyle(fontSize: 15, color: Colors.white, fontWeight: FontWeight.bold)),
                 onPressed: () {
                   final ip = _ipController.text.trim();
                   if (ip.isNotEmpty) {
@@ -214,44 +214,73 @@ class _OperatorDashboardPageState extends State<OperatorDashboardPage> {
     );
   }
 
-  Widget _buildDiscoveringView(BuildContext context) {
+  Widget _buildDiscoveredConfirmationView(BuildContext context, OperatorDiscovered state) {
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const SizedBox(
-              width: 80,
-              height: 80,
-              child: CircularProgressIndicator(
-                strokeWidth: 6,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.deepPurpleAccent),
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Icon(Icons.check_circle_outline_rounded, size: 80, color: Colors.greenAccent),
+              const SizedBox(height: 24),
+              const Text(
+                'Coordinator Found',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
               ),
-            ),
-            const SizedBox(height: 32),
-            const Text(
-              'Searching for Coordinator...',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Scanning subnet using mDNS...',
-              style: TextStyle(fontSize: 14, color: Colors.grey.shade400),
-            ),
-            const SizedBox(height: 48),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white.withOpacity(0.08),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              const SizedBox(height: 12),
+              Text(
+                'A coordinator was auto-discovered at:',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14, color: Colors.grey.shade400),
               ),
-              child: const Text('Cancel & Enter IP'),
-              onPressed: () {
-                context.read<OperatorBloc>().add(DisconnectOperatorEvent());
-              },
-            ),
-          ],
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.04),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.white.withOpacity(0.08)),
+                ),
+                child: Text(
+                  state.host,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.greenAccent, letterSpacing: 1.0),
+                ),
+              ),
+              const SizedBox(height: 32),
+              const Text(
+                'Connect to Discovered Coordinator?',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.white70),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  backgroundColor: Colors.deepPurpleAccent,
+                ),
+                child: const Text('Yes, Connect', style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
+                onPressed: () {
+                  context.read<OperatorBloc>().add(ConnectManualEvent(state.url));
+                },
+              ),
+              const SizedBox(height: 12),
+              TextButton(
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: Text('Keep Searching / Reject', style: TextStyle(fontSize: 15, color: Colors.grey.shade400)),
+                onPressed: () {
+                  context.read<OperatorBloc>().add(IgnoreDiscoveredEvent());
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

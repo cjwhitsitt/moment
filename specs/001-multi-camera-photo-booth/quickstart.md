@@ -180,3 +180,24 @@ Verify that the completed sharing view displays the preview image full-width and
 ### Expected Outcomes
 - The preview GIF is shown at full-width as the primary asset.
 - All sharing tools are arranged underneath the preview container.
+
+---
+
+## Scenario 11: mDNS Auto-Start, Manual Entry & Connection Confirmation Verification
+
+Verify that entering Operator Mode triggers scanning automatically, displays manual IP fields, and prompts before connecting.
+
+### Steps
+1. Launch the application and select **Switch to Operator Mode**.
+2. Verify that the screen immediately displays **Searching for Coordinator...** with a spinner (no manual start button required).
+3. Verify that the manual IP entry input field and connect button are visible on this scanning screen.
+4. Start the Go coordinator.
+5. Verify that once the service is resolved, the app transitions to the **Coordinator Found** screen.
+6. Confirm the screen displays the discovered coordinator's address and prompts: **Connect to Discovered Coordinator?**.
+7. Tap **Cancel / Reject**. Verify you return to the scanning screen.
+8. Once resolved again, tap **Connect / Approve**. Verify you successfully connect and register to the dashboard view.
+
+### Expected Outcomes
+- Discovery starts automatically.
+- Manual IP connection remains possible during background scans.
+- A confirmation dialog is required to complete auto-discovered connections.
