@@ -158,3 +158,16 @@ Display the sharing section full-screen when the current session status resolves
 
 ### Alternatives Considered
 - **Local Cache Reset**: Rejected. Simply clearing the active session locally inside the Operator App widget state doesn't reset the coordinator's state, meaning the coordinator will continue advertising the finished session, leading to synchronization mismatches.
+
+---
+
+## Full-Width GIF Preview and Share Arrangement Layout
+
+### Decision
+Re-architect the share section in the Operator App. The preview image spans the full width of the view and expands to cover maximum vertical space while maintaining its native 4:3 aspect ratio. The QR code download indicator and email input/submit buttons are stacked cleanly underneath the image.
+
+### Rationale
+- **Visual Prominence**: Looping GIFs are the ultimate product of the photo booth experience. Maximizing the preview's area gives guests immediate visual feedback, while secondary actions (download/email) are naturally discovered by scrolling down.
+
+### Alternatives Considered
+- **Horizontal Side-by-Side Slicing**: Rejected. Rendering the GIF and QR code in a single row restricts the preview's area, rendering it too small on compact phone screens.

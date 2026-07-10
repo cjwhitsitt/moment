@@ -165,3 +165,18 @@ Verify that the Operator App switches to full-screen sharing when stitching comp
 ### Expected Outcomes
 - The status dashboard is completely replaced by the customer-friendly share cockpit when the session completes.
 - Pushing the close button resets the session state and returns to the active cockpit.
+
+---
+
+## Scenario 10: Full-Width Preview Layout Verification
+
+Verify that the completed sharing view displays the preview image full-width and share details below it.
+
+### Steps
+1. Complete a capture and wait for stitching to complete.
+2. Verify that the GIF preview spans the entire width of the sharing layout and is the main focal element.
+3. Scroll down (or inspect below) and confirm that the guest QR code scanner card and email delivery inputs are positioned underneath the preview.
+
+### Expected Outcomes
+- The preview GIF is shown at full-width as the primary asset.
+- All sharing tools are arranged underneath the preview container.

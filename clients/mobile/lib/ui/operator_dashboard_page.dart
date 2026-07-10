@@ -607,40 +607,44 @@ class _OperatorDashboardPageState extends State<OperatorDashboardPage> {
             style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2.0, color: Colors.purpleAccent),
           ),
           const SizedBox(height: 20),
+
+          // Full-width looping GIF preview
+          AspectRatio(
+            aspectRatio: 4 / 3,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.white.withOpacity(0.08)),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Image.network(
+                  gifUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Center(child: Icon(Icons.broken_image_outlined, color: Colors.grey, size: 48));
+                  },
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return const Center(child: CircularProgressIndicator());
+                  },
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+          Divider(color: Colors.white.withOpacity(0.06)),
+          const SizedBox(height: 20),
+
+          // Sharing options stacked cleanly below
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Looping GIF preview
-              Expanded(
-                flex: 1,
-                child: Container(
-                  height: 160,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.white.withOpacity(0.08)),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.network(
-                      gifUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return const Center(child: Icon(Icons.broken_image_outlined, color: Colors.grey));
-                      },
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return const Center(child: CircularProgressIndicator());
-                      },
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
-
               // Sharing QR code
               Expanded(
-                flex: 1,
+                flex: 2,
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     QrImageView(
                       data: gifUrl,
@@ -652,80 +656,98 @@ class _OperatorDashboardPageState extends State<OperatorDashboardPage> {
                     const SizedBox(height: 8),
                     const Text(
                       'Scan to download/share',
-                      style: TextStyle(fontSize: 10, color: Colors.grey),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.w600),
                     ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 24),
+
+              // Email delivery input
+              Expanded(
+                flex: 3,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'Deliver GIF to Guest Email',
+                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _emailController,
+                            decoration: InputDecoration(
+                              hintText: 'guest@example.com',
+                              hintStyle: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                              filled: true,
+                              fillColor: Colors.white.withOpacity(0.04),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide(color: Colors.white.withOpacity(0.05)),
+                              ),
+                            ),
+                            style: const TextStyle(color: Colors.white, fontSize: 13),
+                            keyboardType: TextInputType.emailAddress,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        SizedBox(
+                          height: 40,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.deepPurpleAccent,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                            ),
+                            onPressed: _isSendingEmail
+                                ? null
+                                : () => _sendEmail(sessionId, gifUrl),
+                            child: _isSendingEmail
+                                ? const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                  )
+                                : const Text('Send', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white)),
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (_emailStatus == 'success') ...[
+                      const SizedBox(height: 8),
+                      const Row(
+                        children: [
+                          Icon(Icons.check_circle_rounded, color: Colors.greenAccent, size: 14),
+                          SizedBox(width: 4),
+                          Expanded(
+                            child: Text('Email shared successfully!', style: TextStyle(color: Colors.greenAccent, fontSize: 11)),
+                          ),
+                        ],
+                      ),
+                    ] else if (_emailStatus == 'error') ...[
+                      const SizedBox(height: 8),
+                      const Row(
+                        children: [
+                          Icon(Icons.error_rounded, color: Colors.redAccent, size: 14),
+                          SizedBox(width: 4),
+                          Expanded(
+                            child: Text('Failed to share email.', style: TextStyle(color: Colors.redAccent, fontSize: 11)),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
-          Divider(color: Colors.white.withOpacity(0.06)),
-          const SizedBox(height: 16),
-
-          // Email delivery input
-          const Text(
-            'Deliver GIF to Guest Email',
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _emailController,
-                  decoration: InputDecoration(
-                    hintText: 'Enter guest email address',
-                    hintStyle: TextStyle(color: Colors.grey.shade600),
-                    filled: true,
-                    fillColor: Colors.white.withOpacity(0.04),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: Colors.white.withOpacity(0.05)),
-                    ),
-                  ),
-                  style: const TextStyle(color: Colors.white),
-                  keyboardType: TextInputType.emailAddress,
-                ),
-              ),
-              const SizedBox(width: 12),
-              SizedBox(
-                height: 52,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepPurpleAccent,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  ),
-                  onPressed: _isSendingEmail
-                      ? null
-                      : () => _sendEmail(sessionId, gifUrl),
-                  child: _isSendingEmail
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text('Send'),
-                ),
-              ),
-            ],
-          ),
-          if (_emailStatus == 'success') ...[
-            const SizedBox(height: 8),
-            const Row(
-              children: [
-                Icon(Icons.check_circle_rounded, color: Colors.greenAccent, size: 16),
-                SizedBox(width: 6),
-                Text('Email shared successfully!', style: TextStyle(color: Colors.greenAccent, fontSize: 12)),
-              ],
-            ),
-          ] else if (_emailStatus == 'error') ...[
-            const SizedBox(height: 8),
-            const Row(
-              children: [
-                Icon(Icons.error_rounded, color: Colors.redAccent, size: 16),
-                SizedBox(width: 6),
-                Text('Failed to share email. Please try again.', style: TextStyle(color: Colors.redAccent, fontSize: 12)),
-              ],
-            ),
-          ],
         ],
       ),
     );

@@ -278,3 +278,13 @@
 - [x] T081 [US5] Implement full-screen conditional sharing screen toggle in _buildConnectedView inside clients/mobile/lib/ui/operator_dashboard_page.dart
 - [x] T082 Run Scenario 9 validation in specs/001-multi-camera-photo-booth/quickstart.md to verify full-screen toggle and return.
 
+---
+
+## Phase 18: Full-Width Preview & Share Sizing (Priority: P1)
+
+**Goal**: Rearrange the share cockpit layout to render the GIF preview at full-width and place sharing options below it.
+
+- [x] T083 [US5] Modify _buildShareSection in clients/mobile/lib/ui/operator_dashboard_page.dart to display the GIF preview image full-width with a 4:3 aspect ratio
+- [x] T084 [US5] Rearrange sharing options (download QR code and email fields) to stack cleanly below the preview image inside clients/mobile/lib/ui/operator_dashboard_page.dart
+- [x] T085 Run Scenario 10 validation in specs/001-multi-camera-photo-booth/quickstart.md to verify full-width layout integrity.
+
