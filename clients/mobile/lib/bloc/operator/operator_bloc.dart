@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/websocket_client.dart';
@@ -142,8 +143,23 @@ class OperatorBloc extends Bloc<OperatorEvent, OperatorState> {
       emit(OperatorDiscovering());
       _discoverySubscription?.cancel();
       _discoverySubscription = _discoveryService.discoveredServices.listen((service) {
-        if (service.host != null && service.port != null) {
-          add(DiscoverServiceEvent(host: service.host!, port: service.port!));
+        if (service.port != null) {
+          String resolvedHost = service.host ?? '';
+          final addresses = service.addresses;
+          if (addresses != null && addresses.isNotEmpty) {
+            for (final addr in addresses) {
+              if (addr.type == InternetAddressType.IPv4) {
+                resolvedHost = addr.address;
+                break;
+              }
+            }
+            if (resolvedHost == service.host && addresses.isNotEmpty) {
+              resolvedHost = addresses.first.address;
+            }
+          }
+          if (resolvedHost.isNotEmpty) {
+            add(DiscoverServiceEvent(host: resolvedHost, port: service.port!));
+          }
         }
       });
       await _discoveryService.start();
@@ -151,8 +167,29 @@ class OperatorBloc extends Bloc<OperatorEvent, OperatorState> {
 
     on<DiscoverServiceEvent>((event, emit) async {
       if (state is! OperatorDiscovering) return;
-      final wsUrl = 'ws://${event.host}:${event.port}/ws';
-      emit(OperatorDiscovered(url: wsUrl, host: event.host, port: event.port));
+      
+      String ip = event.host;
+      if (RegExp(r'[a-zA-Z]').hasMatch(ip)) {
+        try {
+          final lookupResults = await InternetAddress.lookup(ip);
+          if (lookupResults.isNotEmpty) {
+            for (final addr in lookupResults) {
+              if (addr.type == InternetAddressType.IPv4) {
+                ip = addr.address;
+                break;
+              }
+            }
+            if (ip == event.host) {
+              ip = lookupResults.first.address;
+            }
+          }
+        } catch (_) {
+          // Keep original hostname on lookup failure
+        }
+      }
+
+      final wsUrl = 'ws://$ip:${event.port}/ws';
+      emit(OperatorDiscovered(url: wsUrl, host: ip, port: event.port));
     });
 
     on<IgnoreDiscoveredEvent>((event, emit) {

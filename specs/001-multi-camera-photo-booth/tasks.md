@@ -302,9 +302,10 @@
 
 **Goal**: Auto-trigger mDNS discovery, expose manual IP forms on the scanning view, and add a connection confirmation prompt.
 
-- [x] T087 [US5] Add OperatorDiscovered state to clients/mobile/lib/bloc/operator/operator_bloc.dart and update BLoC events to emit it on service resolution
+- [x] T087 [US5] Add OperatorDiscovered state to clients/mobile/lib/bloc/operator/operator_bloc.dart and extract the resolved numeric IPv4 address during discovery to bypass DNS lookup constraints
 - [x] T088 [US5] Auto-dispatch StartDiscoveryEvent in initState of _OperatorDashboardPageState in clients/mobile/lib/ui/operator_dashboard_page.dart
 - [x] T089 [US5] Merge the manual IP connection form into _buildDiscoveringView inside clients/mobile/lib/ui/operator_dashboard_page.dart
 - [x] T090 [US5] Build _buildDiscoveredConfirmationView to display confirmation yes/no prompt in clients/mobile/lib/ui/operator_dashboard_page.dart
 - [x] T091 Run Scenario 11 validation in specs/001-multi-camera-photo-booth/quickstart.md to verify discovery auto-start, manual fallbacks, and connection confirmations.
+- [x] T092 Swap Go coordinator mDNS interface IP lookup order in pkg/mdns/advertiser.go to prevent loopback 127.0.0.1 advertisement.
 

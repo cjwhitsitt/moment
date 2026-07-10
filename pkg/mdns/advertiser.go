@@ -18,24 +18,35 @@ func StartAdvertiser(port int) (*Advertiser, error) {
 		host = "moment-coordinator"
 	}
 
-	ips, err := net.LookupIP(host)
 	var ip net.IP
-	if err == nil && len(ips) > 0 {
-		ip = ips[0]
-	} else {
-		addrs, err := net.InterfaceAddrs()
-		if err == nil {
-			for _, addr := range addrs {
-				if ipnet, ok := addr.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
-					if ipnet.IP.To4() != nil {
-						ip = ipnet.IP
-						break
-					}
+
+	// Prioritize querying network interfaces for a non-loopback IPv4 address
+	addrs, err := net.InterfaceAddrs()
+	if err == nil {
+		for _, addr := range addrs {
+			if ipnet, ok := addr.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+				if ipnet.IP.To4() != nil {
+					ip = ipnet.IP
+					break
 				}
 			}
 		}
 	}
 
+	// Fallback to hostname DNS lookup if no active interfaces were resolved
+	if ip == nil {
+		ips, err := net.LookupIP(host)
+		if err == nil && len(ips) > 0 {
+			for _, lookupIP := range ips {
+				if !lookupIP.IsLoopback() && lookupIP.To4() != nil {
+					ip = lookupIP
+					break
+				}
+			}
+		}
+	}
+
+	// Ultimate fallback to loopback
 	if ip == nil {
 		ip = net.IPv4(127, 0, 0, 1)
 	}
