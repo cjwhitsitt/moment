@@ -29,11 +29,13 @@ class OperatorConnected extends OperatorState {
   final String url;
   final List<CameraNodeStatus> cameras;
   final ActiveSessionStatus? activeSession;
+  final bool hasSynced;
 
   OperatorConnected({
     required this.url,
     required this.cameras,
     this.activeSession,
+    this.hasSynced = false,
   });
 
   OperatorConnected copyWith({
@@ -41,11 +43,13 @@ class OperatorConnected extends OperatorState {
     List<CameraNodeStatus>? cameras,
     ActiveSessionStatus? activeSession,
     bool clearActiveSession = false,
+    bool? hasSynced,
   }) {
     return OperatorConnected(
       url: url ?? this.url,
       cameras: cameras ?? this.cameras,
       activeSession: clearActiveSession ? null : (activeSession ?? this.activeSession),
+      hasSynced: hasSynced ?? this.hasSynced,
     );
   }
 }
@@ -244,6 +248,7 @@ class OperatorBloc extends Bloc<OperatorEvent, OperatorState> {
           emit(OperatorConnected(
             url: connState.url,
             cameras: [],
+            hasSynced: false,
           ));
         }
       } else if (eventName == 'dashboard_sync') {
@@ -261,6 +266,7 @@ class OperatorBloc extends Bloc<OperatorEvent, OperatorState> {
             cameras: cameras,
             activeSession: activeSession,
             clearActiveSession: activeSession == null,
+            hasSynced: true,
           ));
         }
       } else if (eventName == 'disconnected') {

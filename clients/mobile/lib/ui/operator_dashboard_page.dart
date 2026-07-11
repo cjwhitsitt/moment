@@ -18,6 +18,7 @@ class _OperatorDashboardPageState extends State<OperatorDashboardPage> {
   final TextEditingController _emailController = TextEditingController();
   bool _isSendingEmail = false;
   String _emailStatus = ''; // '', 'success', 'error'
+  bool _hasAutoOpenedPairing = false;
 
   @override
   void initState() {
@@ -105,6 +106,13 @@ class _OperatorDashboardPageState extends State<OperatorDashboardPage> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.message), backgroundColor: Colors.redAccent),
             );
+          } else if (state is OperatorConnected) {
+            if (state.hasSynced && state.cameras.isEmpty && !_hasAutoOpenedPairing) {
+              _hasAutoOpenedPairing = true;
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _showPairingQrDialog(context, state.url);
+              });
+            }
           }
         },
         builder: (context, state) {
@@ -397,99 +405,56 @@ class _OperatorDashboardPageState extends State<OperatorDashboardPage> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Text(
-                    isTriggerable
-                        ? 'System Ready: $readyCount Camera Nodes Paired'
-                        : 'System Inactive: $readyCount camera nodes paired (minimum 3, maximum 10 required)',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: isTriggerable ? Colors.greenAccent : Colors.amberAccent,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          isTriggerable
+                              ? 'System Ready: $readyCount Camera Nodes Paired'
+                              : 'System Inactive: $readyCount camera nodes paired (3-10 required)',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: isTriggerable ? Colors.greenAccent : Colors.amberAccent,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        icon: const Icon(Icons.add_circle_outline_rounded, color: Colors.purpleAccent, size: 24),
+                        tooltip: 'Add Camera Node',
+                        onPressed: () => _showPairingQrDialog(context, state.url),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 24),
 
-            // System Status / Pairing Info
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Camera Status Grid
-                Expanded(
-                  flex: 3,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'CAMERA NODE STATUS',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.5, color: Colors.grey),
-                      ),
-                      const SizedBox(height: 12),
-                      GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 12,
-                          mainAxisSpacing: 12,
-                          childAspectRatio: 1.5,
-                        ),
-                        itemCount: 10,
-                        itemBuilder: (context, index) {
-                          final nodeIdx = index + 1;
-                          final match = activeCams.where((c) => c.cameraIndex == nodeIdx);
-                          final CameraNodeStatus? camNode = match.isNotEmpty ? match.first : null;
-                          return _buildCameraNodeCard(nodeIdx, camNode);
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 16),
-
-                // Pairing QR side panel
-                Expanded(
-                  flex: 2,
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.02),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.white.withOpacity(0.04)),
-                    ),
-                    child: Column(
-                      children: [
-                        const Text(
-                          'PAIRING CLIENTS',
-                          style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5, color: Colors.grey),
-                        ),
-                        const SizedBox(height: 16),
-                        QrImageView(
-                          data: state.url,
-                          version: QrVersions.auto,
-                          size: 140,
-                          eyeStyle: const QrEyeStyle(eyeShape: QrEyeShape.square, color: Colors.white),
-                          dataModuleStyle: const QrDataModuleStyle(dataModuleShape: QrDataModuleShape.square, color: Colors.white),
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          'Scan with Camera nodes to connect',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
-                        ),
-                        const SizedBox(height: 8),
-                        SelectableText(
-                          state.url,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 10, color: Colors.grey.shade600, fontFamily: 'monospace'),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+            // System Status Grid
+            const Text(
+              'CAMERA NODE STATUS',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.5, color: Colors.grey),
+            ),
+            const SizedBox(height: 12),
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 180,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+                childAspectRatio: 1.15,
+              ),
+              itemCount: 10,
+              itemBuilder: (context, index) {
+                final nodeIdx = index + 1;
+                final match = activeCams.where((c) => c.cameraIndex == nodeIdx);
+                final CameraNodeStatus? camNode = match.isNotEmpty ? match.first : null;
+                return _buildCameraNodeCard(nodeIdx, camNode);
+              },
             ),
           ],
         ),
@@ -810,6 +775,83 @@ class _OperatorDashboardPageState extends State<OperatorDashboardPage> {
             padding: const EdgeInsets.all(24.0),
             child: InteractiveViewer(
               child: child,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showPairingQrDialog(BuildContext context, String wsUrl) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black.withOpacity(0.95),
+      builder: (context) => GestureDetector(
+        onTap: () => Navigator.of(context).pop(),
+        child: Material(
+          color: Colors.transparent,
+          child: Center(
+            child: GestureDetector(
+              onTap: () {}, // Prevent dismissal on tapping the card itself
+              child: Container(
+                width: 320,
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1E153A),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: Colors.deepPurpleAccent.withOpacity(0.2)),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'PAIRING CLIENTS',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.5,
+                            color: Colors.purpleAccent,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close_rounded, color: Colors.grey, size: 20),
+                          onPressed: () => Navigator.of(context).pop(),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: QrImageView(
+                        data: wsUrl,
+                        version: QrVersions.auto,
+                        size: 200,
+                        eyeStyle: const QrEyeStyle(eyeShape: QrEyeShape.square, color: Colors.black),
+                        dataModuleStyle: const QrDataModuleStyle(dataModuleShape: QrDataModuleShape.square, color: Colors.black),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Scan with Camera nodes to connect',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 12, color: Colors.white70),
+                    ),
+                    const SizedBox(height: 8),
+                    SelectableText(
+                      wsUrl,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 10, color: Colors.grey.shade400, fontFamily: 'monospace'),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
         ),

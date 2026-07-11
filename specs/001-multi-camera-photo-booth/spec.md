@@ -52,6 +52,8 @@
 ### Session 2026-07-10
 
 - Q: Zoom on Preview GIF and QR Code → A: Tapping the preview GIF or guest share QR code on the Operator Dashboard MUST display a full-screen dismissible dialog modal overlay containing the asset scaled to fit the viewport, which closes when tapped anywhere.
+- Q: Operator Dashboard Pairing QR Code Visibility → A: The main Operator Dashboard MUST hide the pairing QR code by default. It MUST display an action button that opens the pairing QR code in a dismissible full-screen dialog modal overlay. This dialog MUST pop open automatically upon entering the Dashboard if there are no paired camera nodes connected yet.
+- Q: Responsive Camera Grid Columns → A: The grid of camera node status cards MUST dynamically adapt its column count based on available width using a max cross-axis card width constraint of 150-180 logical pixels.
 
 
 
@@ -172,6 +174,8 @@ An operator uses a mobile device (tablet or phone) running the app in Operator M
 - **FR-028**: The system MUST force a 16:9 (landscape) or 9:16 (portrait) aspect ratio. The Camera Node live preview MUST render the entire uncropped camera sensor viewport with a semi-transparent shade over what lies outside the active capture bounds. The client app MUST upload the raw captured images, and the Cloud Function stitching pipeline MUST center-crop them to 16:9 (or 9:16) and scale them on the backend.
 - **FR-029**: The Operator App post-capture sharing view MUST fit all preview, QR code, and email widgets on one screen without scrolling, dynamically sizing the preview GIF to fit the available space.
 - **FR-030**: Tapping the preview GIF or guest share QR code on the Operator post-capture sharing view MUST display a full-screen dismissible dialog modal overlay containing the asset scaled to fit the viewport, allowing the user to dismiss it by tapping anywhere.
+- **FR-031**: The Operator App capture cockpit MUST hide the pairing QR code card by default, providing an action control (e.g. "+" icon or button) that launches it in a dismissible full-screen modal. The app MUST automatically display this modal on cockpit entry if the connected camera nodes list is empty.
+- **FR-032**: The Operator App camera grid MUST be responsive, dynamically adjusting the number of columns to fit the screen width using a card width constraint of 150-180 logical pixels.
 
 ### Key Entities
 

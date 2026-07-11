@@ -370,3 +370,14 @@
 - [x] T110 [US5] Wrap guest sharing QrImageView in a GestureDetector calling _showZoomDialog in clients/mobile/lib/ui/operator_dashboard_page.dart
 - [x] T111 Run Scenario 17 validation in specs/001-multi-camera-photo-booth/quickstart.md to verify tap-to-zoom and tap-to-dismiss behavior.
 
+---
+
+## Phase 27: Responsive Cockpit & Auto-Show Pairing Qr Modal (Priority: P1)
+
+**Goal**: Hide pairing QR code by default, auto-show when empty, and make the camera status grid responsive.
+
+- [x] T112 [US5] Implement _showPairingQrDialog and add "Add Node" action button next to connected count header in clients/mobile/lib/ui/operator_dashboard_page.dart
+- [x] T113 [US5] Implement auto-open logic in initState / BlocListener to trigger _showPairingQrDialog if cameras list is empty in clients/mobile/lib/ui/operator_dashboard_page.dart
+- [x] T114 [US5] Modify SliverGrid delegate to use SliverGridDelegateWithMaxCrossAxisExtent with maxCrossAxisExtent: 180 in clients/mobile/lib/ui/operator_dashboard_page.dart
+- [x] T115 Run Scenario 18 and Scenario 19 validations in specs/001-multi-camera-photo-booth/quickstart.md to verify responsiveness and dialog flows.
+

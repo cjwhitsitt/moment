@@ -261,3 +261,18 @@ Create a static single-page application at `public/index.html` and configure Fir
 ### Rationale
 - **Low Friction Dialog Modals**: Using standard Flutter `showDialog` with a custom dialog card that contains a full-screen layout and tap-to-dismiss behavior provides a high-quality user experience without requiring complex custom routes.
 - **Reusable Helper**: Passing the child widget directly makes the helper reusable for both image and QR code assets.
+
+---
+
+## Responsive Cockpit Layout and Auto-Show Pairing QR Code Modal
+
+### Decision
+- **Pairing QR Code Modal**: Extract the pairing QR code card into a custom popup helper method `_showPairingQrDialog(BuildContext context, String wsUrl)`.
+- **Auto-Show Empty Cockpit**: On dashboard launch (inside `initState` or inside `BlocListener` when entering `OperatorConnected`), if `state.cameras.isEmpty`, automatically trigger `_showPairingQrDialog`.
+- **Responsive Status Grid**: Swap the hardcoded 2-column `SliverGrid` in `operator_dashboard_page.dart` for a `SliverGridDelegateWithMaxCrossAxisExtent` with a `maxCrossAxisExtent: 180` and `childAspectRatio: 1.1`, creating an automatically adapting grid.
+- **Add Camera Node Trigger Control**: Add a clear "+" or "Add Node" action button next to the connected count in the header that manually triggers `_showPairingQrDialog`.
+
+### Rationale
+- **Clean Default View**: Hiding the bulky pairing QR code card on the active dashboard screen saves valuable screen height, allowing full focus on camera status cards.
+- **No-Friction Guided Setup**: Auto-displaying the modal overlay when no nodes are paired immediately guides the operator to start scanning, with no extra taps.
+- **Device Independence**: A max-cross-axis grid ensures status cards adapt seamlessly to portrait/landscape modes, large phones, and tablets.

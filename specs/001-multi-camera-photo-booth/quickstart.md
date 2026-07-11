@@ -255,6 +255,36 @@ Verify that tapping the preview GIF or guest share QR code opens a fullscreen mo
 
 ---
 
+## Scenario 18: Operator Pairing QR Code Modal Verification
+
+Verify that the pairing QR code is hidden by default, shown via the Add Node button, and auto-opened if empty.
+
+### Steps
+1. Launch the Operator App and connect to a fresh coordinator session (no nodes connected yet).
+2. Verify that the pairing QR code dialog opens automatically on screen entry.
+3. Close the dialog. Verify that the QR code is not visible on the main cockpit.
+4. Tap the "+" (Add Node) action button in the cockpit header.
+5. Verify that the pairing QR code dialog pops open again.
+
+### Expected Outcomes
+- Pairing QR code auto-opens when empty and opens manually on tap.
+
+---
+
+## Scenario 19: Responsive Camera Node Grid Verification
+
+Verify that camera status cards dynamically adjust their column count.
+
+### Steps
+1. Connect 4 camera nodes to the coordinator.
+2. Rotate the Operator device to portrait. Verify that the grid renders as 2 columns of status cards.
+3. Rotate the Operator device to landscape. Verify that the grid automatically expands to 3 or 4 columns depending on screen width.
+
+### Expected Outcomes
+- Camera cards adapt dynamically to available viewport width.
+
+---
+
 ## Scenario 13: Camera Node Landscape Header Hiding Verification
 
 Verify that rotating the Camera Node device to landscape hides the AppBar.
