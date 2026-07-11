@@ -233,3 +233,20 @@ Verify that rotating the Camera Node device to landscape hides the AppBar.
 
 ### Expected Outcomes
 - AppBar is dynamically shown in portrait and hidden in landscape.
+
+---
+
+## Scenario 14: Guest Download Landing Page Verification
+
+Verify that scanning the guest download QR code opens the landing page and downloads the correct GIF.
+
+### Steps
+1. Complete a capture session and wait for stitching to complete.
+2. Scan the guest download QR code shown in the Operator panel using a mobile phone.
+3. Verify that the URL is structured correctly (e.g. starts with `http://<coordinator-ip>:5000` or `https://moment-aad8b.web.app`).
+4. Confirm the web page opens and displays the GIF preview at full scale.
+5. Tap the **Download GIF** button. Verify that the file downloads directly to the device.
+
+### Expected Outcomes
+- The QR code redirects to the hosting landing page.
+- The landing page displays the preview and successfully triggers direct file download.

@@ -45,6 +45,7 @@
 - Q: Operator mDNS Auto-Start & Connection Confirmation → A: Upon entering Operator Mode, the client application MUST automatically start local network mDNS discovery. While discovery is active, the interface MUST permit manual IP entry. If a coordinator service is resolved, the app MUST halt auto-connection and present a confirmation prompt to the operator to approve connection before initiating the WebSocket registration handshake.
 - Q: Client Camera Orientation Alignment → A: Captured images MUST be physically rotated on the mobile client device to align with the device's physical orientation at the moment of capture before uploading to Firebase Storage. This guarantees that the Cloud Function stitching pipeline processes pre-rotated images, preventing incorrect landscape rotations in the final GIF.
 - Q: Camera Node Header Visibility in Landscape → A: When the camera node device is in landscape orientation, the "Moment Camera Node" header (AppBar) MUST be hidden/removed to maximize vertical display area for the camera preview.
+- Q: Guest Share Landing Page → A: The sharing QR code displayed on the operator view MUST encode a Firebase Hosting landing page URL containing the GIF URL as an encoded query parameter (e.g. `https://moment-aad8b.web.app/?gif=...`). In emulator/local development mode, this URL MUST dynamically adapt to the coordinator IP on port 5000 (e.g. `http://<coordinator-ip>:5000/?gif=...`). The landing page itself MUST display a large preview of the GIF and feature a prominent "Download GIF" button that uses blob-fetching to force direct browser downloads.
 
 
 
@@ -161,6 +162,7 @@ An operator uses a mobile device (tablet or phone) running the app in Operator M
 - **FR-024**: The Operator App MUST automatically start mDNS discovery on screen entry. The scanning view MUST display the manual IP address entry input field as a fallback. If resolved, the app MUST transition to a confirmation screen prompting the user to approve connection to the discovered coordinator.
 - **FR-025**: The Flutter client application MUST rotate captured JPEGs to bake in the device's physical capture orientation before uploading to Storage, ensuring final stitched outputs preserve the correct orientation.
 - **FR-026**: The Camera Node screen MUST hide the "Moment Camera Node" AppBar header when the device orientation is landscape.
+- **FR-027**: The guest sharing QR code MUST point to a Firebase Hosting landing page that dynamically loads the GIF from the URL query parameter and permits direct download via blob-fetching.
 
 ### Key Entities
 

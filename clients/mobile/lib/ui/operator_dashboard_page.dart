@@ -616,6 +616,11 @@ class _OperatorDashboardPageState extends State<OperatorDashboardPage> {
         ? 'http://$host:9199/v0/b/moment-aad8b.firebasestorage.app/o/stitched%2F$sessionId.gif?alt=media'
         : 'https://firebasestorage.googleapis.com/v0/b/moment-aad8b.firebasestorage.app/o/stitched%2F$sessionId.gif?alt=media';
 
+    final hostingBaseUrl = isLocal
+        ? 'http://$host:5000'
+        : 'https://moment-aad8b.web.app';
+    final shareLandingPageUrl = '$hostingBaseUrl/?gif=${Uri.encodeComponent(gifUrl)}';
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -653,10 +658,6 @@ class _OperatorDashboardPageState extends State<OperatorDashboardPage> {
                   errorBuilder: (context, error, stackTrace) {
                     return const Center(child: Icon(Icons.broken_image_outlined, color: Colors.grey, size: 48));
                   },
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return const Center(child: CircularProgressIndicator());
-                  },
                 ),
               ),
             ),
@@ -676,7 +677,7 @@ class _OperatorDashboardPageState extends State<OperatorDashboardPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     QrImageView(
-                      data: gifUrl,
+                      data: shareLandingPageUrl,
                       version: QrVersions.auto,
                       size: 120,
                       eyeStyle: const QrEyeStyle(eyeShape: QrEyeShape.square, color: Colors.white),

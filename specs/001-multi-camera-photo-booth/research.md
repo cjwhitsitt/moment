@@ -212,3 +212,14 @@ Detect device orientation in `main.dart`'s `build` method using `MediaQuery.of(c
 
 ### Alternatives Considered
 - **Custom Tiny Header**: Rejected. Still consumes pixels and doesn't offer enough utility to justify the layout compression.
+
+---
+
+## Guest Download Landing Page (Firebase Hosting)
+
+### Decision
+Create a static single-page application at `public/index.html` and configure Firebase Hosting in `firebase.json` (along with the Hosting emulator on port 5000). The landing page will extract the `gif` URL query parameter, display the preview GIF with premium dark-mode styling, and use JavaScript blob fetching to trigger direct-to-disk file downloads.
+
+### Rationale
+- **Direct Download Control**: Mobile and desktop browsers usually open raw URLs pointing to foreign CDNs (like `firebasestorage.googleapis.com`) directly in a new browser tab instead of triggering a file download. Implementing blob fetching on our own Firebase Hosting domain bypasses this origin restriction, enabling a reliable "Download" button.
+- **Flexible Subnet Emulation**: In emulator/local development mode, the operator app generates the QR code pointing to `http://<coordinator-ip>:5000/?gif=...`. In production, it points to `https://moment-aad8b.web.app/?gif=...`.

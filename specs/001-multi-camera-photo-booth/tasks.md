@@ -328,3 +328,14 @@
 - [x] T096 [US5] Update the Scaffold's appBar construction in clients/mobile/lib/main.dart to conditionally return null when the orientation is landscape
 - [x] T097 Run Scenario 13 validation in specs/001-multi-camera-photo-booth/quickstart.md to verify landscape header hiding behavior.
 
+---
+
+## Phase 23: Guest Download Landing Page (Priority: P1)
+
+**Goal**: Setup Firebase Hosting configuration, create the premium index.html landing page, and update the operator panel QR code URL mapping.
+
+- [x] T098 Configure hosting and hosting emulators in firebase.json
+- [x] T099 [NEW] Create public/index.html with Outfit/Inter typography, dark-mode styling, responsive canvas, and blob-fetching download script
+- [x] T100 [US5] Update QrImageView in clients/mobile/lib/ui/operator_dashboard_page.dart to encode the landing page URL with the query-parameter-mapped GIF storage URL
+- [x] T101 Run Scenario 14 validation in specs/001-multi-camera-photo-booth/quickstart.md to verify guest landing page downloads.
+
