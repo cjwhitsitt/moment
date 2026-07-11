@@ -237,6 +237,24 @@ Verify that all widgets fit on a single screen without scrolling for both landsc
 
 ---
 
+## Scenario 17: Tap to Zoom Verification
+
+Verify that tapping the preview GIF or guest share QR code opens a fullscreen modal, and tapping anywhere dismisses it.
+
+### Steps
+1. Connect camera nodes and trigger a capture session.
+2. Once stitching is complete, tap on the looping preview GIF.
+3. Verify that a fullscreen dialog opens showing the GIF scaled to fit.
+4. Tap anywhere on the dialog overlay. Verify that it closes immediately.
+5. Tap on the guest sharing QR code.
+6. Verify that the fullscreen dialog opens showing a large zoomed-in QR code.
+7. Tap anywhere to close the overlay.
+
+### Expected Outcomes
+- Tapping assets zooms them in a dismissible fullscreen dialog.
+
+---
+
 ## Scenario 13: Camera Node Landscape Header Hiding Verification
 
 Verify that rotating the Camera Node device to landscape hides the AppBar.

@@ -360,3 +360,13 @@
 - [x] T107 [US5] Wrap AdaptiveImagePreview inside Expanded(child: Center(child: ...)) in _buildShareSection inside clients/mobile/lib/ui/operator_dashboard_page.dart
 - [x] T108 Run Scenario 16 validation in specs/001-multi-camera-photo-booth/quickstart.md to verify single-screen layout scaling.
 
+---
+
+## Phase 26: Tap to Zoom Preview GIF and QR Code (Priority: P2)
+
+**Goal**: Enable tap-to-zoom modals for stitched previews and guest QR codes.
+
+- [x] T109 [US5] Implement _showZoomDialog helper and wrap AdaptiveImagePreview in a GestureDetector calling it in clients/mobile/lib/ui/operator_dashboard_page.dart
+- [x] T110 [US5] Wrap guest sharing QrImageView in a GestureDetector calling _showZoomDialog in clients/mobile/lib/ui/operator_dashboard_page.dart
+- [x] T111 Run Scenario 17 validation in specs/001-multi-camera-photo-booth/quickstart.md to verify tap-to-zoom and tap-to-dismiss behavior.
+

@@ -249,3 +249,15 @@ Create a static single-page application at `public/index.html` and configure Fir
 ### Rationale
 - **No Scrolling Needed**: Fitting all components (GIF, QR code, and email form) on a single screen without scrolling keeps the sharing experience fast and intuitive. 
 - **Layout Budgeting**: Using `Expanded` and `Center` is a standard, robust way to handle varying orientation sizes (landscape 16:9 vs. portrait 9:16) on different device heights, ensuring clean proportions.
+
+---
+
+## Tap to Zoom on Preview GIF and QR Codes
+
+### Decision
+- Implement a reusable full-screen dismissible dialog overlay helper method `_showZoomDialog(BuildContext context, Widget child)` in `operator_dashboard_page.dart`.
+- Wrap both the `AdaptiveImagePreview` and `QrImageView` inside a `GestureDetector` that calls `_showZoomDialog`.
+
+### Rationale
+- **Low Friction Dialog Modals**: Using standard Flutter `showDialog` with a custom dialog card that contains a full-screen layout and tap-to-dismiss behavior provides a high-quality user experience without requiring complex custom routes.
+- **Reusable Helper**: Passing the child widget directly makes the helper reusable for both image and QR code assets.

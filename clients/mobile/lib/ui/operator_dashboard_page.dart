@@ -645,7 +645,16 @@ class _OperatorDashboardPageState extends State<OperatorDashboardPage> {
           // Full-width looping GIF preview
           Expanded(
             child: Center(
-              child: AdaptiveImagePreview(url: gifUrl),
+              child: GestureDetector(
+                onTap: () => _showZoomDialog(
+                  context,
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: Image.network(gifUrl, fit: BoxFit.contain),
+                  ),
+                ),
+                child: AdaptiveImagePreview(url: gifUrl),
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -662,12 +671,31 @@ class _OperatorDashboardPageState extends State<OperatorDashboardPage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    QrImageView(
-                      data: shareLandingPageUrl,
-                      version: QrVersions.auto,
-                      size: 120,
-                      eyeStyle: const QrEyeStyle(eyeShape: QrEyeShape.square, color: Colors.white),
-                      dataModuleStyle: const QrDataModuleStyle(dataModuleShape: QrDataModuleShape.square, color: Colors.white),
+                    GestureDetector(
+                      onTap: () => _showZoomDialog(
+                        context,
+                        Container(
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          child: QrImageView(
+                            data: shareLandingPageUrl,
+                            version: QrVersions.auto,
+                            size: MediaQuery.of(context).size.width * 0.7,
+                            eyeStyle: const QrEyeStyle(eyeShape: QrEyeShape.square, color: Colors.black),
+                            dataModuleStyle: const QrDataModuleStyle(dataModuleShape: QrDataModuleShape.square, color: Colors.black),
+                          ),
+                        ),
+                      ),
+                      child: QrImageView(
+                        data: shareLandingPageUrl,
+                        version: QrVersions.auto,
+                        size: 120,
+                        eyeStyle: const QrEyeStyle(eyeShape: QrEyeShape.square, color: Colors.white),
+                        dataModuleStyle: const QrDataModuleStyle(dataModuleShape: QrDataModuleShape.square, color: Colors.white),
+                      ),
                     ),
                     const SizedBox(height: 8),
                     const Text(
@@ -765,6 +793,26 @@ class _OperatorDashboardPageState extends State<OperatorDashboardPage> {
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  void _showZoomDialog(BuildContext context, Widget child) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black.withOpacity(0.9),
+      builder: (context) => GestureDetector(
+        onTap: () => Navigator.of(context).pop(),
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            alignment: Alignment.center,
+            padding: const EdgeInsets.all(24.0),
+            child: InteractiveViewer(
+              child: child,
+            ),
+          ),
+        ),
       ),
     );
   }
