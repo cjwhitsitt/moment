@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/foundation.dart';
 import '../../bloc/operator/operator_bloc.dart';
 
 class OperatorDashboardPage extends StatefulWidget {
@@ -574,11 +575,11 @@ class _OperatorDashboardPageState extends State<OperatorDashboardPage> {
       host = uri.host;
     } catch (_) {}
 
-    final bool isLocal = host == 'localhost' ||
+    final bool isLocal = !kReleaseMode && (host == 'localhost' ||
         host == '127.0.0.1' ||
         host.startsWith('192.168.') ||
         host.startsWith('10.') ||
-        host.startsWith('172.');
+        host.startsWith('172.'));
 
     final gifUrl = isLocal
         ? 'http://$host:9199/v0/b/moment-aad8b.firebasestorage.app/o/stitched%2F$sessionId.gif?alt=media'
