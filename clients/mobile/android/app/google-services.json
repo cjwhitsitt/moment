@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "91870534065",
+    "project_id": "moment-aad8b",
+    "storage_bucket": "moment-aad8b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:91870534065:android:3740f90e356ab7be178590",
+        "android_client_info": {
+          "package_name": "com.moment.mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBa-K-Y3NOw17eMH7KU5RV0BLqiy9EI1-E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

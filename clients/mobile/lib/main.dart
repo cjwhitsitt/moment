@@ -1,6 +1,8 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mobile/firebase_options.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:camera/camera.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -15,28 +17,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final FirebaseOptions options;
-  if (Platform.isIOS) {
-    options = const FirebaseOptions(
-      apiKey: "AIzaSyMockApiKeyForLocalBooth1234567890",
-      appId: "1:91870534065:ios:98a44b5a2bf89c8902094c00",
-      messagingSenderId: "91870534065",
-      projectId: "moment-aad8b",
-      storageBucket: "moment-aad8b.firebasestorage.app",
-      iosBundleId: "com.moment.mobile",
-      iosClientId: "91870534065-mockclientid.apps.googleusercontent.com",
-    );
-  } else {
-    options = const FirebaseOptions(
-      apiKey: "AIzaSyMockApiKeyForLocalBooth1234567890",
-      appId: "1:91870534065:android:mockappidandroid",
-      messagingSenderId: "91870534065",
-      projectId: "moment-aad8b",
-      storageBucket: "moment-aad8b.firebasestorage.app",
-    );
-  }
-
-  await Firebase.initializeApp(options: options);
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(const PhotoBoothApp());
 }
