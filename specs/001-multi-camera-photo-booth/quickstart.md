@@ -201,3 +201,20 @@ Verify that entering Operator Mode triggers scanning automatically, displays man
 - Discovery starts automatically.
 - Manual IP connection remains possible during background scans.
 - A confirmation dialog is required to complete auto-discovered connections.
+
+---
+
+## Scenario 12: Client-Side Image Orientation Baking Verification
+
+Verify that photos captured in portrait mode are physically rotated and uploaded in portrait, resulting in correctly oriented frames in the stitched GIF.
+
+### Steps
+1. Connect a camera node device in portrait mode.
+2. Trigger a capture session.
+3. Check the Firestore console or the Cloud Storage directory for the raw capture of that camera node (e.g. `raw/{sessionId}/cam1.jpg`).
+4. Verify that the physical dimensions of the JPEG file are portrait (e.g. height is greater than width, with no EXIF rotation needed).
+5. Once stitching is complete, verify that the preview GIF displays the frame correctly oriented (not rotated sideways).
+
+### Expected Outcomes
+- The raw uploaded JPEGs are physically oriented matching the device's physical orientation at capture.
+- Stitched GIF animations preserve correct orientation.

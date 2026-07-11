@@ -309,3 +309,13 @@
 - [x] T091 Run Scenario 11 validation in specs/001-multi-camera-photo-booth/quickstart.md to verify discovery auto-start, manual fallbacks, and connection confirmations.
 - [x] T092 Swap Go coordinator mDNS interface IP lookup order in pkg/mdns/advertiser.go to prevent loopback 127.0.0.1 advertisement.
 
+---
+
+## Phase 21: Client-Side Image Orientation Baking (Priority: P1)
+
+**Goal**: Integrate package:image and bake physical capture orientation into JPEGs before storage uploads.
+
+- [x] T093 Add image: ^4.2.0 package dependency to clients/mobile/pubspec.yaml and run pub get
+- [x] T094 [US5] Implement JPEG decoding, bakeOrientation, and encoding logic in UploadService.takeAndUploadPicture inside clients/mobile/lib/services/upload_service.dart
+- [x] T095 Run Scenario 12 validation in specs/001-multi-camera-photo-booth/quickstart.md to verify client-side orientation baking.
+

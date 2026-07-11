@@ -185,3 +185,17 @@ Introduce a new state `OperatorDiscovered(String url)` in `OperatorBloc`. Auto-t
 
 ### Alternatives Considered
 - **Silently Connect on Scan Success**: Rejected. Risk of connecting to neighboring booths at multi-setup events.
+
+---
+
+## Client-Side Image Orientation Baking (Bake Orientation)
+
+### Decision
+Add `image: ^4.2.0` package dependency to the Flutter mobile client app. Before uploading any captured JPEG image to Firebase Storage inside `UploadService.takeAndUploadPicture`, read the captured file, decode it using `package:image`'s `decodeImage`, physically rotate the pixel grid to bake in the correct EXIF orientation using `bakeOrientation`, re-encode it to JPEG with `encodeJpg`, and write the rotated bytes back to the file before uploading.
+
+### Rationale
+- **Exif Decoupling**: Android's `camera` package encodes JPEG bytes in the camera sensor's native landscape grid, referencing the true orientation in EXIF tags. Because FFmpeg's image sequence compilation pipeline does not natively parse or apply individual JPEG EXIF orientation metadata on some setups, baking the orientation physically into the image pixel buffer resolves rotation issues 100% reliably.
+- **Zero Shutter Delay Impact**: Decoding, rotating, and encoding JPEGs is deferred to the asynchronous upload queue thread (`UploadService.takeAndUploadPicture` run in the background after the capture hot path), meaning the synchronized capture timing/latency is unaffected.
+
+### Alternatives Considered
+- **FFmpeg Autorotate Filter**: Rejected. FFmpeg's `image2` demuxer and jpeg reader ignore EXIF orientation metadata on certain OS/version configs.
