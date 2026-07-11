@@ -319,3 +319,12 @@
 - [x] T094 [US5] Implement JPEG decoding, bakeOrientation, and encoding logic in UploadService.takeAndUploadPicture inside clients/mobile/lib/services/upload_service.dart
 - [x] T095 Run Scenario 12 validation in specs/001-multi-camera-photo-booth/quickstart.md to verify client-side orientation baking.
 
+---
+
+## Phase 22: Camera Node Landscape Header Hiding (Priority: P1)
+
+**Goal**: Conditionally hide the AppBar header in landscape mode on the Camera Node view.
+
+- [x] T096 [US5] Update the Scaffold's appBar construction in clients/mobile/lib/main.dart to conditionally return null when the orientation is landscape
+- [x] T097 Run Scenario 13 validation in specs/001-multi-camera-photo-booth/quickstart.md to verify landscape header hiding behavior.
+

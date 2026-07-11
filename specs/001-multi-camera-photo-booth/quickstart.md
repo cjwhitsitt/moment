@@ -218,3 +218,18 @@ Verify that photos captured in portrait mode are physically rotated and uploaded
 ### Expected Outcomes
 - The raw uploaded JPEGs are physically oriented matching the device's physical orientation at capture.
 - Stitched GIF animations preserve correct orientation.
+
+---
+
+## Scenario 13: Camera Node Landscape Header Hiding Verification
+
+Verify that rotating the Camera Node device to landscape hides the AppBar.
+
+### Steps
+1. Open the Camera Node screen in portrait mode. Verify that the **Moment Camera Node** AppBar is visible.
+2. Rotate the device (or simulate rotation) to landscape mode.
+3. Verify that the **Moment Camera Node** AppBar disappears.
+4. Rotate back to portrait mode. Verify that the AppBar is visible again.
+
+### Expected Outcomes
+- AppBar is dynamically shown in portrait and hidden in landscape.

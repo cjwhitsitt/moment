@@ -44,6 +44,7 @@
 - Q: Operator Sharing Page Layout → A: To highlight the guest's stitched animation, the GIF preview MUST span the full width of the sharing view and be rendered as large as possible (preserving its native 4:3 aspect ratio). All guest sharing options (including the download QR code and the email delivery input field) MUST be positioned secondary to the image, below the preview container.
 - Q: Operator mDNS Auto-Start & Connection Confirmation → A: Upon entering Operator Mode, the client application MUST automatically start local network mDNS discovery. While discovery is active, the interface MUST permit manual IP entry. If a coordinator service is resolved, the app MUST halt auto-connection and present a confirmation prompt to the operator to approve connection before initiating the WebSocket registration handshake.
 - Q: Client Camera Orientation Alignment → A: Captured images MUST be physically rotated on the mobile client device to align with the device's physical orientation at the moment of capture before uploading to Firebase Storage. This guarantees that the Cloud Function stitching pipeline processes pre-rotated images, preventing incorrect landscape rotations in the final GIF.
+- Q: Camera Node Header Visibility in Landscape → A: When the camera node device is in landscape orientation, the "Moment Camera Node" header (AppBar) MUST be hidden/removed to maximize vertical display area for the camera preview.
 
 
 
@@ -159,6 +160,7 @@ An operator uses a mobile device (tablet or phone) running the app in Operator M
 - **FR-023**: The Operator App's full-screen sharing view MUST display the stitched GIF preview at full-width, as the primary focal element. All sharing hooks (download QR code, email fields, and submit buttons) MUST be arranged underneath the main preview container.
 - **FR-024**: The Operator App MUST automatically start mDNS discovery on screen entry. The scanning view MUST display the manual IP address entry input field as a fallback. If resolved, the app MUST transition to a confirmation screen prompting the user to approve connection to the discovered coordinator.
 - **FR-025**: The Flutter client application MUST rotate captured JPEGs to bake in the device's physical capture orientation before uploading to Storage, ensuring final stitched outputs preserve the correct orientation.
+- **FR-026**: The Camera Node screen MUST hide the "Moment Camera Node" AppBar header when the device orientation is landscape.
 
 ### Key Entities
 

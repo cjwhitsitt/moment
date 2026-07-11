@@ -199,3 +199,16 @@ Add `image: ^4.2.0` package dependency to the Flutter mobile client app. Before 
 
 ### Alternatives Considered
 - **FFmpeg Autorotate Filter**: Rejected. FFmpeg's `image2` demuxer and jpeg reader ignore EXIF orientation metadata on certain OS/version configs.
+
+---
+
+## Camera Node Landscape Header Conditionally Hidden
+
+### Decision
+Detect device orientation in `main.dart`'s `build` method using `MediaQuery.of(context).orientation`. If the orientation matches `Orientation.landscape`, set the Scaffold's `appBar` parameter to `null` to hide the "Moment Camera Node" header. When the orientation matches `Orientation.portrait`, render the AppBar normally.
+
+### Rationale
+- **Maximizing Viewport Height**: In landscape mode, phone screens have very limited vertical space. An AppBar consumes valuable pixels, resulting in a squished camera preview. Hiding it ensures the camera live feed occupies the maximum possible vertical area.
+
+### Alternatives Considered
+- **Custom Tiny Header**: Rejected. Still consumes pixels and doesn't offer enough utility to justify the layout compression.

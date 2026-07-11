@@ -198,12 +198,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Moment Camera Node'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
+      appBar: isLandscape
+          ? null
+          : AppBar(
+              title: const Text('Moment Camera Node'),
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+            ),
       body: BlocListener<SyncBloc, SyncState>(
         listener: (context, state) {
           if (state is SyncConnecting) {
