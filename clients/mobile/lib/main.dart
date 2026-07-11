@@ -1,4 +1,4 @@
-import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -132,6 +132,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
 
   void _configureEmulators(String wsUrl) {
+    if (kReleaseMode) return;
+    
     final uri = Uri.parse(wsUrl.replaceFirst('ws://', 'http://'));
     final host = uri.host;
     // Configure Storage (9199) and Firestore (8082) emulators

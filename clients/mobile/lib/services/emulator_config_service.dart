@@ -1,12 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:flutter/foundation.dart';
 
 class EmulatorConfigService {
   static bool _configured = false;
 
   static void configure(String wsUrl) {
-    if (_configured) return;
+    if (_configured || kReleaseMode) return;
 
     try {
       final uri = Uri.parse(wsUrl.replaceFirst('ws://', 'http://'));
