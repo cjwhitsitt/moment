@@ -446,10 +446,10 @@ class _OperatorDashboardPageState extends State<OperatorDashboardPage> {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 180,
+                maxCrossAxisExtent: 270,
                 mainAxisSpacing: 12,
                 crossAxisSpacing: 12,
-                childAspectRatio: 1.15,
+                childAspectRatio: 1.25,
               ),
               itemCount: 10,
               itemBuilder: (context, index) {
