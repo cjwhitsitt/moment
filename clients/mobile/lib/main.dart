@@ -412,6 +412,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   child: CameraPreview(_cameraController!),
                                 ),
                               ),
+                              CustomPaint(
+                                painter: CameraOverlayPainter(isPortrait: isPortrait),
+                                child: Container(),
+                              ),
                               Center(
                                 child: Icon(
                                   Icons.center_focus_weak_rounded,
@@ -505,5 +509,59 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+}
+
+class CameraOverlayPainter extends CustomPainter {
+  final bool isPortrait;
+
+  CameraOverlayPainter({required this.isPortrait});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final double targetAspect = isPortrait ? 9.0 / 16.0 : 16.0 / 9.0;
+    
+    // Calculate active crop area rect centered inside the canvas size
+    double rectWidth;
+    double rectHeight;
+    final double canvasAspect = size.width / size.height;
+    
+    if (canvasAspect > targetAspect) {
+      rectHeight = size.height;
+      rectWidth = size.height * targetAspect;
+    } else {
+      rectWidth = size.width;
+      rectHeight = size.width / targetAspect;
+    }
+    
+    final double left = (size.width - rectWidth) / 2;
+    final double top = (size.height - rectHeight) / 2;
+    final Rect activeRect = Rect.fromLTWH(left, top, rectWidth, rectHeight);
+    
+    // Create outer bounds path
+    final Path outerPath = Path()..addRect(Rect.fromLTWH(0, 0, size.width, size.height));
+    // Create inner active path
+    final Path innerPath = Path()..addRect(activeRect);
+    
+    // Subtract inner path from outer path to get the shade region
+    final Path shadePath = Path.combine(PathOperation.difference, outerPath, innerPath);
+    
+    // Paint the translucent shade
+    final Paint shadePaint = Paint()
+      ..color = Colors.black.withOpacity(0.5)
+      ..style = PaintingStyle.fill;
+    canvas.drawPath(shadePath, shadePaint);
+    
+    // Paint the active area thin guide border
+    final Paint borderPaint = Paint()
+      ..color = Colors.purpleAccent
+      ..strokeWidth = 2.0
+      ..style = PaintingStyle.stroke;
+    canvas.drawRect(activeRect, borderPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CameraOverlayPainter oldDelegate) {
+    return oldDelegate.isPortrait != isPortrait;
   }
 }

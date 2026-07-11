@@ -250,3 +250,19 @@ Verify that scanning the guest download QR code opens the landing page and downl
 ### Expected Outcomes
 - The QR code redirects to the hosting landing page.
 - The landing page displays the preview and successfully triggers direct file download.
+
+---
+
+## Scenario 15: Forced 16:9 Aspect Ratio Verification
+
+Verify that captured images and resulting stitched GIFs are forced to 16:9.
+
+### Steps
+1. Open the Camera Node screen. Verify that the full camera preview viewport is visible with a translucent gray overlay shade framing the active 16:9 (or 9:16) region.
+2. Trigger a capture. Download the raw uploaded JPEG from Storage.
+3. Verify that the file's resolution matches the raw, uncropped format (e.g. native 4:3 camera resolution like `1440x1080` or similar).
+4. Once stitched, verify that the preview GIF in the Operator dashboard has a 16:9 aspect ratio and does not contain any letterbox black padding.
+
+### Expected Outcomes
+- Camera viewfinder renders full viewport with a translucent crop guide.
+- Stitched GIF outputs are cropped to 16:9/9:16 on the backend without any letterboxing.

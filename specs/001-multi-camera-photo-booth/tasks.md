@@ -339,3 +339,14 @@
 - [x] T100 [US5] Update QrImageView in clients/mobile/lib/ui/operator_dashboard_page.dart to encode the landing page URL with the query-parameter-mapped GIF storage URL
 - [x] T101 Run Scenario 14 validation in specs/001-multi-camera-photo-booth/quickstart.md to verify guest landing page downloads.
 
+---
+
+## Phase 24: Forced 16:9 Aspect Ratio (Priority: P1)
+
+**Goal**: Lock captured frames, client previews, and stitched GIF outputs to a 16:9 (or 9:16) aspect ratio.
+
+- [x] T102 [US5] Update the Cloud Function in functions/src/stitch.ts to run ffprobe on download to detect portrait/landscape, center-crop to 16:9/9:16, and scale output to 800x450/450x800 via FFmpeg
+- [x] T103 [US5] Implement CameraOverlayPainter and apply custom painter overlay in clients/mobile/lib/main.dart to draw a 50% opacity translucent black shade outside the active 16:9/9:16 viewfinder zone
+- [x] T104 [US5] Update the preview GIF AspectRatio in clients/mobile/lib/ui/operator_dashboard_page.dart to dynamically match 16 / 9 or 9 / 16 depending on the session orientation
+- [x] T105 Run Scenario 15 validation in specs/001-multi-camera-photo-booth/quickstart.md to verify 16:9 aspect ratio enforcement.
+

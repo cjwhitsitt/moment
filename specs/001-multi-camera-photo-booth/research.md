@@ -223,3 +223,16 @@ Create a static single-page application at `public/index.html` and configure Fir
 ### Rationale
 - **Direct Download Control**: Mobile and desktop browsers usually open raw URLs pointing to foreign CDNs (like `firebasestorage.googleapis.com`) directly in a new browser tab instead of triggering a file download. Implementing blob fetching on our own Firebase Hosting domain bypasses this origin restriction, enabling a reliable "Download" button.
 - **Flexible Subnet Emulation**: In emulator/local development mode, the operator app generates the QR code pointing to `http://<coordinator-ip>:5000/?gif=...`. In production, it points to `https://moment-aad8b.web.app/?gif=...`.
+
+---
+
+## Forced 16:9 Aspect Ratio (Cropping and Preview Alignment)
+
+### Decision
+- **Backend Cropping**: Upload the raw captured image from the client. Let the backend Cloud Function (`stitch.ts`) handle center-cropping to a `16:9` (or `9:16`) aspect ratio and scaling (`800x450` or `450x800` respectively) using FFmpeg filters.
+- **Preview Overlay Guide**: On the Camera Node view (`lib/main.dart`), display the entire camera sensor preview. Overlay a custom semi-transparent shade (50% opacity black) over the regions that lie outside the target aspect ratio, drawing a thin purple border around the active zone.
+- **Dashboard Preview GIF**: Update the Operator dashboard sharing view to render the stitched GIF in a `16 / 9` (landscape) or `9 / 16` (portrait) AspectRatio.
+
+### Rationale
+- **High Performance Backend Processing**: Cropping on the backend avoids mobile CPU/memory overhead from Jpeg decode-rotate-crop-encode cycles, maintaining optimal async upload queue speeds.
+- **WYSIWYG Viewfinder Guide**: Displaying the full camera feed with a translucent crop guide provides a professional shooting experience, showing context outside the crop boundary while clearly defining the active capture zone.

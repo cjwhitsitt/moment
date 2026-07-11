@@ -643,25 +643,7 @@ class _OperatorDashboardPageState extends State<OperatorDashboardPage> {
           const SizedBox(height: 20),
 
           // Full-width looping GIF preview
-          AspectRatio(
-            aspectRatio: 4 / 3,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.white.withOpacity(0.08)),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Image.network(
-                  gifUrl,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return const Center(child: Icon(Icons.broken_image_outlined, color: Colors.grey, size: 48));
-                  },
-                ),
-              ),
-            ),
-          ),
+          AdaptiveImagePreview(url: gifUrl),
           const SizedBox(height: 24),
           Divider(color: Colors.white.withOpacity(0.06)),
           const SizedBox(height: 20),
@@ -779,6 +761,72 @@ class _OperatorDashboardPageState extends State<OperatorDashboardPage> {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class AdaptiveImagePreview extends StatefulWidget {
+  final String url;
+
+  const AdaptiveImagePreview({required this.url, super.key});
+
+  @override
+  State<AdaptiveImagePreview> createState() => _AdaptiveImagePreviewState();
+}
+
+class _AdaptiveImagePreviewState extends State<AdaptiveImagePreview> {
+  double _aspectRatio = 16 / 9;
+
+  @override
+  void initState() {
+    super.initState();
+    _resolveImage();
+  }
+
+  @override
+  void didUpdateWidget(AdaptiveImagePreview oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.url != widget.url) {
+      _resolveImage();
+    }
+  }
+
+  void _resolveImage() {
+    final Image image = Image.network(widget.url);
+    image.image.resolve(const ImageConfiguration()).addListener(
+      ImageStreamListener(
+        (ImageInfo info, bool _) {
+          if (mounted) {
+            setState(() {
+              _aspectRatio = info.image.width / info.image.height;
+            });
+          }
+        },
+        onError: (_, __) {},
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AspectRatio(
+      aspectRatio: _aspectRatio,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.white.withOpacity(0.08)),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Image.network(
+            widget.url,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return const Center(child: Icon(Icons.broken_image_outlined, color: Colors.grey, size: 48));
+            },
+          ),
+        ),
       ),
     );
   }
