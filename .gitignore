@@ -29,3 +29,4 @@ dist/
 functions/lib/
 *.log
 .env*
+*.cache
