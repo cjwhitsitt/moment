@@ -269,7 +269,7 @@ Create a static single-page application at `public/index.html` and configure Fir
 ### Decision
 - **Pairing QR Code Modal**: Extract the pairing QR code card into a custom popup helper method `_showPairingQrDialog(BuildContext context, String wsUrl)`.
 - **Auto-Show Empty Cockpit**: On dashboard launch (inside `initState` or inside `BlocListener` when entering `OperatorConnected`), if `state.cameras.isEmpty`, automatically trigger `_showPairingQrDialog`.
-- **Responsive Status Grid**: Swap the hardcoded 2-column `SliverGrid` in `operator_dashboard_page.dart` for a `SliverGridDelegateWithMaxCrossAxisExtent` with a `maxCrossAxisExtent: 180` and `childAspectRatio: 1.1`, creating an automatically adapting grid.
+- **Responsive Status Grid**: Swap the hardcoded 2-column `SliverGrid` in `operator_dashboard_page.dart` for a `SliverGridDelegateWithMaxCrossAxisExtent` with a `maxCrossAxisExtent: 270` and `childAspectRatio: 1.25`, creating an automatically adapting grid.
 - **Add Camera Node Trigger Control**: Add a clear "+" or "Add Node" action button next to the connected count in the header that manually triggers `_showPairingQrDialog`.
 
 ### Rationale
