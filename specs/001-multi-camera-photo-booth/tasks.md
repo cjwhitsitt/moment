@@ -381,3 +381,13 @@
 - [x] T114 [US5] Modify SliverGrid delegate to use SliverGridDelegateWithMaxCrossAxisExtent with maxCrossAxisExtent: 180 in clients/mobile/lib/ui/operator_dashboard_page.dart
 - [x] T115 Run Scenario 18 and Scenario 19 validations in specs/001-multi-camera-photo-booth/quickstart.md to verify responsiveness and dialog flows.
 
+---
+
+## Phase 28: Side-by-Side Share Layout & Email Modal (Priority: P1)
+
+**Goal**: Replace inline email sharing with a side-by-side Guest QR & Email button layout and an email input modal.
+
+- [x] T116 [US5] Implement _showEmailDialog containing the email field, send button, and status indicators in clients/mobile/lib/ui/operator_dashboard_page.dart
+- [x] T117 [US5] Modify _buildShareSection to lay out QrImageView and the "Email" button side-by-side inside a Row in clients/mobile/lib/ui/operator_dashboard_page.dart
+- [x] T118 Run Scenario 20 validation in specs/001-multi-camera-photo-booth/quickstart.md to verify layout and modal sharing flows.
+

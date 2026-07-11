@@ -285,6 +285,22 @@ Verify that camera status cards dynamically adjust their column count.
 
 ---
 
+## Scenario 20: Operator Email Share Modal Verification
+
+Verify that email sharing is triggered via the side-by-side "Email" button and shows success/error status in the modal overlay.
+
+### Steps
+1. Complete a capture session to load the post-capture sharing view.
+2. Verify that the view has a "Share to" panel with the QR code on the left and an "Email" button on the right.
+3. Tap the "Email" button. Verify that a modal dialog overlay opens containing an email text input field.
+4. Enter a test email and tap "Send". Verify that a loading spinner is shown, followed by a success message in the dialog.
+5. Close the dialog. Tap "Email" again. Verify that the input field and status are reset.
+
+### Expected Outcomes
+- Email sharing is moved to a clean, dismissible dialog overlay.
+
+---
+
 ## Scenario 13: Camera Node Landscape Header Hiding Verification
 
 Verify that rotating the Camera Node device to landscape hides the AppBar.

@@ -276,3 +276,16 @@ Create a static single-page application at `public/index.html` and configure Fir
 - **Clean Default View**: Hiding the bulky pairing QR code card on the active dashboard screen saves valuable screen height, allowing full focus on camera status cards.
 - **No-Friction Guided Setup**: Auto-displaying the modal overlay when no nodes are paired immediately guides the operator to start scanning, with no extra taps.
 - **Device Independence**: A max-cross-axis grid ensures status cards adapt seamlessly to portrait/landscape modes, large phones, and tablets.
+
+---
+
+## Side-by-Side "Share to" Panel and Email Dialog Modal
+
+### Decision
+- **Horizontal "Share to" Layout**: Arrange the Guest QR code card and the "Email" action button side-by-side in a Row widget.
+- **Email Modal Dialog**: Create `_showEmailDialog(BuildContext context, String sessionId, String gifUrl)` to open a dialog card overlay. It encapsulates the email input form, the Send button, the circular progress indicator state, and success/error status messages.
+- **Form State Management**: Keep form controllers and loading/error states bound to the dialog context or the widget state, resetting states when the modal is closed.
+
+### Rationale
+- **Space Optimization**: Placing the QR code and Email trigger side-by-side saves significant vertical space, ensuring portrait 9:16 previews have maximum headroom without exceeding screen bounds.
+- **Clean Overlay Flow**: Moving the text input and submit logic to an overlay dialog declutters the primary sharing view, allowing a simple tap-to-input flow.
