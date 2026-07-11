@@ -3,6 +3,7 @@ import * as path from "path";
 import * as os from "os";
 import * as fs from "fs";
 import { exec } from "child_process";
+import * as crypto from "crypto";
 
 let ffmpegPath = "ffmpeg";
 try {
@@ -174,26 +175,26 @@ export async function stitchFrames(
       });
     });
 
-    // 4. Upload GIF with cache control headers
+    // 4. Upload GIF with cache control headers and a Firebase download token
     const destStoragePath = `stitched/${sessionId}.gif`;
-    const [file] = await bucket.upload(outputGifPath, {
+    const downloadToken = crypto.randomUUID();
+    await bucket.upload(outputGifPath, {
       destination: destStoragePath,
       metadata: {
         contentType: "image/gif",
         cacheControl: "public, max-age=31536000",
+        metadata: {
+          firebaseStorageDownloadTokens: downloadToken,
+        },
       },
     });
 
-    // 5. Get far-future signed url to display to guests
+    // 5. Get public firebase download url to display to guests
     let url: string;
     if (process.env.FIREBASE_STORAGE_EMULATOR_HOST) {
       url = `http://${process.env.FIREBASE_STORAGE_EMULATOR_HOST}/v0/b/${bucket.name}/o/${encodeURIComponent(destStoragePath)}?alt=media`;
     } else {
-      const [signedUrl] = await file.getSignedUrl({
-        action: "read",
-        expires: "01-01-2099",
-      });
-      url = signedUrl;
+      url = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(destStoragePath)}?alt=media&token=${downloadToken}`;
     }
 
     return url;
