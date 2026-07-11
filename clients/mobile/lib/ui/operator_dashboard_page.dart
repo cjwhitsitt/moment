@@ -333,30 +333,30 @@ class _OperatorDashboardPageState extends State<OperatorDashboardPage> {
 
     if (isSessionDone) {
       return SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Align(
-                  alignment: Alignment.topRight,
-                  child: TextButton.icon(
-                    style: TextButton.styleFrom(
-                      foregroundColor: Colors.grey.shade400,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    ),
-                    icon: const Icon(Icons.close_rounded, size: 20),
-                    label: const Text('Back to Dashboard', style: TextStyle(fontSize: 14)),
-                    onPressed: () {
-                      context.read<OperatorBloc>().add(ClearActiveSessionEvent());
-                    },
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Align(
+                alignment: Alignment.topRight,
+                child: TextButton.icon(
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.grey.shade400,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   ),
+                  icon: const Icon(Icons.close_rounded, size: 20),
+                  label: const Text('Back to Dashboard', style: TextStyle(fontSize: 14)),
+                  onPressed: () {
+                    context.read<OperatorBloc>().add(ClearActiveSessionEvent());
+                  },
                 ),
-                const SizedBox(height: 16),
-                _buildShareSection(state.activeSession!.sessionId, state.url),
-              ],
-            ),
+              ),
+              const SizedBox(height: 12),
+              Expanded(
+                child: _buildShareSection(state.activeSession!.sessionId, state.url),
+              ),
+            ],
           ),
         ),
       );
@@ -640,13 +640,17 @@ class _OperatorDashboardPageState extends State<OperatorDashboardPage> {
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2.0, color: Colors.purpleAccent),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 12),
 
           // Full-width looping GIF preview
-          AdaptiveImagePreview(url: gifUrl),
-          const SizedBox(height: 24),
+          Expanded(
+            child: Center(
+              child: AdaptiveImagePreview(url: gifUrl),
+            ),
+          ),
+          const SizedBox(height: 16),
           Divider(color: Colors.white.withOpacity(0.06)),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
 
           // Sharing options stacked cleanly below
           Row(

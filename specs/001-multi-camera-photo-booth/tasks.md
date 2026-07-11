@@ -350,3 +350,13 @@
 - [x] T104 [US5] Update the preview GIF AspectRatio in clients/mobile/lib/ui/operator_dashboard_page.dart to dynamically match 16 / 9 or 9 / 16 depending on the session orientation
 - [x] T105 Run Scenario 15 validation in specs/001-multi-camera-photo-booth/quickstart.md to verify 16:9 aspect ratio enforcement.
 
+---
+
+## Phase 25: Single-Screen Post-Capture Sharing View (Priority: P1)
+
+**Goal**: Budget screen layout so all sharing widgets fit on a single screen without scrolling.
+
+- [x] T106 [US5] Remove SingleChildScrollView and wrap _buildShareSection in Expanded inside _buildConnectedView in clients/mobile/lib/ui/operator_dashboard_page.dart
+- [x] T107 [US5] Wrap AdaptiveImagePreview inside Expanded(child: Center(child: ...)) in _buildShareSection inside clients/mobile/lib/ui/operator_dashboard_page.dart
+- [x] T108 Run Scenario 16 validation in specs/001-multi-camera-photo-booth/quickstart.md to verify single-screen layout scaling.
+

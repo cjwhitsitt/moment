@@ -221,6 +221,22 @@ Verify that photos captured in portrait mode are physically rotated and uploaded
 
 ---
 
+## Scenario 16: Single-Screen Operator Post-Capture Sharing View Verification
+
+Verify that all widgets fit on a single screen without scrolling for both landscape and portrait captures.
+
+### Steps
+1. Connect camera nodes and trigger a capture session.
+2. Once stitching is complete, verify that the Operator screen switches to the sharing view.
+3. Check that the GIF, QR code, and email fields are all completely visible on the screen.
+4. Verify that you cannot scroll the screen (the layout is locked and fits perfectly within the device height).
+5. Confirm this layout budget holds for both landscape and portrait sessions.
+
+### Expected Outcomes
+- The entire sharing view fits on one screen with no scrolling required.
+
+---
+
 ## Scenario 13: Camera Node Landscape Header Hiding Verification
 
 Verify that rotating the Camera Node device to landscape hides the AppBar.

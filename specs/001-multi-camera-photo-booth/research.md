@@ -236,3 +236,16 @@ Create a static single-page application at `public/index.html` and configure Fir
 ### Rationale
 - **High Performance Backend Processing**: Cropping on the backend avoids mobile CPU/memory overhead from Jpeg decode-rotate-crop-encode cycles, maintaining optimal async upload queue speeds.
 - **WYSIWYG Viewfinder Guide**: Displaying the full camera feed with a translucent crop guide provides a professional shooting experience, showing context outside the crop boundary while clearly defining the active capture zone.
+
+---
+
+## Single-Screen Operator Post-Capture Sharing View
+
+### Decision
+- Remove `SingleChildScrollView` from the operator sharing view in `_buildConnectedView` inside `operator_dashboard_page.dart`.
+- Wrap `_buildShareSection` inside `Expanded(child: ...)` to make it occupy the remaining vertical space.
+- Inside `_buildShareSection`, wrap the `AdaptiveImagePreview` inside `Expanded(child: Center(child: ...))` so the GIF preview scales down to fit the available space while preserving its natural aspect ratio.
+
+### Rationale
+- **No Scrolling Needed**: Fitting all components (GIF, QR code, and email form) on a single screen without scrolling keeps the sharing experience fast and intuitive. 
+- **Layout Budgeting**: Using `Expanded` and `Center` is a standard, robust way to handle varying orientation sizes (landscape 16:9 vs. portrait 9:16) on different device heights, ensuring clean proportions.

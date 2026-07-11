@@ -47,6 +47,7 @@
 - Q: Camera Node Header Visibility in Landscape → A: When the camera node device is in landscape orientation, the "Moment Camera Node" header (AppBar) MUST be hidden/removed to maximize vertical display area for the camera preview.
 - Q: Guest Share Landing Page → A: The sharing QR code displayed on the operator view MUST encode a Firebase Hosting landing page URL containing the GIF URL as an encoded query parameter (e.g. `https://moment-aad8b.web.app/?gif=...`). In emulator/local development mode, this URL MUST dynamically adapt to the coordinator IP on port 5000 (e.g. `http://<coordinator-ip>:5000/?gif=...`). The landing page itself MUST display a large preview of the GIF and feature a prominent "Download GIF" button that uses blob-fetching to force direct browser downloads.
 - Q: Forced 16:9 Aspect Ratio Output → A: Captured images MUST be uploaded in their raw, uncropped format (with orientation baked). The Cloud Function stitching pipeline MUST dynamically center-crop frames to a 16:9 aspect ratio (if landscape) or 9:16 aspect ratio (if portrait) using FFmpeg, compiling the final stitched GIF to exactly 800x450 (or 450x800) pixels. The Camera Node live preview MUST display the entire uncropped sensor viewport, featuring a semi-transparent overlay (50% black opacity shade) indicating the inactive region, with a clean framing border surrounding the active 16:9/9:16 target zone.
+- Q: Operator Post-Capture Sharing View Scroll constraint → A: The operator post-capture sharing view MUST display all preview and sharing widgets on a single screen without requiring scrolling. The stitched preview GIF container MUST be laid out using flexible constraints (such as Expanded inside a Center node) so it automatically scales its height or width to fill the remaining screen space while preserving its natural aspect ratio (16:9 or 9:16).
 
 
 
@@ -165,6 +166,7 @@ An operator uses a mobile device (tablet or phone) running the app in Operator M
 - **FR-026**: The Camera Node screen MUST hide the "Moment Camera Node" AppBar header when the device orientation is landscape.
 - **FR-027**: The guest sharing QR code MUST point to a Firebase Hosting landing page that dynamically loads the GIF from the URL query parameter and permits direct download via blob-fetching.
 - **FR-028**: The system MUST force a 16:9 (landscape) or 9:16 (portrait) aspect ratio. The Camera Node live preview MUST render the entire uncropped camera sensor viewport with a semi-transparent shade over what lies outside the active capture bounds. The client app MUST upload the raw captured images, and the Cloud Function stitching pipeline MUST center-crop them to 16:9 (or 9:16) and scale them on the backend.
+- **FR-029**: The Operator App post-capture sharing view MUST fit all preview, QR code, and email widgets on one screen without scrolling, dynamically sizing the preview GIF to fit the available space.
 
 ### Key Entities
 
