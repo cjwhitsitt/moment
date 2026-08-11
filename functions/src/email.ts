@@ -4,9 +4,9 @@ export async function sendEmailWithGif(email: string, gifUrl: string, apiKey: st
   const resend = new Resend(apiKey);
 
   const { error } = await resend.emails.send({
-    from: 'Moment <onboarding@resend.dev>',
+    from: 'Moment <noreply@moment.jayw.app>',
     to: email,
-    subject: 'Your Moment Loop is Ready! 📸',
+    subject: 'Your Moment is Ready! 📸',
     html: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #0d0b14; color: #ffffff; border-radius: 12px; text-align: center;">
         <h2 style="color: #a855f7; letter-spacing: 2px; font-weight: bold;">YOUR MOMENT IS READY</h2>
