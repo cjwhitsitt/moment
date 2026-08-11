@@ -26,6 +26,16 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_moment-coord._tcp</string>
+	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>This app requires camera access to pair devices and capture photo booth frames.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>This app requires local network access to communicate with the central photo booth coordinator.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app requires microphone access for camera initialization.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -65,16 +75,6 @@
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
-	<key>NSCameraUsageDescription</key>
-	<string>This app requires camera access to pair devices and capture photo booth frames.</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>This app requires microphone access for camera initialization.</string>
-	<key>NSLocalNetworkUsageDescription</key>
-	<string>This app requires local network access to communicate with the central photo booth coordinator.</string>
-	<key>NSBonjourServices</key>
-	<array>
-		<string>_moment-coord._tcp</string>
 	</array>
 </dict>
 </plist>
