@@ -29,4 +29,7 @@ dist/
 functions/lib/
 *.log
 .env*
+.secret.local
+.secret.local.*
+!.secret.local.example
 *.cache

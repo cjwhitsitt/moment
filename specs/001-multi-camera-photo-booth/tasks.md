@@ -196,7 +196,8 @@
 - **Guest Email Delivery (Phase 9)**: Depends on Operator Control Panel (Phase 8) being complete.
 - **Operator Connection Cache (Phase 10)**: Depends on Operator Control Panel (Phase 8) being complete.
 - **Operator Frame Timing & Stitch Length Configuration (Phase 29)**: Depends on Operator Control Panel (Phase 8) and Cloud Functions Stitching (Phase 7).
-- **Polish (Final Phase)**: Depends on all user stories and Phases 10-29 being complete.
+- **Functions Secrets Management (Phase 31)**: Depends on Guest Email Delivery (Phase 9).
+- **Polish (Final Phase)**: Depends on all user stories and Phases 10-31 being complete.
 
 ---
 
@@ -419,5 +420,12 @@
 - [x] T130 [P] [US5] Add unit tests in clients/mobile/test/services/emulator_config_service_test.dart and clients/mobile/test/ui/operator_dashboard_page_test.dart verifying emulator bypass logic, URL resolution, and badge display conditions
 - [x] T131 [US5] Run Scenario 15 validation in specs/001-multi-camera-photo-booth/quickstart.md to verify forced cloud resources debugging, guest URL targets, and emulator badge visibility
 
+---
 
+## Phase 31: Functions Secrets Management for Resend API Key (Priority: P1)
 
+**Goal**: Transition API credential management for Resend from flat `.env` files to Cloud Functions secrets (`RESEND_KEY`) bound via Cloud Functions v2 and emulated locally using `functions/.secret.local`.
+
+- [x] T132 [P] [US5] Update `sendGifEmail` callable function declaration in functions/src/index.ts to bind `secrets: ["RESEND_KEY"]` and enforce secret precondition check
+- [x] T133 [P] [US5] Add functions/.secret.local.example template documenting local secret emulation setup in functions/.secret.local.example
+- [x] T134 [US5] Run Scenario 22 validation in specs/001-multi-camera-photo-booth/quickstart.md to verify `sendGifEmail` with `functions/.secret.local` and precondition rejection when secret is missing

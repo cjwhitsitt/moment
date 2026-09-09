@@ -49,14 +49,14 @@ export const onSessionWrite = onDocumentWritten("sessions/{sessionId}", async (e
   }
 });
 
-export const sendGifEmail = onCall(async (request) => {
+export const sendGifEmail = onCall({ secrets: ["RESEND_KEY"] }, async (request) => {
   const { sessionId, email, gifUrl } = request.data;
 
   if (!sessionId || !email || !gifUrl) {
     throw new HttpsError("invalid-argument", "Missing required fields: sessionId, email, gifUrl.");
   }
 
-  const apiKey = process.env.RESEND_KEY || process.env.RESEND_API_KEY;
+  const apiKey = process.env.RESEND_KEY;
   if (!apiKey) {
     throw new HttpsError("failed-precondition", "Resend API key is not configured on the backend.");
   }

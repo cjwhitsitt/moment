@@ -131,6 +131,7 @@ class _OperatorDashboardPageState extends State<OperatorDashboardPage> {
       });
       onStateUpdated?.call();
     } catch (e) {
+      if (kDebugMode) print(e);
       setState(() {
         _isSendingEmail = false;
         _emailStatus = 'error';

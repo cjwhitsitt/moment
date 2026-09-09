@@ -23,7 +23,7 @@
 
 - Q: Operator Setup Documentation (README.md) camera count references → A: The operator README will be updated to reflect the variable camera count setup (between 3 and 10 smartphones, indices 1 to 10) instead of the previous hardcoded exactly 5.
 - Q: Deployment and publishing steps documentation → A: A new section detailing Cloud Functions deployment and Flutter client test publishing (TestFlight/Firebase App Distribution) will be added to the root README.md.
-- Q: Resend API Key Setup Documentation → A: The root README.md will include instructions on setting the `RESEND_KEY` environment variable in `functions/.env` for local testing and as a Firebase Secret for production deployment.
+- Q: Resend API Key Setup Documentation → A: The root README.md will include instructions on configuring the `RESEND_KEY` secret in `functions/.secret.local` for local emulator testing and in Google Cloud Secret Manager (`firebase functions:secrets:set RESEND_KEY`) for production deployment.
 
 ### Session 2026-07-04
 
@@ -71,6 +71,7 @@
 - Q: Coordinator Role under Forced Cloud Resources → A: The local Go coordinator is always required and remains the central orchestration service over local WebSocket/mDNS regardless of whether the mobile client is configured for cloud or emulator Firebase resources.
 - Q: Emulator vs Cloud UI Indicator → A: The Operator Dashboard displays an "EMULATOR" badge when connected to local Firebase emulators in debug mode. When targeting real Firebase cloud resources (whether in release builds or debug builds with `--dart-define=USE_CLOUD_RESOURCES=true`), no badge is displayed.
 - Q: Single-Device Troubleshooting and Minimum Node Count → A: The 3-camera minimum requirement remains strictly enforced for synchronized capture sessions. Single-device troubleshooting with forced cloud resources focuses on device pairing, camera preview alignment, network registration, and live cloud infrastructure connectivity without relaxing capture session constraints.
+- Q: Resend API Key Management via Functions Secrets → A: Secrets management is transitioned away from flat `.env` files. The Resend API key is managed via Google Cloud Secret Manager (`firebase functions:secrets:set RESEND_KEY`) in production, bound directly to the `sendGifEmail` callable function via the Cloud Functions v2 `secrets` parameter or `defineSecret`, and emulated locally during development using `functions/.secret.local`. The flat `functions/.env` file is deprecated for API credentials.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -154,6 +155,7 @@ An operator uses a mobile device (tablet or phone) running the app in Operator M
 - **Late Trigger Arrival**: If a camera node receives the trigger message with a delay that exceeds the latency tolerance, causing frame misalignment.
 - **mDNS Discovery Failure**: If mDNS fails to resolve the coordinator's local IP address, the Operator App must fallback to manual IP configuration so the operator can connect.
 - **Email Delivery Failure**: If the email delivery fails (e.g. due to invalid email address or network timeout), the cloud backend must log the failure and notify the Operator App so the operator can retry.
+- **Missing Backend Secret**: If the `RESEND_KEY` secret is not configured in Cloud Secret Manager or `functions/.secret.local`, the email delivery Cloud Function must fail immediately with a precondition error and log an actionable diagnostic message without attempting an external dispatch.
 
 ## Requirements *(mandatory)*
 
@@ -196,6 +198,7 @@ An operator uses a mobile device (tablet or phone) running the app in Operator M
 - **FR-035**: The Flutter client application MUST support forcing connection to live Firebase cloud resources (Firestore, Storage, Functions) instead of local emulators in debug builds when compiled with `--dart-define=USE_CLOUD_RESOURCES=true`. When this flag is omitted or false in debug builds, the app MUST continue to default to configuring local emulators.
 - **FR-036**: When compiled with `--dart-define=USE_CLOUD_RESOURCES=true`, the Operator App MUST generate the guest sharing QR code pointing to the live Firebase Hosting production domain (`https://moment-aad8b.web.app/?gif=...`) rather than the local coordinator emulator hosting address on port 5000.
 - **FR-037**: The Operator Dashboard MUST display an "EMULATOR" visual badge when running in debug mode connected to local Firebase emulators. When connected to live Firebase cloud resources (including release builds or debug builds compiled with `--dart-define=USE_CLOUD_RESOURCES=true`), no emulator badge MUST be shown.
+- **FR-038**: The Cloud Backend MUST manage external API credentials (including `RESEND_KEY`) via Cloud Functions secrets rather than plain environment variables. In production, secrets MUST be provisioned via Cloud Secret Manager and bound to functions; during local development, secrets MUST be loaded from `functions/.secret.local`. If the required secret is unset or empty, callable functions requiring the secret MUST fail precondition checks and reject requests.
 
 ### Key Entities
 

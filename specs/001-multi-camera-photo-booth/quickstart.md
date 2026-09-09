@@ -7,7 +7,7 @@ This guide outlines the steps required to verify that the photo booth system fun
 - **Go**: Version 1.21+ installed on the coordinator host (macOS/Raspberry Pi)
 - **Flutter**: Flutter SDK installed for client and operator testing
 - **Firebase CLI**: Installed and authenticated to the target Firebase project
-- **Resend**: API Key configured in Firebase Functions environment variables
+- **Resend**: API Key configured as a Firebase Functions secret (`functions/.secret.local` for emulator testing, or `firebase functions:secrets:set RESEND_KEY` for production)
 - **Local Network**: All devices (coordinator, operator, and smartphones) must be on the same local Wi-Fi subnet with UDP port 1230 (NTP) and TCP port 8080 (WebSockets) open.
 
 ---
@@ -405,5 +405,32 @@ Verify that the app can run on a physical test device pointing to live Firebase 
 - Building with `--dart-define=USE_CLOUD_RESOURCES=true` completely bypasses local emulator redirects in debug builds.
 - The `"EMULATOR"` badge only appears when emulators are active in debug mode; no badge appears in cloud mode.
 - Guest QR codes dynamically target `https://moment-aad8b.web.app` when cloud resources are active.
+
+---
+
+## Scenario 22: Cloud Functions Secrets Configuration & Missing Precondition Check
+
+Verify that `sendGifEmail` reads `RESEND_KEY` via Cloud Functions secrets (`functions/.secret.local` in emulation, or Secret Manager in production) and fails cleanly when unset.
+
+### Steps
+1. In `functions/`, ensure `functions/.secret.local` contains `RESEND_KEY=re_valid_api_key_test`.
+2. Start the Firebase emulator:
+   ```bash
+   firebase emulators:start
+   ```
+3. Invoke `sendGifEmail` callable function with test parameters:
+   ```bash
+   curl -X POST http://127.0.0.1:5001/moment-aad8b/us-central1/sendGifEmail \
+     -H "Content-Type: application/json" \
+     -d '{"data": {"sessionId": "test-session", "email": "guest@example.com", "gifUrl": "http://example.com/test.gif"}}'
+   ```
+4. Verify that the function attempts email delivery using the secret key loaded from `.secret.local`.
+5. Stop the emulator, temporarily comment out or remove `RESEND_KEY` from `functions/.secret.local` (and ensure no `.env` contains it), and restart the emulator.
+6. Re-invoke the function with the same payload:
+7. Verify that the function returns HTTP 400 with a `failed-precondition` error code stating `"Resend API key is not configured on the backend."`.
+
+### Expected Outcomes
+- `sendGifEmail` securely reads the `RESEND_KEY` secret from `.secret.local` without relying on flat `.env` files.
+- When the secret is missing or unset, an actionable `failed-precondition` error is returned and logged.
 
 

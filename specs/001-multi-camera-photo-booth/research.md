@@ -77,6 +77,22 @@ Use Resend via a dedicated Node.js Cloud Function.
 
 ---
 
+## Backend Secret Management for Resend API Key
+
+### Decision
+Migrate from plain `.env` files to Firebase Cloud Functions secrets using Google Cloud Secret Manager (`firebase functions:secrets:set RESEND_KEY`) in production, declare the secret using Firebase Functions v2 secret configuration (`secrets: ["RESEND_KEY"]` on `sendGifEmail`), and emulate secrets locally using `functions/.secret.local`.
+
+### Rationale
+- **Secret Isolation**: Storing API keys in plain `.env` files increases risk of accidental commits or accidental deployment of credentials into client bundles or public build artifacts.
+- **Firebase Functions v2 Alignment**: In 2nd Gen Cloud Functions, environment variables configured via Google Cloud Secret Manager require explicit secret declarations in function options (`{ secrets: ["RESEND_KEY"] }`) to be mounted into Cloud Run containers.
+- **Local Emulation Parity**: Firebase CLI natively supports `.secret.local` in `functions/` to simulate Cloud Secret Manager during local emulator testing without needing external GCP credentials.
+
+### Alternatives Considered
+- **Plain `.env` files**: Simple for local development, but prone to accidental git leaks and lacks fine-grained access control or version rotation provided by Secret Manager.
+- **Requiring Cloud Secret Manager during local emulation**: Adds network dependency and requires developers to have GCP IAM roles and active gcloud authentication just to run local emulator tests.
+
+---
+
 ## Operator Manual IP Input Constraints & Persistence
 
 ### Decision
