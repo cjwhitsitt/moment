@@ -47,9 +47,15 @@ type PongPayload struct {
 
 // TriggerPayload is broadcasted by coordinator to trigger cameras at a future sync time
 type TriggerPayload struct {
-	SessionID      string `json:"session_id"`
-	TriggerEpochMs int64  `json:"trigger_epoch_ms"`
-	ExpectedFrames int    `json:"expected_frames"`
+	SessionID       string `json:"session_id"`
+	TriggerEpochMs  int64  `json:"trigger_epoch_ms"`
+	ExpectedFrames  int    `json:"expected_frames"`
+	FrameDurationMs int    `json:"frame_duration_ms,omitempty"`
+}
+
+// OperatorTriggerPayload is optionally sent by the Operator App when triggering capture
+type OperatorTriggerPayload struct {
+	FrameDurationMs int `json:"frame_duration_ms,omitempty"`
 }
 
 // StatusUpdatePayload is sent by client to report upload/shutter progress

@@ -141,7 +141,7 @@ class _HomeScreenState extends State<HomeScreen> {
     SessionService.configureEmulator(host, 8082);
   }
 
-  Future<void> _handleCaptureTrigger(String sessionId, int cameraIndex, int expectedFrames) async {
+  Future<void> _handleCaptureTrigger(String sessionId, int cameraIndex, int expectedFrames, int frameDurationMs) async {
     if (_cameraController == null || !_cameraController!.value.isInitialized) {
       return;
     }
@@ -165,7 +165,13 @@ class _HomeScreenState extends State<HomeScreen> {
       context.read<SyncBloc>().add(SendStatusUpdateEvent(sessionId: sessionId, status: 'uploading'));
 
       // 2. Log frame path to Firestore session document
-      await SessionService.updateFrameUpload(sessionId, cameraIndex, storagePath, expectedFrames);
+      await SessionService.updateFrameUpload(
+        sessionId,
+        cameraIndex,
+        storagePath,
+        expectedFrames,
+        frameDurationMs: frameDurationMs,
+      );
 
       setState(() {
         _uploadStatus = 'Upload Success';
@@ -200,7 +206,7 @@ class _HomeScreenState extends State<HomeScreen> {
           } else if (state is SyncConnected) {
             _initCamera();
           } else if (state is SyncCaptureTriggered) {
-            _handleCaptureTrigger(state.sessionId, state.cameraIndex, state.expectedFrames);
+            _handleCaptureTrigger(state.sessionId, state.cameraIndex, state.expectedFrames, state.frameDurationMs);
           } else if (state is SyncInitial || state is SyncError || state is SyncPairing) {
             _disposeCamera();
           }

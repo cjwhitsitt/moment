@@ -20,24 +20,38 @@ class _OperatorDashboardPageState extends State<OperatorDashboardPage> {
   bool _isSendingEmail = false;
   String _emailStatus = ''; // '', 'success', 'error'
   bool _hasAutoOpenedPairing = false;
+  int _frameDurationMs = 100;
 
   @override
   void initState() {
     super.initState();
-    _loadCachedIp();
+    _loadCachedSettings();
     context.read<OperatorBloc>().add(StartDiscoveryEvent());
   }
 
-  Future<void> _loadCachedIp() async {
+  Future<void> _loadCachedSettings() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final cachedIp = prefs.getString('last_connected_ip');
       if (cachedIp != null && mounted) {
         _ipController.text = cachedIp;
       }
+      final cachedDuration = prefs.getInt('frame_duration_ms');
+      if (cachedDuration != null && cachedDuration >= 50 && cachedDuration <= 500 && mounted) {
+        setState(() {
+          _frameDurationMs = cachedDuration;
+        });
+      }
     } catch (_) {
       // Gracefully ignore local persistence load errors
     }
+  }
+
+  Future<void> _saveFrameDuration(int duration) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt('frame_duration_ms', duration);
+    } catch (_) {}
   }
 
   @override
@@ -103,6 +117,20 @@ class _OperatorDashboardPageState extends State<OperatorDashboardPage> {
             Navigator.of(context).pop();
           },
         ),
+        actions: [
+          BlocBuilder<OperatorBloc, OperatorState>(
+            builder: (context, state) {
+              final connectedCameras = state is OperatorConnected ? state.cameras.length : 0;
+              return IconButton(
+                icon: const Icon(Icons.settings_outlined, color: Colors.white),
+                tooltip: 'Animation Timing',
+                onPressed: () {
+                  _showTimingConfigDialog(context, connectedCameras);
+                },
+              );
+            },
+          ),
+        ],
       ),
       body: BlocConsumer<OperatorBloc, OperatorState>(
         listener: (context, state) {
@@ -400,7 +428,7 @@ class _OperatorDashboardPageState extends State<OperatorDashboardPage> {
                     ),
                     onPressed: isTriggerable
                         ? () {
-                            context.read<OperatorBloc>().add(TriggerCaptureEvent());
+                            context.read<OperatorBloc>().add(TriggerCaptureEvent(frameDurationMs: _frameDurationMs));
                           }
                         : null,
                     child: const Text(
@@ -937,6 +965,266 @@ class _OperatorDashboardPageState extends State<OperatorDashboardPage> {
                             ],
                           ),
                         ],
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void _showTimingConfigDialog(BuildContext context, int connectedCameras) {
+    final int effectiveCameras = connectedCameras >= 3 ? connectedCameras : 3;
+    final int totalLoopFrames = (effectiveCameras * 2) - 2;
+
+    final TextEditingController frameDurationCtrl = TextEditingController(text: '$_frameDurationMs');
+    final TextEditingController stitchLengthCtrl = TextEditingController(text: '${_frameDurationMs * totalLoopFrames}');
+
+    showDialog(
+      context: context,
+      barrierColor: Colors.black.withOpacity(0.9),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          void updateTiming(int newFrameDuration) {
+            final clamped = newFrameDuration.clamp(50, 500);
+            setState(() {
+              _frameDurationMs = clamped;
+            });
+            _saveFrameDuration(clamped);
+            frameDurationCtrl.text = '$clamped';
+            stitchLengthCtrl.text = '${clamped * totalLoopFrames}';
+            setDialogState(() {});
+          }
+
+          return GestureDetector(
+            onTap: () => Navigator.of(context).pop(),
+            child: Material(
+              color: Colors.transparent,
+              child: Center(
+                child: GestureDetector(
+                  onTap: () {}, // Prevent dismissal when tapping dialog body
+                  child: Container(
+                    width: 360,
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1E153A),
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(color: Colors.deepPurpleAccent.withOpacity(0.2)),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Row(
+                              children: [
+                                Icon(Icons.tune_rounded, color: Colors.purpleAccent, size: 20),
+                                SizedBox(width: 8),
+                                Text(
+                                  'ANIMATION TIMING',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1.5,
+                                    color: Colors.purpleAccent,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.close_rounded, color: Colors.grey, size: 20),
+                              onPressed: () => Navigator.of(context).pop(),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Configure playback speed and stitch length for ping-pong loops ($totalLoopFrames frames for $effectiveCameras cameras):',
+                          style: const TextStyle(fontSize: 12, color: Colors.white70),
+                        ),
+                        const SizedBox(height: 20),
+
+                        // 1. Frame Duration Control
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.04),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.white.withOpacity(0.08)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'FRAME DURATION',
+                                style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.0, color: Colors.white70),
+                              ),
+                              const SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  IconButton.filled(
+                                    style: IconButton.styleFrom(
+                                      backgroundColor: Colors.deepPurpleAccent.withOpacity(0.3),
+                                    ),
+                                    icon: const Icon(Icons.remove_rounded, color: Colors.white),
+                                    onPressed: _frameDurationMs > 50
+                                        ? () => updateTiming(_frameDurationMs - 50)
+                                        : null,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: TextField(
+                                      controller: frameDurationCtrl,
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                                      keyboardType: TextInputType.number,
+                                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                      decoration: InputDecoration(
+                                        suffixText: 'ms',
+                                        suffixStyle: const TextStyle(fontSize: 13, color: Colors.white60),
+                                        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                          borderSide: BorderSide(color: Colors.white.withOpacity(0.12)),
+                                        ),
+                                      ),
+                                      onChanged: (val) {
+                                        final parsed = int.tryParse(val);
+                                        if (parsed != null && parsed >= 50 && parsed <= 500) {
+                                          setState(() {
+                                            _frameDurationMs = parsed;
+                                          });
+                                          _saveFrameDuration(parsed);
+                                          stitchLengthCtrl.text = '${parsed * totalLoopFrames}';
+                                          setDialogState(() {});
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  IconButton.filled(
+                                    style: IconButton.styleFrom(
+                                      backgroundColor: Colors.deepPurpleAccent.withOpacity(0.3),
+                                    ),
+                                    icon: const Icon(Icons.add_rounded, color: Colors.white),
+                                    onPressed: _frameDurationMs < 500
+                                        ? () => updateTiming(_frameDurationMs + 50)
+                                        : null,
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              const Center(
+                                child: Text(
+                                  '50ms steps • Range: 50ms – 500ms (100ms default)',
+                                  style: TextStyle(fontSize: 10, color: Colors.grey),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // 2. Total Stitch Length Control
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.04),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.white.withOpacity(0.08)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'TOTAL STITCH LENGTH',
+                                style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.0, color: Colors.white70),
+                              ),
+                              const SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  IconButton.filled(
+                                    style: IconButton.styleFrom(
+                                      backgroundColor: Colors.deepPurpleAccent.withOpacity(0.3),
+                                    ),
+                                    icon: const Icon(Icons.remove_rounded, color: Colors.white),
+                                    onPressed: _frameDurationMs > 50
+                                        ? () => updateTiming(_frameDurationMs - 50)
+                                        : null,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: TextField(
+                                      controller: stitchLengthCtrl,
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                                      keyboardType: TextInputType.number,
+                                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                      decoration: InputDecoration(
+                                        suffixText: 'ms',
+                                        suffixStyle: const TextStyle(fontSize: 13, color: Colors.white60),
+                                        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                          borderSide: BorderSide(color: Colors.white.withOpacity(0.12)),
+                                        ),
+                                      ),
+                                      onChanged: (val) {
+                                        final parsed = int.tryParse(val);
+                                        if (parsed != null) {
+                                          final derivedDuration = (parsed / totalLoopFrames / 50).round() * 50;
+                                          final clamped = derivedDuration.clamp(50, 500);
+                                          setState(() {
+                                            _frameDurationMs = clamped;
+                                          });
+                                          _saveFrameDuration(clamped);
+                                          frameDurationCtrl.text = '$clamped';
+                                          setDialogState(() {});
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  IconButton.filled(
+                                    style: IconButton.styleFrom(
+                                      backgroundColor: Colors.deepPurpleAccent.withOpacity(0.3),
+                                    ),
+                                    icon: const Icon(Icons.add_rounded, color: Colors.white),
+                                    onPressed: _frameDurationMs < 500
+                                        ? () => updateTiming(_frameDurationMs + 50)
+                                        : null,
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              Center(
+                                child: Text(
+                                  'Steps: ${50 * totalLoopFrames}ms ($totalLoopFrames frames × 50ms)',
+                                  style: const TextStyle(fontSize: 10, color: Colors.grey),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.deepPurpleAccent,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                          ),
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: const Text('Done', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white)),
+                        ),
                       ],
                     ),
                   ),

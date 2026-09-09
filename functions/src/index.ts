@@ -30,7 +30,8 @@ export const onSessionWrite = onDocumentWritten("sessions/{sessionId}", async (e
     });
 
     try {
-      const gifUrl = await stitchFrames(event.params.sessionId, uploadedFrames);
+      const frameDurationMs = data.frameDurationMs || 100;
+      const gifUrl = await stitchFrames(event.params.sessionId, uploadedFrames, frameDurationMs);
 
       await docRef.update({
         status: "completed",

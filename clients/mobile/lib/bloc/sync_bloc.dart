@@ -51,7 +51,13 @@ class SyncCaptureTriggered extends SyncState {
   final String sessionId;
   final int cameraIndex;
   final int expectedFrames;
-  SyncCaptureTriggered({required this.sessionId, required this.cameraIndex, required this.expectedFrames});
+  final int frameDurationMs;
+  SyncCaptureTriggered({
+    required this.sessionId,
+    required this.cameraIndex,
+    required this.expectedFrames,
+    this.frameDurationMs = 100,
+  });
 }
 
 class SyncError extends SyncState {
@@ -85,7 +91,8 @@ class UpdateClockOffsetEvent extends SyncEvent {
 class FireShutterEvent extends SyncEvent {
   final String sessionId;
   final int expectedFrames;
-  FireShutterEvent(this.sessionId, this.expectedFrames);
+  final int frameDurationMs;
+  FireShutterEvent(this.sessionId, this.expectedFrames, {this.frameDurationMs = 100});
 }
 
 class SessionCompletedEvent extends SyncEvent {
@@ -181,6 +188,7 @@ class SyncBloc extends Bloc<SyncEvent, SyncState> {
         final sessionId = data['session_id'] as String? ?? '';
         final triggerEpochMs = data['trigger_epoch_ms'] as int? ?? 0;
         final expectedFrames = data['expected_frames'] as int? ?? 5;
+        final frameDurationMs = data['frame_duration_ms'] as int? ?? 100;
  
         // Perform synchronized latency wait
         final now = DateTime.now().millisecondsSinceEpoch;
@@ -190,7 +198,7 @@ class SyncBloc extends Bloc<SyncEvent, SyncState> {
         if (delayMs > 0) {
           await Future.delayed(Duration(milliseconds: delayMs));
         }
-        add(FireShutterEvent(sessionId, expectedFrames));
+        add(FireShutterEvent(sessionId, expectedFrames, frameDurationMs: frameDurationMs));
       } else if (eventName == 'disconnected') {
         WakelockPlus.disable(); // Release wake lock
         emit(SyncInitial());
@@ -223,6 +231,7 @@ class SyncBloc extends Bloc<SyncEvent, SyncState> {
           sessionId: event.sessionId,
           cameraIndex: s.cameraIndex,
           expectedFrames: event.expectedFrames,
+          frameDurationMs: event.frameDurationMs,
         ));
 
         // Start listening to the Firestore session state for completion

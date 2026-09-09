@@ -91,7 +91,8 @@ function getJpegDimensions(filePath: string): Promise<{ width: number; height: n
  */
 export async function stitchFrames(
   sessionId: string,
-  uploadedFrames: { [key: string]: string }
+  uploadedFrames: { [key: string]: string },
+  frameDurationMs: number = 100
 ): Promise<string> {
   const tempDir = os.tmpdir();
   const sessionDir = path.join(tempDir, sessionId);
@@ -162,7 +163,10 @@ export async function stitchFrames(
 
     // 3. Compile high-quality GIF using palettegen and paletteuse
     const outputGifPath = path.join(sessionDir, "output.gif");
-    const ffmpegCmd = `"${ffmpegPath}" -y -reinit_filter 0 -f image2 -start_number 0 -framerate 10 -i "${sessionDir}/frame_%d.jpg" -filter_complex "split [a][b];[a] palettegen [p];[b][p] paletteuse" "${outputGifPath}"`;
+    const validDuration = frameDurationMs && frameDurationMs >= 50 && frameDurationMs <= 500 ? frameDurationMs : 100;
+    const framerate = (1000 / validDuration).toFixed(2);
+    console.log(`[STITCH] Compiling GIF with frameDurationMs: ${validDuration}ms (framerate: ${framerate} fps)`);
+    const ffmpegCmd = `"${ffmpegPath}" -y -reinit_filter 0 -f image2 -start_number 0 -framerate ${framerate} -i "${sessionDir}/frame_%d.jpg" -filter_complex "split [a][b];[a] palettegen [p];[b][p] paletteuse" "${outputGifPath}"`;
 
     await new Promise<void>((resolve, reject) => {
       exec(ffmpegCmd, (error, stdout, stderr) => {

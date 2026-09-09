@@ -122,13 +122,18 @@ func (h *Hub) GetClients() []domain.ClientNode {
 }
 
 // TriggerCapture triggers a synchronized capture session across all registered clients.
-func (h *Hub) TriggerCapture() (string, error) {
+func (h *Hub) TriggerCapture(frameDurationMs ...int) (string, error) {
 	h.clientsMu.Lock()
 	n := len(h.clients)
 	h.clientsMu.Unlock()
 
 	if n < 3 || n > 10 {
 		return "", fmt.Errorf("invalid camera count: %d. Must be between 3 and 10", n)
+	}
+
+	duration := 100
+	if len(frameDurationMs) > 0 && frameDurationMs[0] >= 50 && frameDurationMs[0] <= 500 {
+		duration = frameDurationMs[0]
 	}
 
 	sessionId := fmt.Sprintf("session-%d", time.Now().UnixNano())
@@ -141,12 +146,13 @@ func (h *Hub) TriggerCapture() (string, error) {
 	}
 	h.clientsMu.Unlock()
 
-	log.Printf("[TRIGGER] Broadcasting capture trigger for Session: %s at time: %d with %d expected frames", sessionId, triggerTime, n)
+	log.Printf("[TRIGGER] Broadcasting capture trigger for Session: %s at time: %d with %d expected frames (frameDuration: %dms)", sessionId, triggerTime, n, duration)
 
 	h.Broadcast("capture_trigger", domain.TriggerPayload{
-		SessionID:      sessionId,
-		TriggerEpochMs: triggerTime,
-		ExpectedFrames: n,
+		SessionID:       sessionId,
+		TriggerEpochMs:  triggerTime,
+		ExpectedFrames:  n,
+		FrameDurationMs: duration,
 	})
 
 	go h.SyncDashboard()
@@ -407,14 +413,18 @@ func (c *Client) handleMessage(msg domain.Message) {
 
 	case "operator_capture_trigger":
 		if c.IsOperator {
-			sessionId, err := c.Hub.TriggerCapture()
+			var payload domain.OperatorTriggerPayload
+			if msg.Data != nil && len(msg.Data) > 0 {
+				_ = json.Unmarshal(msg.Data, &payload)
+			}
+			sessionId, err := c.Hub.TriggerCapture(payload.FrameDurationMs)
 			if err != nil {
 				log.Printf("[OPERATOR] Failed to trigger capture: %v", err)
 				resp := map[string]interface{}{"event": "error", "error": err.Error()}
 				respBytes, _ := json.Marshal(resp)
 				c.Send <- respBytes
 			} else {
-				log.Printf("[OPERATOR] Capturing session %s triggered successfully", sessionId)
+				log.Printf("[OPERATOR] Capturing session %s triggered successfully (frameDuration: %dms)", sessionId, payload.FrameDurationMs)
 			}
 		}
 

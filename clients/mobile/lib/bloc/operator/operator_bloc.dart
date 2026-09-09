@@ -131,7 +131,10 @@ class MessageReceivedOperatorEvent extends OperatorEvent {
   MessageReceivedOperatorEvent(this.message);
 }
 
-class TriggerCaptureEvent extends OperatorEvent {}
+class TriggerCaptureEvent extends OperatorEvent {
+  final int? frameDurationMs;
+  TriggerCaptureEvent({this.frameDurationMs});
+}
 
 class ClearActiveSessionEvent extends OperatorEvent {}
 
@@ -278,7 +281,9 @@ class OperatorBloc extends Bloc<OperatorEvent, OperatorState> {
 
     on<TriggerCaptureEvent>((event, emit) {
       if (state is OperatorConnected) {
-        _wsClient.send('operator_capture_trigger', {});
+        _wsClient.send('operator_capture_trigger', {
+          if (event.frameDurationMs != null) 'frame_duration_ms': event.frameDurationMs,
+        });
       }
     });
 

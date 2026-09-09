@@ -279,6 +279,8 @@ Create a static single-page application at `public/index.html` and configure Fir
 
 ---
 
+---
+
 ## Side-by-Side "Share to" Panel and Email Dialog Modal
 
 ### Decision
@@ -289,3 +291,27 @@ Create a static single-page application at `public/index.html` and configure Fir
 ### Rationale
 - **Space Optimization**: Placing the QR code and Email trigger side-by-side saves significant vertical space, ensuring portrait 9:16 previews have maximum headroom without exceeding screen bounds.
 - **Clean Overlay Flow**: Moving the text input and submit logic to an overlay dialog declutters the primary sharing view, allowing a simple tap-to-input flow.
+
+---
+
+## Operator Frame Timing & Stitch Length Configuration Modal
+
+### Decision
+- **Modal Dialog Entry Point**: Add a settings/gear icon button (`IconButton(icon: Icon(Icons.settings))`) in the Operator Dashboard AppBar header that opens a dedicated timing configuration dialog modal `_showTimingConfigDialog(BuildContext context)`.
+- **Linked Dual-Field UX**: Present two editable text fields in milliseconds:
+  1. **Frame Duration (ms)**: Stepped in 50ms increments via decrease (`-`) and increase (`+`) icon buttons. Bounded between 50ms (minimum, 20 fps) and 500ms (maximum, 2 fps), defaulting to 100ms.
+  2. **Total Stitch Length (ms)**: Stepped in increments of $50\text{ms} \times (2N - 2)$ (where $N = \max(3, \text{connected camera count})$).
+- **Bidirectional Recalculation**:
+  - Changing Frame Duration recalculates $\text{Stitch Length} = \text{Frame Duration} \times (2N - 2)$.
+  - Changing Stitch Length recalculates $\text{Frame Duration} = \text{round}(\text{Stitch Length} / (2N - 2) / 50) \times 50$, clamped to $[50, 500]\text{ms}$, which then syncs back to the exact derived stitch length.
+- **Single Persistent Anchor**: Persist only `frame_duration_ms` in `SharedPreferences` under the key `'frame_duration_ms'`. Derive the total stitch length dynamically based on active paired cameras.
+- **Trigger Propagation**: Pass `frame_duration_ms` in the `operator_capture_trigger` WebSocket payload to the Go Coordinator, which writes it to the Firestore session record, enabling the Cloud Function FFmpeg worker to construct the GIF with the exact per-frame delay (e.g. `fps = 1000 / frame_duration_ms` or `delay = frame_duration_ms / 10`).
+
+### Rationale
+- **Intuitive Control**: Photographers and booth operators often think either in terms of rapid frame speed (e.g. "make each frame 100ms") or overall loop duration (e.g. "I want the whole loop to last 1.2 seconds"). Linking both fields with stepping buttons and editable numeric text inputs satisfies both mental models seamlessly.
+- **Ping-Pong Loop Precision**: Calculating stitch length using $2N - 2$ accurately reflects the true total loop duration seen by guests without endpoint stutter.
+- **State Simplicity**: Keeping individual frame duration as the single stored anchor eliminates synchronization conflicts when camera nodes connect or disconnect.
+
+### Alternatives Considered
+- **Sliders**: Rejected. Discrete stepping buttons and editable text inputs provide exact millisecond precision without touch-slider calibration drift.
+- **Persisting Stitch Length**: Rejected. If stitch length were persisted and cameras were added or removed, frame rates would change unexpectedly without the operator's knowledge.

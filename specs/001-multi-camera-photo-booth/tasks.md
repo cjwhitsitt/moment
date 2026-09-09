@@ -195,7 +195,8 @@
 - **Operator Control Panel (Phase 8)**: Depends on Variable Cameras (Phase 7) being complete.
 - **Guest Email Delivery (Phase 9)**: Depends on Operator Control Panel (Phase 8) being complete.
 - **Operator Connection Cache (Phase 10)**: Depends on Operator Control Panel (Phase 8) being complete.
-- **Polish (Final Phase)**: Depends on all user stories and Phase 10 being complete.
+- **Operator Frame Timing & Stitch Length Configuration (Phase 29)**: Depends on Operator Control Panel (Phase 8) and Cloud Functions Stitching (Phase 7).
+- **Polish (Final Phase)**: Depends on all user stories and Phases 10-29 being complete.
 
 ---
 
@@ -390,4 +391,19 @@
 - [x] T116 [US5] Implement _showEmailDialog containing the email field, send button, and status indicators in clients/mobile/lib/ui/operator_dashboard_page.dart
 - [x] T117 [US5] Modify _buildShareSection to lay out QrImageView and the "Email" button side-by-side inside a Row in clients/mobile/lib/ui/operator_dashboard_page.dart
 - [x] T118 Run Scenario 20 validation in specs/001-multi-camera-photo-booth/quickstart.md to verify layout and modal sharing flows.
+
+---
+
+## Phase 29: Operator Frame Timing & Stitch Length Configuration Modal (Priority: P1)
+
+**Goal**: Implement a settings modal in the Operator Dashboard allowing live adjustment and bidirectional recalculation of frame duration and total stitch length in 50ms intervals, with local persistence and backend FFmpeg timing propagation.
+
+- [x] T119 [US5] Update Go coordinator domain types and capture trigger handlers to accept and parse frame_duration_ms in pkg/domain/session.go and cmd/coordinator/main.go
+- [x] T120 [US5] Update Cloud Functions onSessionWrite trigger and stitchFrames in functions/src/index.ts and functions/src/stitch.ts to read frame_duration_ms from Firestore session document and configure FFmpeg frame delay
+- [x] T121 [US5] Implement SharedPreferences helper and state methods in OperatorBloc to load, update, and persist frame_duration_ms (defaulting to 100ms) in clients/mobile/lib/bloc/operator/operator_bloc.dart
+- [x] T122 [US5] Implement _showTimingConfigDialog modal dialog in clients/mobile/lib/ui/operator_dashboard_page.dart with dual editable text fields (Frame Duration ms and Total Stitch Length ms), +/- 50ms buttons, live bidirectional recalculation based on 2N - 2 ping-pong frames (defaulting to 3 baseline cameras), and boundary clamping (50-500ms)
+- [x] T123 [US5] Add settings/gear action button in OperatorDashboardPage AppBar header to launch _showTimingConfigDialog in clients/mobile/lib/ui/operator_dashboard_page.dart
+- [x] T124 [US5] Update operator remote capture trigger dispatch in OperatorBloc and OperatorDashboardPage to include frame_duration_ms in operator_capture_trigger WebSocket payload in clients/mobile/lib/ui/operator_dashboard_page.dart
+- [x] T125 [US5] Run Scenario 21 validation in specs/001-multi-camera-photo-booth/quickstart.md to verify animation timing modal, bidirectional recalculation, persistence, and backend FFmpeg stitch timing
+
 

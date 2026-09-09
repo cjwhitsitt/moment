@@ -11,6 +11,7 @@ interface SessionDocument {
   id: string;                               // Unique session identifier
   status: 'pending' | 'uploading' | 'processing' | 'completed' | 'failed';
   expectedFrames: number;                   // The expected number of camera frames for this session (between 3 and 10)
+  frameDurationMs?: number;                 // Playback duration per frame in milliseconds (default 100)
   uploadedFrames: {                         // Maps camera index to Storage file path
     [cameraIndex: string]: string;          // e.g., "1": "raw/session123/cam1.jpg"
   };
@@ -56,10 +57,11 @@ const (
 
 ```go
 type CaptureSession struct {
-	SessionID string            `json:"session_id"`
-	Status    string            `json:"status"` // "ready" | "triggered" | "done"
-	StartedAt time.Time         `json:"started_at"`
-	Nodes     map[int]*ClientNode
+	SessionID       string            `json:"session_id"`
+	Status          string            `json:"status"` // "ready" | "triggered" | "done"
+	StartedAt       time.Time         `json:"started_at"`
+	FrameDurationMs int               `json:"frame_duration_ms"` // Duration per frame in ms (50-500ms)
+	Nodes           map[int]*ClientNode
 }
 ```
 
@@ -95,6 +97,7 @@ stateDiagram-v2
     Processing --> Failed : Stitching process failed
     Completed --> [*]
     Failed --> [*]
+```
 
 ---
 
@@ -106,5 +109,4 @@ stateDiagram-v2
 |-----|------|-------------|
 | `last_connected_ip` | String | The last manually entered IP address that successfully completed the `operator_registered` WebSocket handshake. |
 | `camera_position_index` | Integer | The last selected Camera Node array position index (1-10) configuration. |
-
-```
+| `frame_duration_ms` | Integer | The configured animation frame duration in milliseconds (50ms - 500ms, default: 100ms). |

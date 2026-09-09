@@ -346,3 +346,31 @@ Verify that captured images and resulting stitched GIFs are forced to 16:9.
 ### Expected Outcomes
 - Camera viewfinder renders full viewport with a translucent crop guide.
 - Stitched GIF outputs are cropped to 16:9/9:16 on the backend without any letterboxing.
+
+---
+
+## Scenario 21: Operator Frame Timing & Stitch Length Configuration Modal Verification
+
+Verify that frame duration and stitch length can be adjusted via the settings modal, modify each other bidirectionally, persist across launches, and take effect during stitching.
+
+### Steps
+1. Launch the Operator App and open the Operator Dashboard.
+2. Locate the settings/gear icon in the top AppBar and tap it.
+3. Verify that the **Animation Timing** modal dialog overlay opens, displaying:
+   - **Frame Duration (ms)** input field (defaulting to 100ms) with `-` and `+` buttons.
+   - **Total Stitch Length (ms)** input field displaying the derived duration (e.g. $100\text{ms} \times 4 = 400\text{ms}$ with 3 baseline cameras, or $100\text{ms} \times 8 = 800\text{ms}$ with 5 cameras) with `-` and `+` buttons.
+4. Tap the `+` button on Frame Duration. Verify it increases to `150ms`, and Total Stitch Length immediately updates accordingly.
+5. Tap the `-` button on Total Stitch Length. Verify Total Stitch Length decreases by $50\text{ms} \times (2N - 2)$, and Frame Duration updates back to `100ms`.
+6. Type `200` into the Frame Duration text field. Verify Total Stitch Length updates immediately.
+7. Type `1200` into the Total Stitch Length text field. Verify Frame Duration recalculates to the nearest valid 50ms interval.
+8. Attempt to decrease Frame Duration below 50ms. Verify it clamps at 50ms.
+9. Attempt to increase Frame Duration above 500ms. Verify it clamps at 500ms.
+10. Close the dialog, force close the app, and relaunch it into Operator Mode.
+11. Tap the settings gear icon and verify the Frame Duration remains saved at the last configured value.
+12. Trigger a capture session and verify the generated GIF plays at the configured frame rate.
+
+### Expected Outcomes
+- Dual fields recalculate bidirectionally in real-time in 50ms (and $50\text{ms} \times (2N - 2)$) increments.
+- Frame duration persists across app restarts in `SharedPreferences`.
+- Triggered captures transmit the configured duration and Cloud Functions stitches the GIF with the matching frame delay.
+

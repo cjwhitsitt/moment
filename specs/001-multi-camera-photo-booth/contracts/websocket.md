@@ -70,7 +70,8 @@ Broadcasted by the Go coordinator to all connected clients simultaneously to sch
   "data": {
     "session_id": "session-9b1deb4d-3b7d-4bad",
     "trigger_epoch_ms": 1782349010500,
-    "expected_frames": 5
+    "expected_frames": 5,
+    "frame_duration_ms": 100
   }
 }
 ```
@@ -125,13 +126,15 @@ Sent by the Flutter Operator App upon establishing a WebSocket connection.
 
 ## 6. Remote Capture Trigger
 
-Sent by the Operator App to request the coordinator to start a capture session.
+Sent by the Operator App to request the coordinator to start a capture session with a specified frame duration.
 
 ### Request Payload (Operator -> Coordinator)
 ```json
 {
   "event": "operator_capture_trigger",
-  "data": {}
+  "data": {
+    "frame_duration_ms": 100
+  }
 }
 ```
 
