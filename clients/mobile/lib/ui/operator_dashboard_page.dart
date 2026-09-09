@@ -5,7 +5,52 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
+import '../services/emulator_config_service.dart';
+import '../services/share_url_helper.dart';
 import '../../bloc/operator/operator_bloc.dart';
+
+class OperatorAppBarTitle extends StatelessWidget {
+  const OperatorAppBarTitle({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const Text(
+          'OPERATOR DASHBOARD',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 2.0,
+            color: Colors.white,
+          ),
+        ),
+        if (EmulatorConfigService.shouldUseEmulators) ...[
+          const SizedBox(width: 8),
+          Container(
+            key: const Key('emulator_badge'),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: Colors.amber.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(4),
+              border: Border.all(color: Colors.amberAccent, width: 1),
+            ),
+            child: const Text(
+              'EMULATOR',
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.0,
+                color: Colors.amberAccent,
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
 
 class OperatorDashboardPage extends StatefulWidget {
   const OperatorDashboardPage({super.key});
@@ -99,15 +144,7 @@ class _OperatorDashboardPageState extends State<OperatorDashboardPage> {
     return Scaffold(
       backgroundColor: const Color(0xFF0D0B14),
       appBar: AppBar(
-        title: const Text(
-          'OPERATOR DASHBOARD',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 2.0,
-            color: Colors.white,
-          ),
-        ),
+        title: const OperatorAppBarTitle(),
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
@@ -603,20 +640,8 @@ class _OperatorDashboardPageState extends State<OperatorDashboardPage> {
       host = uri.host;
     } catch (_) {}
 
-    final bool isLocal = !kReleaseMode && (host == 'localhost' ||
-        host == '127.0.0.1' ||
-        host.startsWith('192.168.') ||
-        host.startsWith('10.') ||
-        host.startsWith('172.'));
-
-    final gifUrl = isLocal
-        ? 'http://$host:9199/v0/b/moment-aad8b.firebasestorage.app/o/stitched%2F$sessionId.gif?alt=media'
-        : 'https://firebasestorage.googleapis.com/v0/b/moment-aad8b.firebasestorage.app/o/stitched%2F$sessionId.gif?alt=media';
-
-    final hostingBaseUrl = isLocal
-        ? 'http://$host:5000'
-        : 'https://moment-aad8b.web.app';
-    final shareLandingPageUrl = '$hostingBaseUrl/?gif=${Uri.encodeComponent(gifUrl)}';
+    final gifUrl = ShareUrlHelper.getGifUrl(host: host, sessionId: sessionId);
+    final shareLandingPageUrl = ShareUrlHelper.getShareLandingPageUrl(host: host, sessionId: sessionId);
 
     return Container(
       padding: const EdgeInsets.all(20),

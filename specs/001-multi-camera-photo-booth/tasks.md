@@ -406,4 +406,18 @@
 - [x] T124 [US5] Update operator remote capture trigger dispatch in OperatorBloc and OperatorDashboardPage to include frame_duration_ms in operator_capture_trigger WebSocket payload in clients/mobile/lib/ui/operator_dashboard_page.dart
 - [x] T125 [US5] Run Scenario 21 validation in specs/001-multi-camera-photo-booth/quickstart.md to verify animation timing modal, bidirectional recalculation, persistence, and backend FFmpeg stitch timing
 
+---
+
+## Phase 30: Forcing Live Cloud Resources & Operator Dashboard Emulator Badge (Priority: P1)
+
+**Goal**: Allow developers to optionally force connection to live Firebase cloud resources instead of local emulators during on-device debugging using `--dart-define=USE_CLOUD_RESOURCES=true`, and display an "EMULATOR" visual badge in the Operator Dashboard only when local emulators are active.
+
+- [x] T126 [P] [US5] Update EmulatorConfigService in clients/mobile/lib/services/emulator_config_service.dart to check const bool.fromEnvironment('USE_CLOUD_RESOURCES', defaultValue: false) and bypass useFirestoreEmulator, useStorageEmulator, and useFunctionsEmulator when enabled
+- [x] T127 [P] [US5] Update _configureEmulators in clients/mobile/lib/main.dart, UploadService in clients/mobile/lib/services/upload_service.dart, and SessionService in clients/mobile/lib/services/session_service.dart to respect USE_CLOUD_RESOURCES and bypass emulator configuration
+- [x] T128 [US5] Update URL resolution in clients/mobile/lib/ui/operator_dashboard_page.dart to point guest share QR code and GIF preview to production Firebase Hosting (moment-aad8b.web.app) and Cloud Storage when USE_CLOUD_RESOURCES is true or in release mode
+- [x] T129 [US5] Implement the "EMULATOR" visual badge in the Operator Dashboard header in clients/mobile/lib/ui/operator_dashboard_page.dart visible only when connected to local emulators in debug mode, and hidden in cloud mode
+- [x] T130 [P] [US5] Add unit tests in clients/mobile/test/services/emulator_config_service_test.dart and clients/mobile/test/ui/operator_dashboard_page_test.dart verifying emulator bypass logic, URL resolution, and badge display conditions
+- [x] T131 [US5] Run Scenario 15 validation in specs/001-multi-camera-photo-booth/quickstart.md to verify forced cloud resources debugging, guest URL targets, and emulator badge visibility
+
+
 

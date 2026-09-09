@@ -141,11 +141,13 @@ class ClearActiveSessionEvent extends OperatorEvent {}
 // Bloc Implementation
 class OperatorBloc extends Bloc<OperatorEvent, OperatorState> {
   final WebSocketClient _wsClient;
-  final DiscoveryService _discoveryService = DiscoveryService();
+  final DiscoveryService _discoveryService;
   StreamSubscription? _discoverySubscription;
   StreamSubscription? _wsSubscription;
 
-  OperatorBloc(this._wsClient) : super(OperatorInitial()) {
+  OperatorBloc(this._wsClient, [DiscoveryService? discoveryService])
+      : _discoveryService = discoveryService ?? DiscoveryService(),
+        super(OperatorInitial()) {
     on<StartDiscoveryEvent>((event, emit) async {
       emit(OperatorDiscovering());
       _discoverySubscription?.cancel();

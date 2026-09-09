@@ -315,3 +315,24 @@ Create a static single-page application at `public/index.html` and configure Fir
 ### Alternatives Considered
 - **Sliders**: Rejected. Discrete stepping buttons and editable text inputs provide exact millisecond precision without touch-slider calibration drift.
 - **Persisting Stitch Length**: Rejected. If stitch length were persisted and cameras were added or removed, frame rates would change unexpectedly without the operator's knowledge.
+
+---
+
+## Forcing Live Cloud Resources in Debug Builds (`--dart-define=USE_CLOUD_RESOURCES=true`)
+
+### Decision
+- **Build-Time Flag**: Provide a `--dart-define=USE_CLOUD_RESOURCES=true` compile-time flag parsed via `const bool.fromEnvironment('USE_CLOUD_RESOURCES', defaultValue: false)`.
+- **Bypass Emulator Redirection**: When `USE_CLOUD_RESOURCES` is `true`, bypass all emulator configuration in `EmulatorConfigService`, `UploadService`, `SessionService`, and `main.dart`, leaving the Firebase SDK connected directly to production Firestore, Firebase Storage, and Cloud Functions even during debug runs.
+- **Dynamic Hosting and Storage URL Resolution**: When `USE_CLOUD_RESOURCES` is `true` or when running in release mode (`kReleaseMode`), resolve guest sharing URLs and preview URLs to production Firebase Hosting (`https://moment-aad8b.web.app/?gif=...`) and Google Cloud Storage (`https://firebasestorage.googleapis.com/...`) instead of local coordinator ports 5000 and 9199.
+- **Operator Dashboard Visual Badge**: Render a prominent but non-intrusive `"EMULATOR"` badge in the Operator Dashboard header when connected to local Firebase emulators during debug mode. When connected to live cloud resources (either in release mode or in debug mode with `USE_CLOUD_RESOURCES=true`), omit the badge entirely.
+- **Coordinator & Capture Invariants**: Retain the local Go coordinator connection and strict 3-camera minimum for capture triggers across all environments.
+
+### Rationale
+- **Single-Device Troubleshooting**: Setting up the full Firebase emulator suite (Firestore on 8082, Storage on 9199, Functions on 5001, Hosting on 5000) bound to 0.0.0.0 and configuring host firewalls is cumbersome when a developer only needs to test or debug on a single physical phone. Forcing cloud resources eliminates local emulator dependencies while preserving normal app behavior.
+- **Compile-Time Explicitness**: Using a `--dart-define` flag ensures clean, zero-overhead dead code elimination and prevents accidental production build leaks, while avoiding UI clutter on the camera setup screens.
+- **Visual Clarity**: Displaying the "EMULATOR" badge only when emulators are active ensures production/cloud mode feels clean and unmodified, while alerting developers when test data will route to local emulator processes.
+
+### Alternatives Considered
+- **In-App UI Toggle**: Evaluated as an interactive switch on the setup screen persisted in `SharedPreferences`. Rejected by user in favor of build-time flag `--dart-define=USE_CLOUD_RESOURCES=true`.
+- **Badging Cloud Mode**: Showing a badge when cloud mode is active was considered, but rejected in favor of badging local emulator mode, keeping live cloud operation badge-free.
+

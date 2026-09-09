@@ -374,3 +374,36 @@ Verify that frame duration and stitch length can be adjusted via the settings mo
 - Frame duration persists across app restarts in `SharedPreferences`.
 - Triggered captures transmit the configured duration and Cloud Functions stitches the GIF with the matching frame delay.
 
+---
+
+## Scenario 15: Forced Cloud Resources Debugging on Physical Device
+
+Verify that the app can run on a physical test device pointing to live Firebase cloud infrastructure without running local Firebase emulators on the developer workstation.
+
+### Steps
+1. Start the Go coordinator on your host machine:
+   ```bash
+   go run cmd/coordinator/main.go --port=8080 --ntp-port=1230
+   ```
+   *(Note: Do NOT start Firebase emulators).*
+2. Launch the Flutter app in debug mode with the cloud flag:
+   ```bash
+   fvm flutter run --dart-define=USE_CLOUD_RESOURCES=true
+   ```
+3. Navigate to Operator Mode and connect to the Go coordinator.
+4. Verify that the Operator Dashboard header does NOT display the `"EMULATOR"` badge.
+5. In a capture session (or mock session), verify that guest sharing QR code points to `https://moment-aad8b.web.app/?gif=...` and references `firebasestorage.googleapis.com`.
+6. Now, launch the Flutter app in debug mode WITHOUT the flag:
+   ```bash
+   fvm flutter run
+   ```
+7. Connect to the coordinator and enter Operator Mode.
+8. Verify that the Operator Dashboard header displays the `"EMULATOR"` badge.
+9. Verify that Firebase SDKs attempt connection to local ports `8082`, `9199`, and `5001`.
+
+### Expected Outcomes
+- Building with `--dart-define=USE_CLOUD_RESOURCES=true` completely bypasses local emulator redirects in debug builds.
+- The `"EMULATOR"` badge only appears when emulators are active in debug mode; no badge appears in cloud mode.
+- Guest QR codes dynamically target `https://moment-aad8b.web.app` when cloud resources are active.
+
+

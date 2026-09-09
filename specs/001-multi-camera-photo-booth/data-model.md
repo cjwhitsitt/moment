@@ -110,3 +110,22 @@ stateDiagram-v2
 | `last_connected_ip` | String | The last manually entered IP address that successfully completed the `operator_registered` WebSocket handshake. |
 | `camera_position_index` | Integer | The last selected Camera Node array position index (1-10) configuration. |
 | `frame_duration_ms` | Integer | The configured animation frame duration in milliseconds (50ms - 500ms, default: 100ms). |
+
+---
+
+## Build Environment & Compile-Time Flags
+
+### `--dart-define` Configuration
+
+| Flag | Type | Default | Description |
+|------|------|---------|-------------|
+| `USE_CLOUD_RESOURCES` | Boolean | `false` | When `true` in debug builds, forces the client application to bypass local Firebase emulators (Firestore on 8082, Storage on 9199, Functions on 5001) and connect directly to live Firebase cloud infrastructure. Also switches guest landing page QR code generation to `https://moment-aad8b.web.app/?gif=...` and hides the Operator Dashboard "EMULATOR" visual badge. |
+
+### Environment State Matrix
+
+| Build Mode | `USE_CLOUD_RESOURCES` | Firebase Target | Hosting Base URL | Storage Domain | Operator Badge |
+|------------|-----------------------|-----------------|------------------|----------------|----------------|
+| Debug (`!kReleaseMode`) | `false` (default) | Local Emulators (`host:8082`, `host:9199`, `host:5001`) | `http://<coordinator-ip>:5000` | `http://<coordinator-ip>:9199` | `"EMULATOR"` |
+| Debug (`!kReleaseMode`) | `true` | Live Cloud | `https://moment-aad8b.web.app` | `https://firebasestorage.googleapis.com` | None |
+| Release (`kReleaseMode`) | Ignored (`true`) | Live Cloud | `https://moment-aad8b.web.app` | `https://firebasestorage.googleapis.com` | None |
+

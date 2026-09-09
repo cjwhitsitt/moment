@@ -2,10 +2,12 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image/image.dart' as img;
+import 'emulator_config_service.dart';
 
 class UploadService {
   /// Connects the Firebase Storage SDK to the local emulator running on the coordinator host.
   static void configureEmulator(String host, int port) {
+    if (!EmulatorConfigService.shouldUseEmulators) return;
     try {
       FirebaseStorage.instance.useStorageEmulator(host, port);
     } catch (e) {

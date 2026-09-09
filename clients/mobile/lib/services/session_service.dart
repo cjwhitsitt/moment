@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'emulator_config_service.dart';
 
 class SessionService {
   /// Connects the Firestore SDK to the local emulator running on the coordinator host.
   static void configureEmulator(String host, int port) {
+    if (!EmulatorConfigService.shouldUseEmulators) return;
     try {
       FirebaseFirestore.instance.settings = const Settings(
         persistenceEnabled: false,

@@ -9,6 +9,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'services/websocket_client.dart';
 import 'services/upload_service.dart';
 import 'services/session_service.dart';
+import 'services/emulator_config_service.dart';
 import 'bloc/sync_bloc.dart';
 import 'bloc/operator/operator_bloc.dart';
 import 'ui/operator_dashboard_page.dart';
@@ -132,7 +133,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
 
   void _configureEmulators(String wsUrl) {
-    if (kReleaseMode) return;
+    if (!EmulatorConfigService.shouldUseEmulators) return;
     
     final uri = Uri.parse(wsUrl.replaceFirst('ws://', 'http://'));
     final host = uri.host;

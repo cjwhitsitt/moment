@@ -6,8 +6,20 @@ import 'package:flutter/foundation.dart';
 class EmulatorConfigService {
   static bool _configured = false;
 
+  /// Returns true if live cloud resources are forced via compile-time flag.
+  static bool get isCloudForced =>
+      const bool.fromEnvironment('USE_CLOUD_RESOURCES', defaultValue: false);
+
+  /// Returns true if local Firebase emulators should be used.
+  /// Emulators are used ONLY when running in debug/profile mode (!kReleaseMode)
+  /// AND USE_CLOUD_RESOURCES is NOT true.
+  static bool get shouldUseEmulators => !kReleaseMode && !isCloudForced;
+
+  /// Returns true if the service has successfully configured emulators in this session.
+  static bool get isConfigured => _configured;
+
   static void configure(String wsUrl) {
-    if (_configured || kReleaseMode) return;
+    if (_configured || !shouldUseEmulators) return;
 
     try {
       final uri = Uri.parse(wsUrl.replaceFirst('ws://', 'http://'));
@@ -30,4 +42,10 @@ class EmulatorConfigService {
       // Ignored if already configured or connected
     }
   }
+
+  @visibleForTesting
+  static void resetForTesting() {
+    _configured = false;
+  }
 }
+
